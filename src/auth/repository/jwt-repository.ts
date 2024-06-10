@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from '../entities/user.entity';
+import { Jwt } from '../entities/jwt.entity';
 
 @Injectable()
 export class JwtRepository {
   constructor(
-    @InjectModel(User)
-    private readonly user: typeof User,
+    @InjectModel(Jwt)
+    private readonly jwt: typeof Jwt,
   ) {}
-  async update(
-    userId: number,
-    token: string,
-  ): Promise<[affectedCount: number]> {
-    return this.user.update({ token: token }, { where: { id: userId } });
+  async upsert(token: {
+    userId: number;
+    token: string;
+  }): Promise<[Jwt, boolean]> {
+    return this.jwt.upsert(token);
   }
   async remove(userId: number) {
-    return this.user.update(
+    return this.jwt.update(
       { token: null },
       {
         where: { id: userId },
@@ -23,7 +23,9 @@ export class JwtRepository {
     );
   }
 
-  async findOne(userId: number, token: string): Promise<User> {
-    return this.user.findOne({ where: { id: userId, token: token } });
+  async findOne(userId: number): Promise<Jwt | null> {
+    return this.jwt.findOne({
+      where: { userId: userId },
+    });
   }
 }

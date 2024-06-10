@@ -26,7 +26,7 @@ export class VerifyService {
       !verificationCodes ||
       verificationCodes.verificationCodeExpiresAt < new Date()
     )
-      throw new BadRequestException('Bad Request');
+      throw new BadRequestException('Bad Requestddd');
 
     await this.authRepository
       .isVerified(verificationCodes.userId)

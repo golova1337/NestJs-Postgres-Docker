@@ -19,10 +19,11 @@ import { VerifyService } from './services/verify.service';
 import { VerifyController } from './controllers/verify.controller';
 import { VerificationRepository } from './repository/verification-repository';
 import { LoginByPhoneConstraint } from './decorators/class-validator/loginByPhone';
+import { Jwt } from './entities/jwt.entity';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([User, VerificationCodes]),
+    SequelizeModule.forFeature([User, VerificationCodes, Jwt]),
     JwtModule.register({}),
     BullModule.registerQueue({
       name: 'phone-sms',

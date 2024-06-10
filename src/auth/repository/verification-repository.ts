@@ -8,11 +8,11 @@ export class VerificationRepository {
     @InjectModel(VerificationCodes)
     private verificationCodesModel: typeof VerificationCodes,
   ) {}
-  async create(data: {
+  async upsert(data: {
     verificationCode: string;
     userId: string;
-  }): Promise<VerificationCodes> {
-    return this.verificationCodesModel.create(data);
+  }): Promise<[VerificationCodes, boolean]> {
+    return this.verificationCodesModel.upsert(data);
   }
   async findOne(code: string): Promise<VerificationCodes | null> {
     return this.verificationCodesModel.findOne({

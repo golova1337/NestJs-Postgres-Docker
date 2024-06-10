@@ -20,6 +20,7 @@ export class LoginByEmailConstraint implements ValidatorConstraintInterface {
       .catch((error) => {
         throw new InternalServerErrorException('Server Error');
       });
+
     return !!user;
   }
 

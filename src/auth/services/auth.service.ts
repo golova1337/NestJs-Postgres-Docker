@@ -24,13 +24,13 @@ export class AuthService {
   constructor(
     @InjectQueue('phone-sms') private phoneSmsQueue: Queue,
     @InjectQueue('email-sms') private emailSmsQueue: Queue,
-    private readonly authRepository: AuthRepository,
     private readonly jwtTokenService: JwtTokenService,
+    private readonly authRepository: AuthRepository,
     private readonly jwtRepository: JwtRepository,
     private readonly verificationRepository: VerificationRepository,
   ) {}
 
-  async create(singInAuthDto: SingInAuthDto): Promise<User> {
+  async create(singInAuthDto: SingInAuthDto): Promise<{ data: User }> {
     singInAuthDto.password = await bcrypt
       .hash(singInAuthDto.password, 10)
       .catch((error) => {
@@ -69,22 +69,27 @@ export class AuthService {
     const user: User = await this.authRepository
       .create(singInAuthDto)
       .catch((error) => {
-        this.logger.error(error);
+        this.logger.error(`create user: ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
     delete user.dataValues.password;
 
-    await this.verificationRepository.create({
-      verificationCode,
-      userId: user.id,
-    });
+    await this.verificationRepository
+      .upsert({
+        verificationCode,
+        userId: user.id,
+      })
+      .catch((error) => {
+        this.logger.error(`create verificationRepository: ${error}`);
+        throw new InternalServerErrorException('Server Error');
+      });
 
-    return user;
+    return { data: user };
   }
 
-  async login(
-    loginAuthDto: LoginAuthDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(loginAuthDto: LoginAuthDto): Promise<{
+    data: { accessToken: string; refreshToken: string };
+  }> {
     let user: User;
     switch (loginAuthDto.registrationMethod) {
       case 'phone':
@@ -107,12 +112,14 @@ export class AuthService {
 
     const hashToken = await this.jwtTokenService.hashData(refreshToken);
 
-    await this.jwtRepository.update(user.id, hashToken).catch((error) => {
-      this.logger.error(`create jwt: ${error}`);
-      throw new InternalServerErrorException('Server Error');
-    });
+    await this.jwtRepository
+      .upsert({ userId: user.id, token: hashToken })
+      .catch((error) => {
+        this.logger.error(`create jwt: ${error}`);
+        throw new InternalServerErrorException('Server Error');
+      });
 
-    return { accessToken, refreshToken };
+    return { data: { accessToken, refreshToken } };
   }
 
   async logout(userId: number): Promise<void> {
@@ -122,18 +129,21 @@ export class AuthService {
     });
   }
 
-  async refresh(jwtPayload: JwtPayload) {
+  async refresh(jwtPayload: JwtPayload): Promise<{
+    data: {
+      accessToken: string;
+      refreshToken: string;
+    };
+  }> {
     const { id, role, refreshToken } = jwtPayload;
-    const user = await this.jwtRepository
-      .findOne(+id, refreshToken)
-      .catch((error) => {
-        this.logger.error(error);
-        throw new InternalServerErrorException('Server Error');
-      });
+    const token = await this.jwtRepository.findOne(+id).catch((error) => {
+      this.logger.error(error);
+      throw new InternalServerErrorException('Server Error');
+    });
 
-    if (!user || !user.token) throw new UnauthorizedException('Unauthorized');
+    if (!token || !token.token) throw new UnauthorizedException('Unauthorized');
     const compare = await this.jwtTokenService
-      .compare(refreshToken, user.token)
+      .compare(refreshToken, token.token)
       .catch((error) => {
         throw new InternalServerErrorException('Server Error');
       });
@@ -142,16 +152,27 @@ export class AuthService {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const tokens = await this.jwtTokenService
-      .getTokens(+id, role)
-      .catch((error) => {
-        throw new InternalServerErrorException('Server Error');
-      });
+    const tokens: {
+      accessToken: string;
+      refreshToken: string;
+    } = await this.jwtTokenService.getTokens(+id, role).catch((error) => {
+      throw new InternalServerErrorException('Server Error');
+    });
 
-    const hashToken = await this.jwtTokenService.hashData(tokens.refreshToken);
+    const hashToken: string = await this.jwtTokenService.hashData(
+      tokens.refreshToken,
+    );
 
-    const result = await this.jwtRepository.update(+id, hashToken);
-    return tokens;
+    await this.jwtRepository.upsert({
+      userId: +id,
+      token: tokens.refreshToken,
+    });
+    return {
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      },
+    };
   }
 
   async remove(id: number, password: string): Promise<void> {

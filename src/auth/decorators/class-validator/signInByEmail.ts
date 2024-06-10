@@ -14,6 +14,7 @@ export class SingInByEmailConstraint implements ValidatorConstraintInterface {
 
   async validate(email: string): Promise<boolean> {
     const user: User = await this.authRepository.findOneByEmail(email);
+
     return !user;
   }
 

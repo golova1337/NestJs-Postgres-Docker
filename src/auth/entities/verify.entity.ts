@@ -15,16 +15,19 @@ export interface VerificationAttributes {
   userId: string;
   verificationCode: string;
   verificationCodeExpiresAt: string;
+  deletedAt: Date;
 }
 
 export interface VerificationCreationAttributes
   extends Optional<
     VerificationAttributes,
-    'id' | 'verificationCodeExpiresAt'
+    'id' | 'verificationCodeExpiresAt' | 'deletedAt'
   > {}
 
 @Table({
   tableName: 'verification_codes',
+  paranoid: true,
+  timestamps: true,
   schema: 'store',
 })
 export class VerificationCodes extends Model<
@@ -34,6 +37,7 @@ export class VerificationCodes extends Model<
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
+    unique: true,
     allowNull: false,
   })
   userId: number;
@@ -50,6 +54,9 @@ export class VerificationCodes extends Model<
     defaultValue: new Date(Date.now() + Time.fifteenMinutes),
   })
   verificationCodeExpiresAt?: Date;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  deletedAt?: Date;
 
   @BelongsTo(() => User)
   user: User;

@@ -1,8 +1,16 @@
 import { Optional } from 'sequelize';
-import { Table, Model, Column, DataType, HasMany } from 'sequelize-typescript';
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  HasMany,
+  HasOne,
+} from 'sequelize-typescript';
 import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { VerificationCodes } from './verify.entity';
+import { Jwt } from './jwt.entity';
 
 export interface PersonAttributes {
   id: number;
@@ -79,6 +87,9 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
   })
   registrationMethod: RegistrationMethod;
 
-  @HasMany(() => VerificationCodes)
-  userId: VerificationCodes;
+  @HasOne(() => VerificationCodes)
+  verificationCode: VerificationCodes;
+
+  @HasOne(() => Jwt)
+  jwt: Jwt;
 }

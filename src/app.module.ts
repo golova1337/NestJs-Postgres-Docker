@@ -10,6 +10,7 @@ import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
 import { VerificationCodes } from './auth/entities/verify.entity';
+import { Jwt } from './auth/entities/jwt.entity';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { VerificationCodes } from './auth/entities/verify.entity';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       schema: 'store',
-      models: [User, VerificationCodes],
+      models: [User, VerificationCodes, Jwt],
       pool: {
         max: 10,
         min: 3,

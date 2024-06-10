@@ -20,6 +20,7 @@ import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { RemoveAccountDto } from '../dto/remove-account.dto';
 import { JwtPayload } from '../../common/strategies/accessToken.strategy';
 import { AuthService } from '../services/auth.service';
+import { CommonResponse, Response, Result } from 'src/common/response/response';
 
 @Controller('auth')
 export class AuthController {
@@ -28,9 +29,11 @@ export class AuthController {
   @Post()
   @HttpCode(201)
   @Public()
-  async singIn(@Body() singInAuthDto: SingInAuthDto): Promise<User> {
-    const result: User = await this.authService.create(singInAuthDto);
-    return result;
+  async singIn(
+    @Body() singInAuthDto: SingInAuthDto,
+  ): Promise<CommonResponse<User>> {
+    const result: Result<User> = await this.authService.create(singInAuthDto);
+    return Response.succsessfully(result);
   }
 
   @Get()
@@ -39,10 +42,10 @@ export class AuthController {
   async login(
     @Req() req: Request,
     @Body() loginAuthDto: LoginAuthDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const result: { accessToken: string; refreshToken: string } =
+  ): Promise<CommonResponse<{ accessToken: string; refreshToken: string }>> {
+    const result: Result<{ accessToken: string; refreshToken: string }> =
       await this.authService.login(loginAuthDto);
-    return result;
+    return Response.succsessfully(result);
   }
 
   @HttpCode(204)
@@ -62,11 +65,12 @@ export class AuthController {
   @HttpCode(200)
   async refresh(
     @Req() req: Request,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<CommonResponse<{ accessToken: string; refreshToken: string }>> {
     const jwtPayload: JwtPayload = req['user'];
 
-    const result = await this.authService.refresh(jwtPayload);
-    return result;
+    const result: Result<{ accessToken: string; refreshToken: string }> =
+      await this.authService.refresh(jwtPayload);
+    return Response.succsessfully(result);
   }
 
   @Delete('/remove-account')

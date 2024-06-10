@@ -9,7 +9,7 @@ export class JwtTokenService {
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
-  hashData(data: string) {
+  hashData(data: string): Promise<string> {
     return bcrypt.hash(data, 10);
   }
   async compare(token: string, hashToken: string) {
