@@ -51,7 +51,7 @@ export class VerificationCodes extends Model<
   @Column({
     type: DataType.DATE,
     allowNull: true,
-    defaultValue: new Date(Date.now() + Time.fifteenMinutes),
+    defaultValue: new Date(Date.now() + Time.tenMinutes),
   })
   verificationCodeExpiresAt?: Date;
 

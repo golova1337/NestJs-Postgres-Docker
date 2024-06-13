@@ -11,6 +11,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
 import { VerificationCodes } from './auth/entities/verify.entity';
 import { Jwt } from './auth/entities/jwt.entity';
+import { UserModule } from './user/user.module';
+import { UserAddress } from './user/entities/address.entity';
 
 @Module({
   imports: [
@@ -43,7 +45,7 @@ import { Jwt } from './auth/entities/jwt.entity';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       schema: 'store',
-      models: [User, VerificationCodes, Jwt],
+      models: [User, VerificationCodes, Jwt, UserAddress],
       pool: {
         max: 10,
         min: 3,
@@ -52,6 +54,7 @@ import { Jwt } from './auth/entities/jwt.entity';
       synchronize: true,
     }),
     AuthModule,
+    UserModule,
   ],
   controllers: [],
   providers: [

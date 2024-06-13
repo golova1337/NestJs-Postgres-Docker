@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { SingInAuthDto } from '../dto/create-auth.dto';
-import { AuthRepository } from '../repository/user-repository';
+import { AuthRepository } from '../repository/auth-repository';
 import { User } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { LoginAuthDto } from '../dto/login-auth.dto';
@@ -13,18 +13,16 @@ import { JwtTokenService } from './jwt.service';
 import { JwtRepository } from '../repository/jwt-repository';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
-import { verifyCode } from 'src/utils/verify/verify';
+import { verifyCode } from 'src/utils/verify/verifyCode';
 import { VerificationRepository } from '../repository/verification-repository';
+import { SendCodeService } from './sendCode.service';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new EmojiLogger();
   constructor(
-    @InjectQueue('phone-sms') private phoneSmsQueue: Queue,
-    @InjectQueue('email-sms') private emailSmsQueue: Queue,
     private readonly jwtTokenService: JwtTokenService,
+    private readonly sendCodeService: SendCodeService,
     private readonly authRepository: AuthRepository,
     private readonly jwtRepository: JwtRepository,
     private readonly verificationRepository: VerificationRepository,
@@ -41,30 +39,6 @@ export class AuthService {
     delete singInAuthDto.passwordRepeat;
 
     const verificationCode = await verifyCode();
-
-    switch (singInAuthDto.registrationMethod) {
-      case 'email':
-        await this.emailSmsQueue.add(
-          'email',
-          {
-            email: singInAuthDto.email,
-            code: verificationCode,
-          },
-          { delay: 3000, priority: 1 },
-        );
-        break;
-      case 'phone':
-        await this.phoneSmsQueue.add(
-          'phone',
-          {
-            phone: singInAuthDto.numbers,
-            code: verificationCode,
-          },
-          { delay: 3000, priority: 1 },
-        );
-      default:
-        break;
-    }
 
     const user: User = await this.authRepository
       .create(singInAuthDto)
@@ -83,7 +57,10 @@ export class AuthService {
         this.logger.error(`create verificationRepository: ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
-
+    await this.sendCodeService.send({
+      ...singInAuthDto,
+      code: verificationCode,
+    });
     return { data: user };
   }
 
@@ -173,26 +150,5 @@ export class AuthService {
         refreshToken: tokens.refreshToken,
       },
     };
-  }
-
-  async remove(id: number, password: string): Promise<void> {
-    const user: User = await this.authRepository.finbByPk(id).catch((error) => {
-      this.logger.error(`user: ${error}`);
-      throw new InternalServerErrorException('Server Error');
-    });
-
-    const compare: boolean = await bcrypt
-      .compare(password, user.password)
-      .catch((error) => {
-        this.logger.error(`compare: ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-
-    if (!compare) throw new BadRequestException('Password is incorect');
-
-    await this.authRepository.remove(id).catch((error) => {
-      this.logger.error(`remove: ${error}`);
-      throw new InternalServerErrorException('Server Error');
-    });
   }
 }

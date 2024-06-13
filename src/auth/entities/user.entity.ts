@@ -1,19 +1,15 @@
 import { Optional } from 'sequelize';
-import {
-  Table,
-  Model,
-  Column,
-  DataType,
-  HasMany,
-  HasOne,
-} from 'sequelize-typescript';
+import { Table, Model, Column, DataType, HasOne, HasMany } from 'sequelize-typescript';
 import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { VerificationCodes } from './verify.entity';
 import { Jwt } from './jwt.entity';
+import { UserAddress } from 'src/user/entities/address.entity';
 
 export interface PersonAttributes {
   id: number;
+  name: string;
+  lastname: string;
   email: string;
   numbers: string;
   password: string;
@@ -23,7 +19,10 @@ export interface PersonAttributes {
 }
 
 export interface PersonCreationAttributes
-  extends Optional<PersonAttributes, 'id' | 'role' | 'token' | 'isVerified'> {}
+  extends Optional<
+    PersonAttributes,
+    'id' | 'role' | 'token' | 'isVerified' | 'name' | 'lastname'
+  > {}
 
 @Table({
   timestamps: true,
@@ -32,6 +31,12 @@ export interface PersonCreationAttributes
   schema: 'store',
 })
 export class User extends Model<PersonAttributes, PersonCreationAttributes> {
+  @Column({ type: DataType.STRING(32), unique: false, allowNull: true })
+  name?: string;
+
+  @Column({ type: DataType.STRING(52), unique: false, allowNull: true })
+  lastname?: string;
+
   @Column({
     type: DataType.STRING(32),
     unique: true,
@@ -71,9 +76,6 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
   })
   role?: Roles;
 
-  @Column({ type: DataType.STRING, allowNull: true, defaultValue: null })
-  token?: string;
-
   @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
@@ -92,4 +94,7 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
 
   @HasOne(() => Jwt)
   jwt: Jwt;
+
+  @HasMany(() => UserAddress)
+  address: UserAddress[];
 }

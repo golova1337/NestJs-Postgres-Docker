@@ -4,8 +4,8 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { User } from '../../entities/user.entity';
-import { AuthRepository } from '../../repository/user-repository';
+import { User } from '../../../entities/user.entity';
+import { AuthRepository } from '../../../repository/auth-repository';
 
 @ValidatorConstraint({ name: 'isEmailExist', async: true })
 @Injectable()

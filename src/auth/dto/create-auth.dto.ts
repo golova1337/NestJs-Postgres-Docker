@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   Length,
@@ -10,13 +11,25 @@ import {
   Validate,
   ValidateIf,
 } from 'class-validator';
-import { SingInByEmailConstraint } from '../decorators/class-validator/signInByEmail';
-import { IsPasswordsMatchingConstraint } from '../decorators/class-validator/isPasswordsMatching';
+import { SingInByEmailConstraint } from '../decorators/class-validator/singIn/signInByEmail';
+import { IsPasswordsMatchingConstraint } from '../decorators/class-validator/singIn/isPasswordsMatching';
 import { Transform } from 'class-transformer';
 import { RegistrationMethod } from '../enums/registMethod-enum';
-import { SingInByPhoneConstraint } from '../decorators/class-validator/singInByPhone';
+import { SingInByPhoneConstraint } from '../decorators/class-validator/singIn/singInByPhone';
 
 export class SingInAuthDto {
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
+  @Length(2, 32)
+  name?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
+  @Length(2, 32)
+  lastname?: string;
+
   @ValidateIf((o) => !o.numbers)
   @IsDefined()
   @Transform(({ value }) => value.trim())

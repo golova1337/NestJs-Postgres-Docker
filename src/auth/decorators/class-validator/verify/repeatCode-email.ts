@@ -4,22 +4,25 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { User } from '../../entities/user.entity';
-import { AuthRepository } from '../../repository/user-repository';
+import { User } from '../../../entities/user.entity';
+import { AuthRepository } from '../../../repository/auth-repository';
 
-@ValidatorConstraint({ name: 'isNumberExist', async: true })
+@ValidatorConstraint({ name: 'isEmailExist', async: true })
 @Injectable()
-export class LoginByPhoneConstraint implements ValidatorConstraintInterface {
+export class RepeatSendCodeByEmailConstraint
+  implements ValidatorConstraintInterface
+{
   constructor(private readonly authRepository: AuthRepository) {}
 
-  async validate(numbers: string): Promise<boolean> {
-    const user: Partial<User | null> | void = await this.authRepository
-      .findOneByPhone(numbers, {
-        isVerified: true,
+  async validate(email: string): Promise<boolean> {
+    const user: User = await this.authRepository
+      .findOneByEmail(email, {
+        isVerified: false,
       })
       .catch((error) => {
         throw new InternalServerErrorException('Server Error');
       });
+
     return !!user;
   }
 

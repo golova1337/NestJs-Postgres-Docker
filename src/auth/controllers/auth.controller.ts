@@ -7,7 +7,6 @@ import {
   Patch,
   Req,
   HttpCode,
-  Delete,
 } from '@nestjs/common';
 import { SingInAuthDto } from '../dto/create-auth.dto';
 import { User } from '../entities/user.entity';
@@ -17,7 +16,6 @@ import { Request } from 'express';
 import { Public } from 'src/common/decorators/public/public';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
-import { RemoveAccountDto } from '../dto/remove-account.dto';
 import { JwtPayload } from '../../common/strategies/accessToken.strategy';
 import { AuthService } from '../services/auth.service';
 import { CommonResponse, Response, Result } from 'src/common/response/response';
@@ -71,19 +69,5 @@ export class AuthController {
     const result: Result<{ accessToken: string; refreshToken: string }> =
       await this.authService.refresh(jwtPayload);
     return Response.succsessfully(result);
-  }
-
-  @Delete('/remove-account')
-  @Roles('user', 'admin')
-  @UseGuards(RolesGuard)
-  @HttpCode(204)
-  async remove(
-    @Req() req: Request,
-    @Body() body: RemoveAccountDto,
-  ): Promise<void> {
-    const id = req['user']['id'];
-    const password: string = body.password;
-    await this.authService.remove(+id, password);
-    return;
   }
 }

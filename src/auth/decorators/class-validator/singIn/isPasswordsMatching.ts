@@ -4,7 +4,7 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { SingInAuthDto } from '../../dto/create-auth.dto';
+import { SingInAuthDto } from '../../../dto/create-auth.dto';
 
 @ValidatorConstraint({ name: 'isPasswordsMatching', async: false })
 @Injectable()

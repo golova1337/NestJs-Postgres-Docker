@@ -6,16 +6,15 @@ import {
   IsPhoneNumber,
   IsString,
   Length,
-  Matches,
   Validate,
   ValidateIf,
 } from 'class-validator';
-import { LoginByEmailConstraint } from '../decorators/class-validator/login/loginByEmail';
 import { Transform } from 'class-transformer';
-import { LoginByPhoneConstraint } from '../decorators/class-validator/login/loginByPhone';
 import { RegistrationMethod } from '../enums/registMethod-enum';
+import { RepeatSendCodeByPhoneConstraint } from '../decorators/class-validator/verify/repeatCode-phone';
+import { RepeatSendCodeByEmailConstraint } from '../decorators/class-validator/verify/repeatCode-email';
 
-export class LoginAuthDto {
+export class RepeatSendCode {
   @ValidateIf((o) => !o.numbers)
   @IsDefined()
   @IsNotEmpty()
@@ -24,7 +23,7 @@ export class LoginAuthDto {
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
   })
-  @Validate(LoginByEmailConstraint)
+  @Validate(RepeatSendCodeByEmailConstraint)
   email: string;
 
   @ValidateIf((o) => !o.email)
@@ -35,17 +34,8 @@ export class LoginAuthDto {
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
-  @Validate(LoginByPhoneConstraint)
+  @Validate(RepeatSendCodeByPhoneConstraint)
   numbers: string;
-
-  @IsDefined()
-  @IsString()
-  @Length(8, 32)
-  @Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!/\_@#$%^&*()]).{8,}$/, {
-    message:
-      'must contain at least 1 uppercase letter, 1 number, and 1 symbol: ?=.[!/_@#$%^&()',
-  })
-  password: string;
 
   @IsEnum(RegistrationMethod)
   @IsDefined()

@@ -24,7 +24,7 @@ export class PhoneConsumer {
         from: this.numbers,
       });
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(`Phone sending: ${error}`);
     }
   }
 }

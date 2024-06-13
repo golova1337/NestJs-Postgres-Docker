@@ -1,3 +1,3 @@
 export enum Time {
-  fifteenMinutes = 10 * 60 * 1000,
+  tenMinutes = 10 * 60 * 1000,
 }

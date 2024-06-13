@@ -32,12 +32,4 @@ export class AuthRepository {
       { where: { id: userId } },
     );
   }
-
-  async remove(id: number) {
-    return this.userModel.destroy({ where: { id: id } });
-  }
-
-  async finbByPk(id: number): Promise<User | null> {
-    return this.userModel.findByPk(id);
-  }
 }
