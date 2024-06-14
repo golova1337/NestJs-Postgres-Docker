@@ -10,7 +10,7 @@ export class UserRepository {
     return this.userModel.findByPk(id);
   }
 
-  async remove(id: number) {
+  async removeAccount(id: number) {
     return this.userModel.destroy({ where: { id: id } });
   }
   async updateEmail(

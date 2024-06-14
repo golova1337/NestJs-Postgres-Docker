@@ -1,10 +1,18 @@
 import { Optional } from 'sequelize';
-import { Table, Model, Column, DataType, HasOne, HasMany } from 'sequelize-typescript';
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  HasOne,
+  HasMany,
+} from 'sequelize-typescript';
 import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { VerificationCodes } from './verify.entity';
 import { Jwt } from './jwt.entity';
 import { UserAddress } from 'src/user/entities/address.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 export interface PersonAttributes {
   id: number;

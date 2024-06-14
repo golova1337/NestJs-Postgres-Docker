@@ -14,8 +14,10 @@ import { LoginByEmailConstraint } from '../decorators/class-validator/login/logi
 import { Transform } from 'class-transformer';
 import { LoginByPhoneConstraint } from '../decorators/class-validator/login/loginByPhone';
 import { RegistrationMethod } from '../enums/registMethod-enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginAuthDto {
+  @ApiProperty({ required: false, example: 'john1995@gmail.com' })
   @ValidateIf((o) => !o.numbers)
   @IsDefined()
   @IsNotEmpty()
@@ -27,6 +29,7 @@ export class LoginAuthDto {
   @Validate(LoginByEmailConstraint)
   email: string;
 
+  @ApiProperty({ required: false, example: '+380735433445' })
   @ValidateIf((o) => !o.email)
   @IsDefined()
   @Transform(({ value }) => value.trim())
@@ -38,6 +41,7 @@ export class LoginAuthDto {
   @Validate(LoginByPhoneConstraint)
   numbers: string;
 
+  @ApiProperty({ required: true, example: 'Example12345!' })
   @IsDefined()
   @IsString()
   @Length(8, 32)
@@ -47,6 +51,7 @@ export class LoginAuthDto {
   })
   password: string;
 
+  @ApiProperty({ required: true, example: 'email' })
   @IsEnum(RegistrationMethod)
   @IsDefined()
   @IsNotEmpty()

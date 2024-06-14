@@ -1,5 +1,5 @@
-import { PickType } from '@nestjs/mapped-types';
-import { SingInAuthDto } from './create-auth.dto';
+import { PickType } from '@nestjs/swagger';
+import { SingInAuthDto } from '../../auth/dto/create-auth.dto';
 
 export class RemoveAccountDto extends PickType(SingInAuthDto, [
   'password',

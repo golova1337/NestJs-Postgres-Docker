@@ -16,20 +16,24 @@ import { IsPasswordsMatchingConstraint } from '../decorators/class-validator/sin
 import { Transform } from 'class-transformer';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { SingInByPhoneConstraint } from '../decorators/class-validator/singIn/singInByPhone';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class SingInAuthDto {
+  @ApiProperty({ required: false, example: 'John' })
   @IsOptional()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @Length(2, 32)
   name?: string;
 
+  @ApiProperty({ required: false, example: 'Cena' })
   @IsOptional()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @Length(2, 32)
   lastname?: string;
 
+  @ApiProperty({ required: false, example: 'john1995@gmail.com' })
   @ValidateIf((o) => !o.numbers)
   @IsDefined()
   @Transform(({ value }) => value.trim())
@@ -42,6 +46,8 @@ export class SingInAuthDto {
   @Validate(SingInByEmailConstraint)
   email: string;
 
+  @ApiProperty({ required: false, example: '+380735433445' })
+  @ApiProperty({ required: false })
   @ValidateIf((o) => !o.email)
   @IsDefined()
   @Transform(({ value }) => value.trim())
@@ -53,6 +59,7 @@ export class SingInAuthDto {
   @Validate(SingInByPhoneConstraint)
   numbers: string;
 
+  @ApiProperty({ required: true, example: 'Example12345!' })
   @IsDefined()
   @IsString()
   @Length(8, 32)
@@ -62,6 +69,7 @@ export class SingInAuthDto {
   })
   password: string;
 
+  @ApiProperty({ required: true, example: 'Example12345!' })
   @IsDefined()
   @IsString()
   @Length(8, 32)
@@ -72,8 +80,9 @@ export class SingInAuthDto {
   @Validate(IsPasswordsMatchingConstraint)
   passwordRepeat: string;
 
-  @IsEnum(RegistrationMethod)
+  @ApiProperty({ required: true, example: 'email' })
   @IsDefined()
+  @IsEnum(RegistrationMethod)
   @IsNotEmpty()
   registrationMethod: RegistrationMethod;
 }

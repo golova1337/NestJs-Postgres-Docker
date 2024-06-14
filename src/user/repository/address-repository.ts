@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserAddress } from '../entities/address.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateAddressUserDto } from '../dto/create-address.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class AddressRepository {
@@ -20,6 +21,12 @@ export class AddressRepository {
   }): Promise<[affectedCount: number]> {
     return this.userAddress.update(data.updateAddress, {
       where: { id: data.addressId, userId: data.id },
+    });
+  }
+
+  async remove(data: { ids: string[]; userId: string }) {
+    return this.userAddress.destroy({
+      where: { id: { [Op.in]: data.ids }, userId: data.userId },
     });
   }
 }

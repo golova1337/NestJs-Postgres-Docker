@@ -9,17 +9,22 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new EmojiLogger(),
   });
-  // app.setGlobalPrefix('v1/api');
-  app.useGlobalPipes(new ValidationPipe());
+  app.setGlobalPrefix('v1/api');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  const port = parseInt(process.env.PORT, 10) || 3000;
+
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Shope')
     .setVersion('1.0')
-    .addTag('cats')
+    .setDescription('The projects API description')
+    .addServer(`http://localhost:${port}/', 'Local environment`)
+    .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('api', app, document);
-  await app.listen(parseInt(process.env.PORT, 10) || 3000);
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen(port);
 }
 bootstrap();
