@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { JwtRepository } from '../repository/jwt-repository';
 
 @Injectable()
 export class JwtTokenService {
   constructor(
     private jwtService: JwtService,
+    private readonly jwtRepository: JwtRepository,
     private configService: ConfigService,
   ) {}
   hashData(data: string): Promise<string> {

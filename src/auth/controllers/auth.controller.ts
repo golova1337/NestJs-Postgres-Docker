@@ -5,14 +5,12 @@ import {
   Body,
   UseGuards,
   Patch,
-  Req,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { SingInAuthDto } from '../dto/create-auth.dto';
-import { User } from '../entities/user.entity';
 import { LoginAuthDto } from '../dto/login-auth.dto';
 import { RefreshTokenGuard } from 'src/common/guards/jwt/refreshToken.guard';
-import { Request } from 'express';
 import { Public } from 'src/common/decorators/public/public';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
@@ -24,14 +22,27 @@ import {
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { User } from '../entities/user.entity';
+import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
+import { VerifyService } from '../services/verify.service';
+import { RepeatSendCode } from '../dto/repeat-code.dto';
+import { SendCodeService } from '../services/sendCode.service';
+import { JwtTokenService } from '../services/jwt.service';
+import { VerificationCode } from '../entities/verify.entity';
 
 @ApiTags('Auth')
 @ApiInternalServerErrorResponse({ description: 'Server Error' })
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly verifyService: VerifyService,
+    private readonly sendCodeService: SendCodeService,
+    private readonly jwtTokenService: JwtTokenService,
+  ) {}
 
   @Post()
   @HttpCode(201)
@@ -46,6 +57,13 @@ export class AuthController {
     @Body() singInAuthDto: SingInAuthDto,
   ): Promise<CommonResponse<User>> {
     const result: Result<User> = await this.authService.create(singInAuthDto);
+
+    const code: string = await this.verifyService.create(result.data.id);
+
+    await this.sendCodeService.send({
+      ...result.data.dataValues,
+      code,
+    });
     return Response.succsessfully(result);
   }
 
@@ -59,7 +77,6 @@ export class AuthController {
   @HttpCode(200)
   @Public()
   async login(
-    @Req() req: Request,
     @Body() loginAuthDto: LoginAuthDto,
   ): Promise<CommonResponse<{ accessToken: string; refreshToken: string }>> {
     const result: Result<{ accessToken: string; refreshToken: string }> =
@@ -77,9 +94,8 @@ export class AuthController {
   @ApiCreatedResponse({ status: 204 })
   @Roles('user', 'admin')
   @UseGuards(RolesGuard)
-  async logout(@Req() req: Request): Promise<void> {
-    const userId: number = req['user']['id'];
-    await this.authService.logout(userId);
+  async logout(@CurrentUser('id') userId: string): Promise<void> {
+    await this.authService.logout(+userId);
     return;
   }
 
@@ -95,12 +111,42 @@ export class AuthController {
   @HttpCode(200)
   @ApiBearerAuth()
   async refresh(
-    @Req() req: Request,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CommonResponse<{ accessToken: string; refreshToken: string }>> {
-    const jwtPayload: JwtPayload = req['user'];
+    const tokens: Result<{ accessToken: string; refreshToken: string }> =
+      await this.authService.refresh(user);
+    return Response.succsessfully(tokens);
+  }
 
-    const result: Result<{ accessToken: string; refreshToken: string }> =
-      await this.authService.refresh(jwtPayload);
-    return Response.succsessfully(result);
+  @Get('verify')
+  @HttpCode(204)
+  @Public()
+  @ApiOperation({
+    summary: 'Verification account',
+    description:
+      'when you receive verification code you need to insert it in query and make request, then you can log In your account',
+  })
+  @ApiCreatedResponse({ status: 204 })
+  @ApiQuery({ name: 'code' })
+  async verify(@Query() query: { code: string }): Promise<void> {
+    const verificationCode: VerificationCode =
+      await this.verifyService.verify(query);
+    await this.authService.isVerified(verificationCode.userId);
+    await this.verifyService.remove(verificationCode.verificationCode);
+    return;
+  }
+
+  @Get('/repeat')
+  @HttpCode(204)
+  @ApiOperation({
+    summary: 'Resend the verification code.',
+    description: 'only for an account that has not been verified ',
+  })
+  @ApiCreatedResponse({ status: 204 })
+  @Public()
+  async repeatCode(@Body() body: RepeatSendCode): Promise<void> {
+    const verificationCode: string = await this.verifyService.repeatCode(body);
+    await this.sendCodeService.send({ ...body, code: verificationCode });
+    return;
   }
 }

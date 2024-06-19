@@ -17,7 +17,7 @@ async function bootstrap() {
     .setTitle('Shope')
     .setVersion('1.0')
     .setDescription('The projects API description')
-    .addServer(`http://localhost:${port}/', 'Local environment`)
+    .addServer(`${process.env.HOST}:${port}/', 'Local environment`)
     .setVersion('1.0')
     .addBearerAuth()
     .build();

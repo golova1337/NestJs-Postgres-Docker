@@ -18,7 +18,7 @@ export class JwtRepository {
     return this.jwt.update(
       { token: null },
       {
-        where: { id: userId },
+        where: { userId: userId },
       },
     );
   }

@@ -19,10 +19,10 @@ export class AuthRepository {
     });
   }
   async findOneByPhone(
-    numbers: string,
+    phone: string,
     additionalOptions?: Partial<User>,
   ): Promise<User> {
-    const whereOptions = { numbers, ...additionalOptions };
+    const whereOptions = { phone, ...additionalOptions };
     return this.userModel.findOne({ where: whereOptions });
   }
 

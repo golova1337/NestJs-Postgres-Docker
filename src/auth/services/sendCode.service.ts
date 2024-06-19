@@ -9,7 +9,7 @@ export class SendCodeService {
     @InjectQueue('email-sms') private emailSmsQueue: Queue,
   ) {}
   async send(messageParams: any) {
-    const { registrationMethod, email, numbers, code } = messageParams;
+    const { registrationMethod, email, phone, code } = messageParams;
 
     switch (registrationMethod) {
       case 'email':
@@ -26,7 +26,7 @@ export class SendCodeService {
         await this.phoneSmsQueue.add(
           'phone',
           {
-            phone: numbers,
+            phone: phone,
             code: code,
           },
           { delay: 3000, priority: 1 },

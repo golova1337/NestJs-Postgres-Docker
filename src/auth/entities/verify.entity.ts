@@ -30,7 +30,7 @@ export interface VerificationCreationAttributes
   timestamps: true,
   schema: 'store',
 })
-export class VerificationCodes extends Model<
+export class VerificationCode extends Model<
   VerificationAttributes,
   VerificationCreationAttributes
 > {

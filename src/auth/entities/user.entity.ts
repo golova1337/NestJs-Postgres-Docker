@@ -9,17 +9,16 @@ import {
 } from 'sequelize-typescript';
 import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
-import { VerificationCodes } from './verify.entity';
+import { VerificationCode } from './verify.entity';
 import { Jwt } from './jwt.entity';
 import { UserAddress } from 'src/user/entities/address.entity';
-import { ApiProperty } from '@nestjs/swagger';
 
 export interface PersonAttributes {
   id: number;
   name: string;
   lastname: string;
   email: string;
-  numbers: string;
+  phone: string;
   password: string;
   role: string;
   token: string;
@@ -57,7 +56,7 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
     unique: true,
     allowNull: true,
   })
-  numbers: string;
+  phone: string;
 
   @Column({
     type: DataType.STRING(160),
@@ -97,8 +96,8 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
   })
   registrationMethod: RegistrationMethod;
 
-  @HasOne(() => VerificationCodes)
-  verificationCode: VerificationCodes;
+  @HasOne(() => VerificationCode)
+  verificationCode: VerificationCode;
 
   @HasOne(() => Jwt)
   jwt: Jwt;

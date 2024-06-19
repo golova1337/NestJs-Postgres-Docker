@@ -22,14 +22,15 @@ import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { CreateAddressUserDto } from '../dto/create-address.dto';
 import { UserAddress } from '../entities/address.entity';
 import { RemoveAddressesDto } from '../dto/remove-address.dto';
-import { Request } from 'express';
+import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
 
 @ApiBearerAuth()
 @ApiTags('User-Address')
 @UseGuards(RolesGuard)
-@Controller('user/:id/cabinet/address')
+@Controller('user/cabinet/address')
 export class UserPersonalDataController {
   constructor(private readonly addressService: AddressService) {}
+
   @Roles('user', 'admin')
   @Post()
   @ApiOperation({
@@ -39,7 +40,7 @@ export class UserPersonalDataController {
   })
   @ApiCreatedResponse({ type: CommonResponse, status: 201 })
   async create(
-    @Param('id') id: string,
+    @CurrentUser('id') id: string,
     @Body() address: CreateAddressUserDto,
   ): Promise<CommonResponse<UserAddress>> {
     const result: { data: UserAddress } =
@@ -57,7 +58,7 @@ export class UserPersonalDataController {
   })
   @ApiCreatedResponse({ status: 204 })
   async update(
-    @Param('id') id: string,
+    @CurrentUser('id') id: string,
     @Body() updateAddress: CreateAddressUserDto,
     @Param('addressId') addressId: string,
   ): Promise<void> {
@@ -75,10 +76,9 @@ export class UserPersonalDataController {
   })
   async remove(
     @Body() body: RemoveAddressesDto,
-    @Req() req: Request,
+    @CurrentUser('id') userId: string,
   ): Promise<void> {
     const ids: string[] = body.ids;
-    const userId = req['user']['id'];
     await this.addressService.remove({ ids, userId });
     return;
   }

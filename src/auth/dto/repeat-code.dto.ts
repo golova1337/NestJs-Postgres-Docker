@@ -17,7 +17,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RepeatSendCode {
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })
-  @ValidateIf((o) => !o.numbers)
+  @ValidateIf((o) => !o.phone)
   @IsDefined()
   @IsNotEmpty()
   @IsString()
@@ -38,7 +38,7 @@ export class RepeatSendCode {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
   @Validate(RepeatSendCodeByPhoneConstraint)
-  numbers: string;
+  phone: string;
 
   @ApiProperty({ required: true, example: 'email' })
   @IsEnum(RegistrationMethod)

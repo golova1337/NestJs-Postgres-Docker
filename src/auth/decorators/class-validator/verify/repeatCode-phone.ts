@@ -14,9 +14,9 @@ export class RepeatSendCodeByPhoneConstraint
 {
   constructor(private readonly authRepository: AuthRepository) {}
 
-  async validate(numbers: string): Promise<boolean> {
+  async validate(phone: string): Promise<boolean> {
     const user: User | null = await this.authRepository
-      .findOneByPhone(numbers, {
+      .findOneByPhone(phone, {
         isVerified: false,
       })
       .catch((error) => {

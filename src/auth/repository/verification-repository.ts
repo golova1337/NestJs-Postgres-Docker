@@ -1,20 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { VerificationCodes } from '../entities/verify.entity';
+import { VerificationCode } from '../entities/verify.entity';
 
 @Injectable()
 export class VerificationRepository {
   constructor(
-    @InjectModel(VerificationCodes)
-    private verificationCodesModel: typeof VerificationCodes,
+    @InjectModel(VerificationCode)
+    private verificationCodesModel: typeof VerificationCode,
   ) {}
   async upsert(data: {
     verificationCode: string;
     userId: string;
-  }): Promise<[VerificationCodes, boolean]> {
-    return this.verificationCodesModel.upsert(data);
+  }): Promise<[VerificationCode, boolean]> {
+    return this.verificationCodesModel.upsert({
+      ...data,
+      deletedAt: null,
+    });
   }
-  async findOne(code: string): Promise<VerificationCodes | null> {
+  async findOne(code: string): Promise<VerificationCode | null> {
     return this.verificationCodesModel.findOne({
       where: { verificationCode: code },
     });

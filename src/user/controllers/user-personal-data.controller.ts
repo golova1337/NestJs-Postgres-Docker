@@ -6,7 +6,6 @@ import {
   Delete,
   UseGuards,
   HttpCode,
-  Req,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
@@ -14,11 +13,12 @@ import { RemoveAccountDto } from 'src/user/dto/remove-account.dto';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import { UpdateEmailDto } from '../dto/update-email';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
 
 @ApiBearerAuth()
 @ApiTags('User-Personal-Date')
 @UseGuards(RolesGuard)
-@Controller('user/:id/cabinet')
+@Controller('user/cabinet')
 export class AddressController {
   constructor(private readonly userService: UserService) {}
 
@@ -29,7 +29,7 @@ export class AddressController {
     description: 'The field: mail. Do not forget change email ',
   })
   async updateEmail(
-    @Param('id') id: string,
+    @CurrentUser('id') id: string,
     @Body() updateEmailDto: UpdateEmailDto,
   ): Promise<void> {
     await this.userService.updateEmail(+id, updateEmailDto);
@@ -44,9 +44,8 @@ export class AddressController {
     description: 'The fields: password and passwordRepeat are mandatory ',
   })
   async removeAccount(
-    @Req() req: Request,
     @Body() body: RemoveAccountDto,
-    @Param('id') id: string,
+    @CurrentUser('id') id: string,
   ): Promise<void> {
     const password: string = body.password;
     await this.userService.removeAccount(+id, password);

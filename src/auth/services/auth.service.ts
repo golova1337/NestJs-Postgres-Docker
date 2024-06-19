@@ -13,7 +13,6 @@ import { JwtTokenService } from './jwt.service';
 import { JwtRepository } from '../repository/jwt-repository';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { verifyCode } from 'src/utils/verify/verifyCode';
 import { VerificationRepository } from '../repository/verification-repository';
 import { SendCodeService } from './sendCode.service';
 
@@ -38,8 +37,6 @@ export class AuthService {
 
     delete singInAuthDto.passwordRepeat;
 
-    const verificationCode = await verifyCode();
-
     const user: User = await this.authRepository
       .create(singInAuthDto)
       .catch((error) => {
@@ -47,21 +44,14 @@ export class AuthService {
         throw new InternalServerErrorException('Server Error');
       });
     delete user.dataValues.password;
-
-    await this.verificationRepository
-      .upsert({
-        verificationCode,
-        userId: user.id,
-      })
-      .catch((error) => {
-        this.logger.error(`create verificationRepository: ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    await this.sendCodeService.send({
-      ...singInAuthDto,
-      code: verificationCode,
-    });
     return { data: user };
+  }
+
+  async isVerified(id: number) {
+    await this.authRepository.isVerified(id).catch((err) => {
+      this.logger.error(`verificationCodes:${err}`);
+      throw new InternalServerErrorException('Server Error');
+    });
   }
 
   async login(loginAuthDto: LoginAuthDto): Promise<{
@@ -70,7 +60,7 @@ export class AuthService {
     let user: User;
     switch (loginAuthDto.registrationMethod) {
       case 'phone':
-        user = await this.authRepository.findOneByPhone(loginAuthDto.numbers);
+        user = await this.authRepository.findOneByPhone(loginAuthDto.phone);
         break;
       case 'email':
         user = await this.authRepository.findOneByEmail(loginAuthDto.email);
@@ -106,13 +96,13 @@ export class AuthService {
     });
   }
 
-  async refresh(jwtPayload: JwtPayload): Promise<{
+  async refresh(user: JwtPayload): Promise<{
     data: {
       accessToken: string;
       refreshToken: string;
     };
   }> {
-    const { id, role, refreshToken } = jwtPayload;
+    const { id, role, refreshToken } = user;
     const token = await this.jwtRepository.findOne(+id).catch((error) => {
       this.logger.error(error);
       throw new InternalServerErrorException('Server Error');
@@ -142,7 +132,7 @@ export class AuthService {
 
     await this.jwtRepository.upsert({
       userId: +id,
-      token: tokens.refreshToken,
+      token: hashToken,
     });
     return {
       data: {

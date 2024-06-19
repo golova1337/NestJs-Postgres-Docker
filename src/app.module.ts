@@ -9,7 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
-import { VerificationCodes } from './auth/entities/verify.entity';
+import { VerificationCode } from './auth/entities/verify.entity';
 import { Jwt } from './auth/entities/jwt.entity';
 import { UserModule } from './user/user.module';
 import { UserAddress } from './user/entities/address.entity';
@@ -45,7 +45,7 @@ import { UserAddress } from './user/entities/address.entity';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       schema: 'store',
-      models: [User, VerificationCodes, Jwt, UserAddress],
+      models: [User, VerificationCode, Jwt, UserAddress],
       pool: {
         max: 10,
         min: 3,

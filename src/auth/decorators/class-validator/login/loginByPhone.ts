@@ -12,9 +12,9 @@ import { AuthRepository } from '../../../repository/auth-repository';
 export class LoginByPhoneConstraint implements ValidatorConstraintInterface {
   constructor(private readonly authRepository: AuthRepository) {}
 
-  async validate(numbers: string): Promise<boolean> {
+  async validate(phone: string): Promise<boolean> {
     const user: Partial<User | null> | void = await this.authRepository
-      .findOneByPhone(numbers, {
+      .findOneByPhone(phone, {
         isVerified: true,
       })
       .catch((error) => {

@@ -34,7 +34,7 @@ export class SingInAuthDto {
   lastname?: string;
 
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })
-  @ValidateIf((o) => !o.numbers)
+  @ValidateIf((o) => !o.phone)
   @IsDefined()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
@@ -57,7 +57,7 @@ export class SingInAuthDto {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
   @Validate(SingInByPhoneConstraint)
-  numbers: string;
+  phone: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
   @IsDefined()

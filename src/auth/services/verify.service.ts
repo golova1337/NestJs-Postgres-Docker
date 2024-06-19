@@ -8,8 +8,9 @@ import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 import { AuthRepository } from '../repository/auth-repository';
 import { RepeatSendCode } from '../dto/repeat-code.dto';
 import { User } from '../entities/user.entity';
-import { verifyCode } from 'src/utils/verify/verifyCode';
 import { SendCodeService } from './sendCode.service';
+import { VerificationCode } from '../entities/verify.entity';
+import { authenticator } from 'otplib';
 
 @Injectable()
 export class VerifyService {
@@ -19,39 +20,55 @@ export class VerifyService {
     private readonly verificationRepository: VerificationRepository,
     private readonly authRepository: AuthRepository,
   ) {}
-  async verify(query: { code: string }): Promise<void> {
-    const verificationCodes = await this.verificationRepository
-      .findOne(query.code)
-      .catch((err) => {
+  async generateCode(): Promise<string> {
+    return authenticator.generate(process.env.SECRET_OTPLIB);
+  }
+  async checkCode(code: string): Promise<boolean> {
+    console.log(process.env.SECRET_OTPLIB);
+    return authenticator.verify({
+      token: code,
+      secret: process.env.SECRET_OTPLIB,
+    });
+  }
+  async create(id: string): Promise<string> {
+    const verificationCode: string = await this.generateCode();
+
+    await this.verificationRepository
+      .upsert({
+        verificationCode,
+        userId: id,
+      })
+      .catch((error) => {
+        this.logger.error(`create verificationRepository: ${error}`);
+        throw new InternalServerErrorException('Server Error');
+      });
+    return verificationCode;
+  }
+
+  async verify(query: { code: string }): Promise<VerificationCode> {
+    const verificationCodes: VerificationCode =
+      await this.verificationRepository.findOne(query.code).catch((err) => {
         this.logger.error(`verificationCodes:${err}`);
         throw new InternalServerErrorException('Server Error');
       });
+    const check = await this.checkCode(verificationCodes.verificationCode);
+    console.log(check);
 
     if (
       !verificationCodes ||
-      verificationCodes.verificationCodeExpiresAt < new Date()
+      verificationCodes.verificationCodeExpiresAt < new Date() ||
+      !check
     )
       throw new BadRequestException('Bad Requestddd');
 
-    await this.authRepository
-      .isVerified(verificationCodes.userId)
-      .catch((err) => {
-        this.logger.error(`verificationCodes:${err}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-
-    await this.verificationRepository.remove(query.code).catch((err) => {
-      this.logger.error(`setNull:${err}`);
-      throw new InternalServerErrorException('Server Error');
-    });
-    return;
+    return verificationCodes;
   }
 
-  async repeatCode(body: RepeatSendCode): Promise<void> {
+  async repeatCode(body: RepeatSendCode): Promise<string> {
     let user: User;
     switch (body.registrationMethod) {
       case 'phone':
-        user = await this.authRepository.findOneByPhone(body.numbers);
+        user = await this.authRepository.findOneByPhone(body.phone);
         break;
       case 'email':
         user = await this.authRepository.findOneByEmail(body.email);
@@ -61,7 +78,7 @@ export class VerifyService {
         throw new BadRequestException('Bad Request');
     }
 
-    const verificationCode = await verifyCode();
+    const verificationCode: string = await this.generateCode();
     await this.verificationRepository
       .upsert({
         verificationCode,
@@ -71,7 +88,13 @@ export class VerifyService {
         this.logger.error(`create verificationRepository: ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
-    await this.sendCodeService.send({ ...body, code: verificationCode });
-    return;
+    return verificationCode;
+  }
+
+  async remove(code: string) {
+    await this.verificationRepository.remove(code).catch((err) => {
+      this.logger.error(`setNull:${err}`);
+      throw new InternalServerErrorException('Server Error');
+    });
   }
 }

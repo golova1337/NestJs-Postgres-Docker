@@ -14,9 +14,8 @@ import { SingInByPhoneConstraint } from './decorators/class-validator/singIn/sin
 import { EmailConsumer } from '../common/consumers/email.consumer';
 import { BullModule } from '@nestjs/bull';
 import { PhoneConsumer } from '../common/consumers/phone.consumer';
-import { VerificationCodes } from './entities/verify.entity';
+import { VerificationCode } from './entities/verify.entity';
 import { VerifyService } from './services/verify.service';
-import { VerifyController } from './controllers/verify.controller';
 import { VerificationRepository } from './repository/verification-repository';
 import { LoginByPhoneConstraint } from './decorators/class-validator/login/loginByPhone';
 import { Jwt } from './entities/jwt.entity';
@@ -26,7 +25,7 @@ import { RepeatSendCodeByEmailConstraint } from './decorators/class-validator/ve
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([User, VerificationCodes, Jwt]),
+    SequelizeModule.forFeature([User, VerificationCode, Jwt]),
     JwtModule.register({}),
     BullModule.registerQueue({
       name: 'phone-sms',
@@ -35,7 +34,7 @@ import { RepeatSendCodeByEmailConstraint } from './decorators/class-validator/ve
       name: 'email-sms',
     }),
   ],
-  controllers: [AuthController, VerifyController],
+  controllers: [AuthController],
   providers: [
     AuthService,
     AuthRepository,
