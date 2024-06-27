@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UserAddress } from '../entities/address.entity';
 import { InjectModel } from '@nestjs/sequelize';
-import { CreateAddressUserDto } from '../dto/create-address.dto';
 import { Op } from 'sequelize';
+import { UpdateAddressCommand } from '../commands/address/update/Update-address.command';
 
 @Injectable()
 export class AddressRepository {
@@ -13,20 +13,27 @@ export class AddressRepository {
   async create(data): Promise<UserAddress> {
     return this.userAddress.create(data);
   }
+  async recieve(id: string): Promise<UserAddress[]> {
+    return this.userAddress.findAll({ where: { userId: id } });
+  }
 
-  async update(data: {
-    id: number;
-    addressId: number;
-    updateAddress: CreateAddressUserDto;
-  }): Promise<[affectedCount: number]> {
-    return this.userAddress.update(data.updateAddress, {
-      where: { id: data.addressId, userId: data.id },
+  async update(
+    condition: {
+      userId: string;
+      addressId: string;
+    },
+    data: Omit<UpdateAddressCommand, 'userId' | 'addressId'>,
+  ): Promise<[affectedCount: number]> {
+    console.log(condition);
+
+    return this.userAddress.update(data, {
+      where: { id: condition.addressId, userId: condition.userId },
     });
   }
 
-  async remove(data: { ids: string[]; userId: string }) {
+  async remove(data: { idsAddress: string[]; userId: string }) {
     return this.userAddress.destroy({
-      where: { id: { [Op.in]: data.ids }, userId: data.userId },
+      where: { id: { [Op.in]: data.idsAddress }, userId: data.userId },
     });
   }
 }

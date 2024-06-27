@@ -26,10 +26,8 @@ import {
 } from '@nestjs/swagger';
 import { User } from '../entities/User.entity';
 import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
-import { OtpService } from '../services/otp.service';
 import { RepeatSendCode } from '../dto/repeat-code.dto';
 import { SendCodeService } from '../services/sendCode.service';
-import { JwtTokenService } from '../services/jwt.service';
 import { Otp } from '../entities/Otp.entity';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { LoginCreateJwtQuery } from '../queries/login/Login-create-jwt.query';
@@ -48,9 +46,7 @@ import { RepeatSendOtpCommand } from '../commands/repeat-otp/Repeat-otp.command'
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly otpService: OtpService,
     private readonly sendCodeService: SendCodeService,
-    private readonly jwtTokenService: JwtTokenService,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}

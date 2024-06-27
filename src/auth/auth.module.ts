@@ -59,7 +59,7 @@ export const Handler = [
   RemoveOtpCommandHandler,
   RepeatSendOtpCommandHandler,
 ];
-export const Service = [OtpService, JwtTokenService, SendCodeService];
+export const Services = [OtpService, JwtTokenService, SendCodeService];
 
 @Module({
   imports: [
@@ -79,7 +79,7 @@ export const Service = [OtpService, JwtTokenService, SendCodeService];
     ...Constraint,
     ...Consumer,
     ...Handler,
-    ...Service,
+    ...Services,
   ],
 })
 export class AuthModule {}

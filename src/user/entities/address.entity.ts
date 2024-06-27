@@ -25,7 +25,7 @@ interface UserAddressCreationAttributes
 @Table({
   tableName: 'user_addresses',
   schema: 'store',
-  paranoid: true,
+  paranoid: false,
   indexes: [
     {
       fields: ['userId', 'country', 'city', 'street', 'house'],
@@ -40,17 +40,16 @@ export class UserAddress extends Model<
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false, unique: false })
   userId: string;
-
+  @Column({ type: DataType.STRING(150), allowNull: false, unique: false })
+  country: string;
+  @Column({ type: DataType.STRING(150), allowNull: false, unique: false })
+  city: string;
   @Column({ type: DataType.STRING(150), allowNull: false, unique: false })
   street: string;
   @Column({ type: DataType.STRING(15), allowNull: false, unique: false })
   house: string;
   @Column({ type: DataType.STRING(15), allowNull: true, unique: false })
   apartment?: string;
-  @Column({ type: DataType.STRING(150), allowNull: false, unique: false })
-  city: string;
-  @Column({ type: DataType.STRING(150), allowNull: false, unique: false })
-  country: string;
   @Column({ type: DataType.STRING(10), allowNull: false, unique: false })
   postal_code: string;
   @Column({
