@@ -7,7 +7,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { User } from 'src/auth/entities/user.entity';
+import { User } from 'src/auth/entities/User.entity';
 
 export interface UserAddressAttributes {
   id: number;

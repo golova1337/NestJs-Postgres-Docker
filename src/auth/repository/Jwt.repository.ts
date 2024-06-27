@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Jwt } from '../entities/jwt.entity';
+import { Jwt } from '../entities/Jwt.entity';
 
 @Injectable()
 export class JwtRepository {
@@ -9,7 +9,7 @@ export class JwtRepository {
     private readonly jwt: typeof Jwt,
   ) {}
   async upsert(token: {
-    userId: number;
+    userId: string;
     token: string;
   }): Promise<[Jwt, boolean]> {
     return this.jwt.upsert(token);

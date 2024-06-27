@@ -8,52 +8,46 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Time } from '../enums/time-enaum';
-import { User } from './user.entity';
+import { User } from './User.entity';
 
-export interface VerificationAttributes {
+export interface OtpAttributes {
   id: number;
   userId: string;
-  verificationCode: string;
-  verificationCodeExpiresAt: string;
+  otp: string;
+  otpExpiresAt: string;
   deletedAt: Date;
 }
 
-export interface VerificationCreationAttributes
-  extends Optional<
-    VerificationAttributes,
-    'id' | 'verificationCodeExpiresAt' | 'deletedAt'
-  > {}
+export interface OtpCreationAttributes
+  extends Optional<OtpAttributes, 'id' | 'otpExpiresAt' | 'deletedAt'> {}
 
 @Table({
-  tableName: 'verification_codes',
+  tableName: 'otps',
   paranoid: true,
   timestamps: true,
   schema: 'store',
 })
-export class VerificationCode extends Model<
-  VerificationAttributes,
-  VerificationCreationAttributes
-> {
+export class Otp extends Model<OtpAttributes, OtpCreationAttributes> {
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     unique: true,
     allowNull: false,
   })
-  userId: number;
+  userId: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  verificationCode: string;
+  otp: string;
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
     defaultValue: new Date(Date.now() + Time.tenMinutes),
   })
-  verificationCodeExpiresAt?: Date;
+  otpExpiresAt?: Date;
 
   @Column({ type: DataType.DATE, allowNull: true })
   deletedAt?: Date;

@@ -57,7 +57,7 @@ export class SingInAuthDto {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
   @Validate(SingInByPhoneConstraint)
-  phone: string;
+  phone?: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
   @IsDefined()
@@ -67,7 +67,7 @@ export class SingInAuthDto {
     message:
       'Password must contain at least 1 uppercase letter, 1 number, and 1 symbol: ?=.[!/_@#$%^&()]',
   })
-  password: string;
+  password?: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
   @IsDefined()

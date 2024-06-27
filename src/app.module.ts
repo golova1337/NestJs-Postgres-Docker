@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from './auth/entities/user.entity';
+import { User } from './auth/entities/User.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
@@ -9,10 +9,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
-import { VerificationCode } from './auth/entities/verify.entity';
-import { Jwt } from './auth/entities/jwt.entity';
+import { Jwt } from './auth/entities/Jwt.entity';
 import { UserModule } from './user/user.module';
 import { UserAddress } from './user/entities/address.entity';
+import { Otp } from './auth/entities/Otp.entity';
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { UserAddress } from './user/entities/address.entity';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       schema: 'store',
-      models: [User, VerificationCode, Jwt, UserAddress],
+      models: [User, Otp, Jwt, UserAddress],
       pool: {
         max: 10,
         min: 3,

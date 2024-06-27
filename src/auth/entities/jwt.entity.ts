@@ -7,11 +7,11 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { User } from './user.entity';
+import { User } from './User.entity';
 
 export interface JwtAttributes {
   id: number;
-  userId: number;
+  userId: string;
   token: string;
   deletedAt: Date;
 }
@@ -31,7 +31,7 @@ export class Jwt extends Model<JwtAttributes, JwtCreationAttributes> {
     unique: true,
     allowNull: false,
   })
-  userId: number;
+  userId: string;
 
   @Column({ type: DataType.STRING, allowNull: true })
   token: string;

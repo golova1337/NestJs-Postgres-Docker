@@ -4,12 +4,12 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { User } from '../../../entities/user.entity';
-import { AuthRepository } from '../../../repository/auth-repository';
+import { User } from '../../../entities/User.entity';
+import { AuthRepository } from '../../../repository/Auth.repository';
 
 @ValidatorConstraint({ name: 'isNumberExist', async: true })
 @Injectable()
-export class RepeatSendCodeByPhoneConstraint
+export class RepeatSendOtpByPhoneConstraint
   implements ValidatorConstraintInterface
 {
   constructor(private readonly authRepository: AuthRepository) {}

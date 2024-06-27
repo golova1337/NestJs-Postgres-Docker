@@ -6,7 +6,7 @@ import {
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from '../repository/user-repository';
-import { User } from 'src/auth/entities/user.entity';
+import { User } from 'src/auth/entities/User.entity';
 import { UpdateEmailDto } from '../dto/update-email';
 
 @Injectable()

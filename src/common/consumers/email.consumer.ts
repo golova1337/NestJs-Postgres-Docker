@@ -18,7 +18,7 @@ export class EmailConsumer {
         from: process.env.MAIL_USER,
         to: job.data.email,
         subject: 'Invitation',
-        html: `<p>Please verify your email by clicking the following link: <a href="${process.env.HOST}:${process.env.PORT}/verify?code=${job.data.code}">Verify Email</a></p>`,
+        html: `<p>Please verify your email by clicking the following link: <a href="${process.env.HOST}:${process.env.PORT}/${process.env.VERSION}/api/verify?code=${job.data.otp}">Verify Email</a></p>`,
       })
       .catch((err) => {
         this.logger.error(err);

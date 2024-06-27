@@ -11,8 +11,8 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { RegistrationMethod } from '../enums/registMethod-enum';
-import { RepeatSendCodeByPhoneConstraint } from '../decorators/class-validator/verify/repeatCode-phone';
-import { RepeatSendCodeByEmailConstraint } from '../decorators/class-validator/verify/repeatCode-email';
+import { RepeatSendOtpByPhoneConstraint } from '../decorators/class-validator/verify/repeatCode-phone';
+import { RepeatSendOtpByEmailConstraint } from '../decorators/class-validator/verify/repeatCode-email';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RepeatSendCode {
@@ -25,7 +25,7 @@ export class RepeatSendCode {
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
   })
-  @Validate(RepeatSendCodeByEmailConstraint)
+  @Validate(RepeatSendOtpByEmailConstraint)
   email: string;
 
   @ApiProperty({ required: false, example: '+380735433445' })
@@ -37,7 +37,7 @@ export class RepeatSendCode {
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
-  @Validate(RepeatSendCodeByPhoneConstraint)
+  @Validate(RepeatSendOtpByPhoneConstraint)
   phone: string;
 
   @ApiProperty({ required: true, example: 'email' })

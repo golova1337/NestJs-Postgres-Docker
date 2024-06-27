@@ -1,15 +1,23 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
+import { EmojiLogger } from 'src/common/logger/EmojiLogger';
+import { Twilio } from 'twilio';
 
 @Injectable()
 export class SendCodeService {
+  private readonly logger = new EmojiLogger();
+  private twilioClient: Twilio;
   constructor(
     @InjectQueue('phone-sms') private phoneSmsQueue: Queue,
     @InjectQueue('email-sms') private emailSmsQueue: Queue,
+    private readonly mailService: MailerService,
+    private configService: ConfigService,
   ) {}
   async send(messageParams: any) {
-    const { registrationMethod, email, phone, code } = messageParams;
+    const { registrationMethod, email, phone, otp } = messageParams;
 
     switch (registrationMethod) {
       case 'email':
@@ -17,7 +25,7 @@ export class SendCodeService {
           'email',
           {
             email: email,
-            code: code,
+            otp: otp,
           },
           { delay: 3000, priority: 1 },
         );
@@ -27,7 +35,7 @@ export class SendCodeService {
           'phone',
           {
             phone: phone,
-            code: code,
+            otp: otp,
           },
           { delay: 3000, priority: 1 },
         );

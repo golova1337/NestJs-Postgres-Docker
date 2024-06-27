@@ -15,7 +15,6 @@ import { Public } from 'src/common/decorators/public/public';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { JwtPayload } from '../../common/strategies/accessToken.strategy';
-import { AuthService } from '../services/auth.service';
 import { CommonResponse, Response, Result } from 'src/common/response/response';
 import {
   ApiBearerAuth,
@@ -25,23 +24,35 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '../entities/user.entity';
+import { User } from '../entities/User.entity';
 import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
-import { VerifyService } from '../services/verify.service';
+import { OtpService } from '../services/otp.service';
 import { RepeatSendCode } from '../dto/repeat-code.dto';
 import { SendCodeService } from '../services/sendCode.service';
 import { JwtTokenService } from '../services/jwt.service';
-import { VerificationCode } from '../entities/verify.entity';
+import { Otp } from '../entities/Otp.entity';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { LoginCreateJwtQuery } from '../queries/login/Login-create-jwt.query';
+import { LoginCheckUserQuery } from '../queries/login/Login-check-user.query';
+import { LogoutCommand } from '../commands/logout/Logout.command';
+import { RefreshCommand } from '../commands/refresh/Refresh.command';
+import { IsVerifiedCommand } from '../commands/verify-otp/IsVerified.command';
+import { CheckOtpCommand } from '../commands/verify-otp/Check-verification-code.command';
+import { SingInCreateUserCommand } from '../commands/singIn/Sing-in-create-user.command';
+import { SingInCreateOtpCommand } from '../commands/singIn/Sing-in-create-verification.command';
+import { RemoveOtpCommand } from '../commands/verify-otp/Remove-verification-code.command';
+import { RepeatSendOtpCommand } from '../commands/repeat-otp/Repeat-otp.command';
 
 @ApiTags('Auth')
 @ApiInternalServerErrorResponse({ description: 'Server Error' })
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly verifyService: VerifyService,
+    private readonly otpService: OtpService,
     private readonly sendCodeService: SendCodeService,
     private readonly jwtTokenService: JwtTokenService,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post()
@@ -56,15 +67,26 @@ export class AuthController {
   async singIn(
     @Body() singInAuthDto: SingInAuthDto,
   ): Promise<CommonResponse<User>> {
-    const result: Result<User> = await this.authService.create(singInAuthDto);
-
-    const code: string = await this.verifyService.create(result.data.id);
-
-    await this.sendCodeService.send({
-      ...result.data.dataValues,
-      code,
-    });
-    return Response.succsessfully(result);
+    const { registrationMethod, password, name, lastname, email, phone } =
+      singInAuthDto;
+    // creation new user
+    const user: User = await this.commandBus.execute(
+      new SingInCreateUserCommand(
+        registrationMethod,
+        password,
+        name,
+        lastname,
+        email,
+        phone,
+      ),
+    );
+    // creating otp that will be saved in the database
+    const otp: string = await this.commandBus.execute(
+      new SingInCreateOtpCommand(user.id, email, phone, registrationMethod),
+    );
+    //running a service that adds a massage to the massage queue
+    this.sendCodeService.send({ registrationMethod, email, phone, otp });
+    return Response.succsessfully({ data: user });
   }
 
   @Get()
@@ -79,13 +101,22 @@ export class AuthController {
   async login(
     @Body() loginAuthDto: LoginAuthDto,
   ): Promise<CommonResponse<{ accessToken: string; refreshToken: string }>> {
-    const result: Result<{ accessToken: string; refreshToken: string }> =
-      await this.authService.login(loginAuthDto);
-    return Response.succsessfully(result);
+    const { registrationMethod, email, phone, password } = loginAuthDto;
+    //get user by email or phone, compare password
+    const user: User = await this.queryBus.execute(
+      new LoginCheckUserQuery(registrationMethod, phone, email, password),
+    );
+    // tokens creation
+    const tokens: {
+      data: { accessToken: string; refreshToken: string };
+    } = await this.queryBus.execute(
+      new LoginCreateJwtQuery(user.id, user.role),
+    );
+    return Response.succsessfully(tokens);
   }
 
-  @HttpCode(204)
   @Patch('/logout')
+  @HttpCode(204)
   @ApiOperation({
     summary: 'exit from the personal office.',
     description: "authorized users only ,don't forget to insert a JwT",
@@ -95,7 +126,8 @@ export class AuthController {
   @Roles('user', 'admin')
   @UseGuards(RolesGuard)
   async logout(@CurrentUser('id') userId: string): Promise<void> {
-    await this.authService.logout(+userId);
+    // refresh token removal
+    await this.commandBus.execute(new LogoutCommand(+userId));
     return;
   }
 
@@ -113,12 +145,14 @@ export class AuthController {
   async refresh(
     @CurrentUser() user: JwtPayload,
   ): Promise<CommonResponse<{ accessToken: string; refreshToken: string }>> {
+    const { id, role, refreshToken } = user;
+    // tokens creation
     const tokens: Result<{ accessToken: string; refreshToken: string }> =
-      await this.authService.refresh(user);
+      await this.commandBus.execute(new RefreshCommand(id, role, refreshToken));
     return Response.succsessfully(tokens);
   }
 
-  @Get('verify')
+  @Patch('verify')
   @HttpCode(204)
   @Public()
   @ApiOperation({
@@ -127,16 +161,22 @@ export class AuthController {
       'when you receive verification code you need to insert it in query and make request, then you can log In your account',
   })
   @ApiCreatedResponse({ status: 204 })
-  @ApiQuery({ name: 'code' })
-  async verify(@Query() query: { code: string }): Promise<void> {
-    const verificationCode: VerificationCode =
-      await this.verifyService.verify(query);
-    await this.authService.isVerified(verificationCode.userId);
-    await this.verifyService.remove(verificationCode.verificationCode);
+  @ApiQuery({ name: 'otp' })
+  async verify(@Query('otp') otp: string): Promise<void> {
+    // check otp
+    const verificationCode: Otp = await this.commandBus.execute(
+      new CheckOtpCommand(otp),
+    );
+    // update a user in the database, making it verified
+    await this.commandBus.execute(
+      new IsVerifiedCommand(verificationCode.userId),
+    );
+    // remove Otp
+    await this.commandBus.execute(new RemoveOtpCommand(verificationCode.otp));
     return;
   }
 
-  @Get('/repeat')
+  @Post('/repeat')
   @HttpCode(204)
   @ApiOperation({
     summary: 'Resend the verification code.',
@@ -144,9 +184,13 @@ export class AuthController {
   })
   @ApiCreatedResponse({ status: 204 })
   @Public()
-  async repeatCode(@Body() body: RepeatSendCode): Promise<void> {
-    const verificationCode: string = await this.verifyService.repeatCode(body);
-    await this.sendCodeService.send({ ...body, code: verificationCode });
+  async repeatCode(@Body() repeatSendCode: RepeatSendCode): Promise<void> {
+    const { registrationMethod, email, phone } = repeatSendCode;
+    const otp = await this.commandBus.execute(
+      new RepeatSendOtpCommand(registrationMethod, email, phone),
+    );
+
+    await this.sendCodeService.send({ ...repeatSendCode, otp });
     return;
   }
 }

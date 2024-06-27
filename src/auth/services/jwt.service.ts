@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { JwtRepository } from '../repository/jwt-repository';
+import { JwtRepository } from '../repository/Jwt.repository';
 
 @Injectable()
 export class JwtTokenService {
@@ -18,7 +18,7 @@ export class JwtTokenService {
     return bcrypt.compare(token, hashToken);
   }
 
-  async getTokens(userId: number, role: string) {
+  async getTokens(userId: string, role: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {

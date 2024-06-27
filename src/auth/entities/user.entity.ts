@@ -9,12 +9,12 @@ import {
 } from 'sequelize-typescript';
 import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
-import { VerificationCode } from './verify.entity';
-import { Jwt } from './jwt.entity';
+import { Jwt } from './Jwt.entity';
 import { UserAddress } from 'src/user/entities/address.entity';
+import { Otp } from './Otp.entity';
 
 export interface PersonAttributes {
-  id: number;
+  id: string;
   name: string;
   lastname: string;
   email: string;
@@ -96,8 +96,8 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
   })
   registrationMethod: RegistrationMethod;
 
-  @HasOne(() => VerificationCode)
-  verificationCode: VerificationCode;
+  @HasOne(() => Otp)
+  otp: Otp;
 
   @HasOne(() => Jwt)
   jwt: Jwt;

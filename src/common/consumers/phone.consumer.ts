@@ -14,12 +14,12 @@ export class PhoneConsumer {
   numbers = this.configService.get('TWILIO_NUMBERS');
 
   @Process('phone')
-  async sendEmail(job: Job) {
+  async sendPhone(job: Job) {
     this.twilioClient = new Twilio(this.accountSid, this.authToken);
     try {
       this.twilioClient = new Twilio(this.accountSid, this.authToken);
       await this.twilioClient.messages.create({
-        body: job.data.code,
+        body: job.data.otp,
         to: job.data.phone,
         from: this.numbers,
       });

@@ -3,7 +3,7 @@ import { UserService } from './services/user.service';
 import { AddressController } from './controllers/user-personal-data.controller';
 import { UserRepository } from './repository/user-repository';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from 'src/auth/entities/user.entity';
+import { User } from 'src/auth/entities/User.entity';
 import { UserAddress } from './entities/address.entity';
 import { AddressRepository } from './repository/address-repository';
 import { AddressService } from './services/address.service';
