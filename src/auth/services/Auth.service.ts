@@ -178,11 +178,19 @@ export class AuthService {
       throw new BadRequestException('Bad Request');
 
     // update a user in the database, making it verified
-    await this.commandBus.execute(
-      new VerifyUserCommand(verificationCode.userId),
-    );
+    await this.commandBus
+      .execute(new VerifyUserCommand(verificationCode.userId))
+      .catch((err) => {
+        this.logger.error(`verificationCodes:${err}`);
+        throw new InternalServerErrorException('Server Error');
+      });
     // remove Otp
-    await this.commandBus.execute(new RemoveOtpCommand(verificationCode.otp));
+    await this.commandBus
+      .execute(new RemoveOtpCommand(verificationCode.otp))
+      .catch((err) => {
+        this.logger.error(`setNull:${err}`);
+        throw new InternalServerErrorException('Server Error');
+      });
     return;
   }
 

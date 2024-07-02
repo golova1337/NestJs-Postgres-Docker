@@ -10,14 +10,8 @@ export class RecieveAddressQueryHandler
 {
   private readonly logger = new EmojiLogger();
   constructor(private readonly addressRepository: AddressRepository) {}
-  async execute(
-    command: RecieveAddressQuery,
-  ): Promise<{ addresses: UserAddress[] }> {
+  async execute(command: RecieveAddressQuery): Promise<UserAddress[]> {
     const { id } = command;
-    const address = await this.addressRepository.recieve(id);
-
-    return {
-      addresses: address,
-    };
+    return this.addressRepository.recieve(id);
   }
 }

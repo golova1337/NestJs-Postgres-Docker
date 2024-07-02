@@ -1,7 +1,5 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 import { Twilio } from 'twilio';
