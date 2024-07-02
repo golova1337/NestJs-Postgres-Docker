@@ -5,7 +5,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
-import { UserAddressAttributes } from '../entities/address.entity';
+import { UserAddressAttributes } from '../entities/Address.entity';
 type UserAddressDto = Partial<Omit<UserAddressAttributes, 'id' | 'userId'>>;
 
 interface IUserAddressDto extends UserAddressDto {}

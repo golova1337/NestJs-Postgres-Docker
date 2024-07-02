@@ -14,9 +14,9 @@ export class OtpRepository {
       deletedAt: null,
     });
   }
-  async findOne(code: string): Promise<Otp | null> {
+  async findOne(otp: string): Promise<Otp | null> {
     return this.verificationCodesModel.findOne({
-      where: { otp: code },
+      where: { otp },
     });
   }
 

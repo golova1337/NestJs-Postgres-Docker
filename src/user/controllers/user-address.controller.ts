@@ -15,28 +15,21 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import { CommonResponse, Response } from 'src/common/response/response';
-import { Roles } from 'src/common/decorators/roles/roles.decorator';
-import { CreateAddressUserDto } from '../dto/create-address.dto';
-import { UserAddress } from '../entities/address.entity';
-import { RemoveAddressesDto } from '../dto/remove-address.dto';
-import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
-import { CreateAddressCommand } from '../commands/address/create/Create-address.command';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { RecieveAddressQuery } from '../queries/address/recieve/Recieve-address.query';
-import { UpdateAddressCommand } from '../commands/address/update/Update-address.command';
-import { RemoveAddressCommand } from '../commands/address/remove/Remove-address.command';
+import { CreateAddressUserDto } from '../dto/Create-address.dto';
+import { RemoveAddressesDto } from '../dto/Remove-address.dto';
+import { UserAddress } from '../entities/Address.entity';
+import { UserAddressService } from '../services/User-address.service';
 
 @ApiBearerAuth()
 @ApiTags('User-Address')
 @UseGuards(RolesGuard)
 @Controller(':id/address')
 export class UserAddressController {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly userAddressService: UserAddressService) {}
 
   @Roles('user', 'admin')
   @Post()
@@ -50,21 +43,11 @@ export class UserAddressController {
     @CurrentUser('id') id: string,
     @Body() createAddressUserDto: CreateAddressUserDto,
   ): Promise<CommonResponse<UserAddress>> {
-    const { country, city, street, house, apartment, postal_code, phone } =
-      createAddressUserDto;
-    const result: { data: UserAddress } = await this.commandBus.execute(
-      new CreateAddressCommand(
-        id,
-        country,
-        city,
-        street,
-        postal_code,
-        house,
-        apartment,
-        phone,
-      ),
+    const result = await this.userAddressService.create(
+      createAddressUserDto,
+      id,
     );
-    return Response.succsessfully(result);
+    return Response.succsessfully({ data: result });
   }
 
   @Roles('user', 'admin')
@@ -72,8 +55,8 @@ export class UserAddressController {
   async receive(
     @Param('id') id: string,
   ): Promise<CommonResponse<UserAddress[]>> {
-    const result = await this.queryBus.execute(new RecieveAddressQuery(id));
-    return Response.succsessfully(result);
+    const result: UserAddress[] = await this.userAddressService.receive(id);
+    return Response.succsessfully({ data: result });
   }
 
   @Roles('user', 'admin')
@@ -90,21 +73,7 @@ export class UserAddressController {
     @Param('addressId') addressId: string,
     @Param('id') id: string,
   ): Promise<void> {
-    const { country, city, street, house, apartment, postal_code, phone } =
-      createAddressUserDto;
-    await this.commandBus.execute(
-      new UpdateAddressCommand(
-        id,
-        addressId,
-        country,
-        city,
-        street,
-        postal_code,
-        house,
-        apartment,
-        phone,
-      ),
-    );
+    await this.userAddressService.update(createAddressUserDto, id, addressId);
     return;
   }
 
@@ -116,10 +85,11 @@ export class UserAddressController {
     description: 'You can delete one or more addresses',
   })
   async remove(
-    @Body() ids: RemoveAddressesDto,
+    @Body() idsAddresses: RemoveAddressesDto,
     @Param('id') id: string,
   ): Promise<void> {
-    await this.commandBus.execute(new RemoveAddressCommand(id, ids.ids));
+    const { ids } = idsAddresses;
+    await this.userAddressService.remove(id, ids);
     return;
   }
 }

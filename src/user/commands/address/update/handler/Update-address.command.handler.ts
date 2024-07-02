@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateAddressCommand } from '../Update-address.command';
+import { UpdateAddressCommand } from '../impl/Update-address.command';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 import { InternalServerErrorException } from '@nestjs/common';
-import { AddressRepository } from 'src/user/repository/address-repository';
+import { AddressRepository } from 'src/user/repository/Address-repository';
 
 @CommandHandler(UpdateAddressCommand)
 export class UpdateAddressCommandHandler

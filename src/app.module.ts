@@ -11,7 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
 import { Jwt } from './auth/entities/Jwt.entity';
 import { UserModule } from './user/user.module';
-import { UserAddress } from './user/entities/address.entity';
+import { UserAddress } from './user/entities/Address.entity';
 import { Otp } from './auth/entities/Otp.entity';
 
 @Module({

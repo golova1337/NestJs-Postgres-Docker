@@ -1,5 +1,4 @@
 import { OtpRepository } from '../repository/Otp.repository';
-import { AuthRepository } from '../repository/Auth.repository';
 import { Otp } from '../entities/Otp.entity';
 import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
@@ -13,7 +12,7 @@ export class OtpService {
     return verificationCodes;
   }
 
-  async generateCode(): Promise<string> {
+  async generateOtp(): Promise<string> {
     const bytes = await randomBytes(3 * 2);
     return bytes
       .toString('base64')

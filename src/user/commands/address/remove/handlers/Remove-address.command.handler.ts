@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RemoveAddressCommand } from '../Remove-address.command';
+import { RemoveAddressCommand } from '../impl/Remove-address.command';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { AddressRepository } from 'src/user/repository/address-repository';
+import { AddressRepository } from 'src/user/repository/Address-repository';
 import { InternalServerErrorException } from '@nestjs/common';
 
 @CommandHandler(RemoveAddressCommand)

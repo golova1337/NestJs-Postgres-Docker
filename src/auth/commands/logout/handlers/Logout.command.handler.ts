@@ -1,6 +1,5 @@
-import { InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LogoutCommand } from 'src/auth/commands/logout/Logout.command';
+import { LogoutCommand } from 'src/auth/commands/logout/impl/Logout.command';
 import { JwtRepository } from 'src/auth/repository/Jwt.repository';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 
@@ -10,9 +9,6 @@ export class LogoutCommandHandler implements ICommandHandler<LogoutCommand> {
   constructor(private readonly jwtRepository: JwtRepository) {}
   async execute(command: LogoutCommand): Promise<void> {
     const { id } = command;
-    await this.jwtRepository.remove(id).catch((error) => {
-      this.logger.error(error);
-      throw new InternalServerErrorException('Server Error');
-    });
+    await this.jwtRepository.remove(id);
   }
 }

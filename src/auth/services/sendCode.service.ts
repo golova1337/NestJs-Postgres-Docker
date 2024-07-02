@@ -13,8 +13,6 @@ export class SendCodeService {
   constructor(
     @InjectQueue('phone-sms') private phoneSmsQueue: Queue,
     @InjectQueue('email-sms') private emailSmsQueue: Queue,
-    private readonly mailService: MailerService,
-    private configService: ConfigService,
   ) {}
   async send(messageParams: any) {
     const { registrationMethod, email, phone, otp } = messageParams;
@@ -39,7 +37,9 @@ export class SendCodeService {
           },
           { delay: 3000, priority: 1 },
         );
+        break;
       default:
+        this.logger.warn('Send a message something is wrong');
         break;
     }
   }

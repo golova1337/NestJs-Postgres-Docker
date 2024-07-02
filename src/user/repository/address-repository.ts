@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UserAddress } from '../entities/address.entity';
+import { UserAddress } from '../entities/Address.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
-import { UpdateAddressCommand } from '../commands/address/update/Update-address.command';
+import { UpdateAddressCommand } from '../commands/address/update/impl/Update-address.command';
 
 @Injectable()
 export class AddressRepository {

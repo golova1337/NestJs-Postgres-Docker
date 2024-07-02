@@ -15,7 +15,7 @@ export class RepeatSendOtpByEmailConstraint
   constructor(private readonly authRepository: AuthRepository) {}
 
   async validate(email: string): Promise<boolean> {
-    const user: User = await this.authRepository
+    const user: User | null = await this.authRepository
       .findOneByEmail(email, {
         isVerified: false,
       })

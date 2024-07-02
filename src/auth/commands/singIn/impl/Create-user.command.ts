@@ -1,6 +1,6 @@
 import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
-export class SingInCreateUserCommand {
+export class UserCreateCommand {
   constructor(
     public readonly registrationMethod: RegistrationMethod,
     public password: string,

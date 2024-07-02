@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RemoveOtpCommand } from 'src/auth/commands/verify-otp/Remove-verification-code.command';
+import { RemoveOtpCommand } from 'src/auth/commands/verify-otp/impl/Remove-verification-code.command';
 import { OtpRepository } from 'src/auth/repository/Otp.repository';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 

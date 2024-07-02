@@ -1,4 +1,4 @@
-import { CreateAddressCommand } from '../create/Create-address.command';
+import { CreateAddressCommand } from '../../create/impl/Create-address.command';
 
 export class UpdateAddressCommand extends CreateAddressCommand {
   constructor(

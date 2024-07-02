@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { RecieveAddressQuery } from '../Recieve-address.query';
+import { RecieveAddressQuery } from '../impl/Recieve-address.query';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { AddressRepository } from 'src/user/repository/address-repository';
-import { UserAddress } from 'src/user/entities/address.entity';
+import { AddressRepository } from 'src/user/repository/Address-repository';
+import { UserAddress } from 'src/user/entities/Address.entity';
 
 @QueryHandler(RecieveAddressQuery)
 export class RecieveAddressQueryHandler
@@ -12,12 +12,12 @@ export class RecieveAddressQueryHandler
   constructor(private readonly addressRepository: AddressRepository) {}
   async execute(
     command: RecieveAddressQuery,
-  ): Promise<{ data: UserAddress[] }> {
+  ): Promise<{ addresses: UserAddress[] }> {
     const { id } = command;
     const address = await this.addressRepository.recieve(id);
 
     return {
-      data: address,
+      addresses: address,
     };
   }
 }
