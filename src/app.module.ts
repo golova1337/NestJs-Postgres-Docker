@@ -1,19 +1,35 @@
-import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from './auth/entities/User.entity';
-import { ConfigModule } from '@nestjs/config';
-import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
-import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
-import { APP_GUARD } from '@nestjs/core';
-import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthModule } from './auth/auth.module';
 import { Jwt } from './auth/entities/Jwt.entity';
-import { UserModule } from './user/user.module';
-import { UserAddress } from './user/entities/Address.entity';
 import { Otp } from './auth/entities/Otp.entity';
+import { User } from './auth/entities/User.entity';
+import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
+import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
+import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
+import { ProductCategory } from './product/entities/Product-category.entity';
+import { ProductDiscount } from './product/entities/Product-discount.entity';
+import { Product } from './product/entities/Product.entity';
+import { ProductInventory } from './product/entities/Product-inventory.entity';
+import { ProductModule } from './product/product.module';
+import { UserAddress } from './user-settings/entities/Address.entity';
+import { UserModule } from './user-settings/user.module';
 
+export const Entities = [
+  User,
+  UserAddress,
+  Otp,
+  Product,
+  ProductInventory,
+  ProductCategory,
+  ProductDiscount,
+  Jwt,
+];
+export const Modules = [AuthModule, UserModule, ProductModule];
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -45,7 +61,7 @@ import { Otp } from './auth/entities/Otp.entity';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       schema: 'store',
-      models: [User, Otp, Jwt, UserAddress],
+      models: [...Entities],
       pool: {
         max: 10,
         min: 3,
@@ -53,8 +69,7 @@ import { Otp } from './auth/entities/Otp.entity';
       autoLoadModels: true,
       synchronize: true,
     }),
-    AuthModule,
-    UserModule,
+    ...Modules,
   ],
   controllers: [],
   providers: [

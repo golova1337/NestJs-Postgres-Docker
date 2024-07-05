@@ -66,10 +66,11 @@ export const Services = [
   SendCodeService,
   AuthService,
 ];
+export const Entity = [User, Otp, Jwt];
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([User, Otp, Jwt]),
+    SequelizeModule.forFeature([...Entity]),
     JwtModule.register({}),
     BullModule.registerQueue({
       name: 'phone-sms',

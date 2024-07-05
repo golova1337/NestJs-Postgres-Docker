@@ -52,7 +52,7 @@ export class AuthController {
     return Response.succsessfully({ data: result });
   }
 
-  @Get()
+  @Post('/login')
   @ApiOperation({
     summary: 'Log in to your personal account.',
     description:

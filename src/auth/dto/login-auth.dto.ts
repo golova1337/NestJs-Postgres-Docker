@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   Length,
@@ -19,7 +20,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class LoginAuthDto {
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })
   @ValidateIf((o) => !o.phone)
-  @IsDefined()
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @IsEmail()
@@ -31,12 +32,15 @@ export class LoginAuthDto {
 
   @ApiProperty({ required: false, example: '+380735433445' })
   @ValidateIf((o) => !o.email)
-  @IsDefined()
+  @IsOptional()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsString()
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
+  })
+  @Matches(/^[0-9+]+$/, {
+    message: 'Phone must contain only  numbers and plus',
   })
   @Validate(LoginByPhoneConstraint)
   phone: string;

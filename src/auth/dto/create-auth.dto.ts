@@ -56,6 +56,9 @@ export class SingInAuthDto {
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
+  @Matches(/^[0-9+]+$/, {
+    message: 'Phone must contain only  numbers and plus',
+  })
   @Validate(SingInByPhoneConstraint)
   phone?: string;
 
