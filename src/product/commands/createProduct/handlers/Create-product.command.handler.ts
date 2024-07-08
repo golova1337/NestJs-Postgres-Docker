@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Product } from 'src/product/entities/Product.entity';
 import { ProductInventory } from 'src/product/entities/Product-inventory.entity';
-import { ProductRepository } from 'src/product/repository/Product.repository';
+import { ProductRepository } from 'src/product/repositories/Product.repository';
 import { CreateProductCommand } from '../impl/Create-product.command';
 
 @CommandHandler(CreateProductCommand)

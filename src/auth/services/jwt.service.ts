@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { JwtRepository } from '../repository/Jwt.repository';
+import { JwtRepository } from '../repositories/Jwt.repository';
 
 @Injectable()
 export class JwtTokenService {

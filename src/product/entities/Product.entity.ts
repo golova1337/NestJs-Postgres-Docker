@@ -7,9 +7,9 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { ProductCategory } from './Product-category.entity';
 import { ProductDiscount } from './Product-discount.entity';
 import { ProductInventory } from './Product-inventory.entity';
+import { Category } from 'src/category/entities/Product-category.entity';
 
 export interface ProductAttributes {
   id: string;
@@ -56,7 +56,7 @@ export class Product extends Model<
   @Column({ type: DataType.STRING(100), allowNull: false })
   SKU: string;
 
-  @ForeignKey(() => ProductCategory)
+  @ForeignKey(() => Category)
   @Column({ type: DataType.INTEGER, allowNull: false })
   category_id: string;
 
@@ -86,6 +86,6 @@ export class Product extends Model<
   @BelongsTo(() => ProductInventory)
   inventory: ProductInventory;
 
-  @BelongsTo(() => ProductCategory)
-  category: ProductCategory;
+  @BelongsTo(() => Category)
+  category: Category;
 }

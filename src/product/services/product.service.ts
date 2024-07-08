@@ -5,14 +5,14 @@ import { FiltrationUtils, PaginationResult } from 'src/utils/filtration';
 import { CreateProductCommand } from '../commands/createProduct/impl/Create-product.command';
 import { RemoveProductsCommand } from '../commands/removeProducts/impl/Remove-products.command';
 import { UpdateproductCommand } from '../commands/updateProduct/impl/Update-product.command';
-import { CreateProductDto } from '../dto/Create-product.dto';
-import { FindAllDto } from '../dto/FindAll-products.dto';
-import { UpdateProductDto } from '../dto/Update-product.dto';
 import { ProductInventory } from '../entities/Product-inventory.entity';
 import { Product } from '../entities/Product.entity';
 import { FindAllProductsQuery } from '../queries/findAllProducts/impl/Find-all-products.query';
 import { FindOneProductQuery } from '../queries/findOneProduct/impl/Find-one-product.query';
-import { UpdateCategoryProductCommand } from '../commands/updateCategory/impl/Update-category-product.command';
+import { UpdateCategoryCommand } from '../commands/updateCategory/impl/Update-category-product.command';
+import { CreateProductDto } from '../dto/create/Create-product.dto';
+import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
+import { UpdateProductDto } from '../dto/update/Update-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -47,7 +47,7 @@ export class ProductService {
   }
 
   async findAll(
-    filtration: FindAllDto,
+    filtration: FindAllQueriesDto,
   ): Promise<{ rows: Product[]; count: number }> {
     const { perPage, page, minPrice, maxPrice, sort, sortBy } = filtration;
     const pagination: PaginationResult = FiltrationUtils.pagination(
@@ -90,7 +90,7 @@ export class ProductService {
     categoria: string,
   ): Promise<[affectedCount: number]> {
     return this.commandBus
-      .execute(new UpdateCategoryProductCommand(id, categoria))
+      .execute(new UpdateCategoryCommand(id, categoria))
       .catch((error) => {
         this.logger.error(`Update Category Product Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');

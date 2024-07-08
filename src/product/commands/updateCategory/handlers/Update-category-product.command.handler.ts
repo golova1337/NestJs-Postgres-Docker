@@ -1,13 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateCategoryProductCommand } from '../impl/Update-category-product.command';
-import { ProductRepository } from 'src/product/repository/Product.repository';
+import { UpdateCategoryCommand } from '../impl/Update-category-product.command';
+import { ProductRepository } from 'src/product/repositories/Product.repository';
 
-@CommandHandler(UpdateCategoryProductCommand)
+@CommandHandler(UpdateCategoryCommand)
 export class UpdateCategoryProductCommandHandler
-  implements ICommandHandler<UpdateCategoryProductCommand>
+  implements ICommandHandler<UpdateCategoryCommand>
 {
   constructor(private readonly productRepository: ProductRepository) {}
-  execute(command: UpdateCategoryProductCommand): Promise<any> {
+  execute(command: UpdateCategoryCommand): Promise<any> {
     const { id, category_id } = command;
     return this.productRepository.updateCategory(id, category_id);
   }

@@ -10,21 +10,32 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiExtraModels,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
-import { CommonResponse, Response } from 'src/common/response/response';
-import { CreateAddressUserDto } from '../dto/Create-address.dto';
+import { CreateAddressUserDto } from '../dto/create/Create-address.dto';
 import { RemoveAddressesDto } from '../dto/Remove-address.dto';
 import { UserAddress } from '../entities/Address.entity';
 import { UserAddressService } from '../services/User-address.service';
+import { CommonResponseDto, Response } from 'src/common/response/response.dto';
+import { CreateAddressAnswerDto } from '../dto/create/Create-address.api.dto';
 
 @ApiBearerAuth()
+@ApiExtraModels(CreateAddressAnswerDto)
+@ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+@ApiInternalServerErrorResponse({ status: 500, description: 'Server Error' })
+@ApiBadRequestResponse({ status: 400, description: 'Bad Request' })
 @ApiTags('User-Address')
 @UseGuards(RolesGuard)
 @Controller(':id/address')
@@ -39,11 +50,25 @@ export class UserAddressController {
     description:
       'You can create default delivery addresses. The fields: city, country, street, house, postal code are mandatory. There can be no identical addresses ',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 201 })
+  @ApiOkResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              $ref: getSchemaPath(CreateAddressAnswerDto),
+            },
+          },
+        },
+      ],
+    },
+  })
   async create(
     @CurrentUser('id') id: string,
     @Body() createAddressUserDto: CreateAddressUserDto,
-  ): Promise<CommonResponse<UserAddress>> {
+  ): Promise<CommonResponseDto<UserAddress>> {
     const result = await this.userAddressService.create(
       createAddressUserDto,
       id,
@@ -58,10 +83,24 @@ export class UserAddressController {
     summary: 'Get all the addresses',
     description: 'You can get all your addresses',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 200 })
+  @ApiOkResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            results: {
+              type: 'array',
+              items: { $ref: getSchemaPath(CreateAddressAnswerDto) },
+            },
+          },
+        },
+      ],
+    },
+  })
   async receive(
     @Param('id') id: string,
-  ): Promise<CommonResponse<UserAddress[]>> {
+  ): Promise<CommonResponseDto<UserAddress[]>> {
     const result: UserAddress[] = await this.userAddressService.receive(id);
     return Response.succsessfully({ data: result });
   }
@@ -74,7 +113,21 @@ export class UserAddressController {
     description:
       'The fields: city, country, street, house, postal code are mandatory. There can be no identical addresses ',
   })
-  @ApiCreatedResponse({ status: 204 })
+  @ApiOkResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              $ref: getSchemaPath(CreateAddressAnswerDto),
+            },
+          },
+        },
+      ],
+    },
+  })
   async update(
     @Body() createAddressUserDto: CreateAddressUserDto,
     @Param('addressId') addressId: string,

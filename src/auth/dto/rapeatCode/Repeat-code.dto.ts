@@ -10,9 +10,9 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { RegistrationMethod } from '../enums/registMethod-enum';
-import { RepeatSendOtpByPhoneConstraint } from '../decorators/class-validator/verify/repeatCode-phone';
-import { RepeatSendOtpByEmailConstraint } from '../decorators/class-validator/verify/repeatCode-email';
+import { RegistrationMethod } from '../../enums/registMethod-enum';
+import { RepeatSendOtpByPhoneConstraint } from '../../decorators/class-validator/verify/repeatCode-phone';
+import { RepeatSendOtpByEmailConstraint } from '../../decorators/class-validator/verify/repeatCode-email';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RepeatSendCode {

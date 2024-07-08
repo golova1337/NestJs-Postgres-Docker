@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserAddress } from 'src/user-settings/entities/Address.entity';
-import { AddressRepository } from 'src/user-settings/repository/Address-repository';
+import { AddressRepository } from 'src/user-settings/repositories/Address-repository';
 import { CreateAddressCommand } from '../impl/Create-address.command';
 
 @CommandHandler(CreateAddressCommand)

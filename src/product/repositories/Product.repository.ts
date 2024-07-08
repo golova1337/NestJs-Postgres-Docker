@@ -83,6 +83,6 @@ export class ProductRepository {
   }
 
   async remove(ids: string[]): Promise<number> {
-    return this.productModel.destroy({ where: { id: ids } });
+    return this.productModel.destroy({ where: { id: { [Op.in]: ids } } });
   }
 }

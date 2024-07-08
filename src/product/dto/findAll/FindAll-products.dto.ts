@@ -1,9 +1,9 @@
 import { IsEnum, IsNumberString, IsOptional } from 'class-validator';
 import { Sort } from 'src/common/enum/sort-enum';
-import { SortBy } from '../enum/sort-by.enum';
 import { PerPage } from 'src/common/enum/per-page.enum';
+import { SortBy } from 'src/product/enum/sort-by.enum';
 
-export class FindAllDto {
+export class FindAllQueriesDto {
   @IsOptional()
   @IsEnum(PerPage)
   perPage?: PerPage;

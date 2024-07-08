@@ -5,7 +5,7 @@ import {
   ValidationArguments,
 } from 'class-validator';
 import { User } from '../../../entities/User.entity';
-import { AuthRepository } from '../../../repository/Auth.repository';
+import { AuthRepository } from '../../../repositories/Auth.repository';
 
 @ValidatorConstraint({ name: 'isPhoneExist', async: true })
 @Injectable()

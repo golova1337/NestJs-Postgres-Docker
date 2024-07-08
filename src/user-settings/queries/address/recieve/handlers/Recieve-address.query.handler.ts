@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { RecieveAddressQuery } from '../impl/Recieve-address.query';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { AddressRepository } from 'src/user-settings/repository/Address-repository';
+import { AddressRepository } from 'src/user-settings/repositories/Address-repository';
 import { UserAddress } from 'src/user-settings/entities/Address.entity';
 
 @QueryHandler(RecieveAddressQuery)

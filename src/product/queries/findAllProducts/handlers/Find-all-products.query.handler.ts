@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { FindAllProductsQuery } from '../impl/Find-all-products.query';
-import { ProductRepository } from 'src/product/repository/Product.repository';
+import { ProductRepository } from 'src/product/repositories/Product.repository';
 import { Product } from 'src/product/entities/Product.entity';
 
 @QueryHandler(FindAllProductsQuery)

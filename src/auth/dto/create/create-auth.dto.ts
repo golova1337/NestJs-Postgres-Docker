@@ -11,12 +11,12 @@ import {
   Validate,
   ValidateIf,
 } from 'class-validator';
-import { SingInByEmailConstraint } from '../decorators/class-validator/singIn/signInByEmail';
-import { IsPasswordsMatchingConstraint } from '../decorators/class-validator/singIn/isPasswordsMatching';
 import { Transform } from 'class-transformer';
-import { RegistrationMethod } from '../enums/registMethod-enum';
-import { SingInByPhoneConstraint } from '../decorators/class-validator/singIn/singInByPhone';
 import { ApiProperty } from '@nestjs/swagger';
+import { SingInByPhoneConstraint } from 'src/auth/decorators/class-validator/singIn/singInByPhone';
+import { SingInByEmailConstraint } from 'src/auth/decorators/class-validator/singIn/signInByEmail';
+import { IsPasswordsMatchingConstraint } from 'src/auth/decorators/class-validator/singIn/isPasswordsMatching';
+import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
 export class SingInAuthDto {
   @ApiProperty({ required: false, example: 'John' })
@@ -48,10 +48,10 @@ export class SingInAuthDto {
 
   @ApiProperty({ required: false, example: '+380735433445' })
   @ApiProperty({ required: false })
-  @ValidateIf((o) => !o.email)
-  @IsDefined()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
+  @ValidateIf((o) => !o.email)
+  @IsDefined()
   @IsString()
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
@@ -63,6 +63,8 @@ export class SingInAuthDto {
   phone?: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsDefined()
   @IsString()
   @Length(8, 32)
@@ -73,6 +75,8 @@ export class SingInAuthDto {
   password?: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsDefined()
   @IsString()
   @Length(8, 32)
@@ -84,6 +88,8 @@ export class SingInAuthDto {
   passwordRepeat: string;
 
   @ApiProperty({ required: true, example: 'email' })
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsDefined()
   @IsEnum(RegistrationMethod)
   @IsNotEmpty()

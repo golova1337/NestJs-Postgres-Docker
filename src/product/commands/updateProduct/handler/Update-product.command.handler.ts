@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateproductCommand } from '../impl/Update-product.command';
-import { ProductRepository } from 'src/product/repository/Product.repository';
+import { ProductRepository } from 'src/product/repositories/Product.repository';
 
 @CommandHandler(UpdateproductCommand)
 export class UpdateProductCommandHandler

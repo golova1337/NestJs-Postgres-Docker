@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsDefined,
   IsEmail,
@@ -11,18 +13,16 @@ import {
   Validate,
   ValidateIf,
 } from 'class-validator';
-import { LoginByEmailConstraint } from '../decorators/class-validator/login/loginByEmail';
-import { Transform } from 'class-transformer';
-import { LoginByPhoneConstraint } from '../decorators/class-validator/login/loginByPhone';
-import { RegistrationMethod } from '../enums/registMethod-enum';
-import { ApiProperty } from '@nestjs/swagger';
+import { LoginByEmailConstraint } from 'src/auth/decorators/class-validator/login/loginByEmail';
+import { LoginByPhoneConstraint } from 'src/auth/decorators/class-validator/login/loginByPhone';
+import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
 export class LoginAuthDto {
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })
   @ValidateIf((o) => !o.phone)
+  @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsNotEmpty()
-  @IsString()
   @IsEmail()
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
@@ -46,6 +46,8 @@ export class LoginAuthDto {
   phone: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsDefined()
   @IsString()
   @Length(8, 32)
@@ -56,6 +58,8 @@ export class LoginAuthDto {
   password: string;
 
   @ApiProperty({ required: true, example: 'email' })
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsEnum(RegistrationMethod)
   @IsDefined()
   @IsNotEmpty()

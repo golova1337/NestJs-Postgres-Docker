@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AddressRepository } from 'src/user-settings/repository/Address-repository';
+import { AddressRepository } from 'src/user-settings/repositories/Address-repository';
 import { RemoveAddressCommand } from '../impl/Remove-address.command';
 
 @CommandHandler(RemoveAddressCommand)

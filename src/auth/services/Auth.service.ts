@@ -14,9 +14,7 @@ import { CreateOtpCommand } from '../commands/singIn/impl/Create-otp.command';
 import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
 import { RemoveOtpCommand } from '../commands/verify-otp/impl/Remove-verification-code.command';
 import { VerifyUserCommand } from '../commands/verify-otp/impl/User-is-verified.command.command';
-import { SingInAuthDto } from '../dto/create-auth.dto';
-import { LoginAuthDto } from '../dto/login-auth.dto';
-import { RepeatSendCode } from '../dto/repeat-code.dto';
+import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
 import { Jwt } from '../entities/Jwt.entity';
 import { Otp } from '../entities/Otp.entity';
 import { User } from '../entities/User.entity';
@@ -26,6 +24,8 @@ import { CheckOtpQuery } from '../queries/verify-otp/impl/Check-verification-cod
 import { JwtTokenService } from './Jwt.service';
 import { OtpService } from './Otp.service';
 import { SendCodeService } from './SendCode.service';
+import { SingInAuthDto } from '../dto/create/create-auth.dto';
+import { LoginAuthDto } from '../dto/login/login-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +70,13 @@ export class AuthService {
 
     delete user.dataValues.password;
     //running a service that adds a massage to the massage queue
+    console.log({
+      registrationMethod,
+      email,
+      phone,
+      otp: generateOtp,
+    });
+
     this.sendCodeService.send({
       registrationMethod,
       email,

@@ -11,13 +11,14 @@ import { User } from './auth/entities/User.entity';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
-import { ProductCategory } from './product/entities/Product-category.entity';
 import { ProductDiscount } from './product/entities/Product-discount.entity';
 import { Product } from './product/entities/Product.entity';
 import { ProductInventory } from './product/entities/Product-inventory.entity';
 import { ProductModule } from './product/product.module';
 import { UserAddress } from './user-settings/entities/Address.entity';
 import { UserModule } from './user-settings/user.module';
+import { CategoryModule } from './category/category.module';
+import { Category } from './category/entities/Product-category.entity';
 
 export const Entities = [
   User,
@@ -25,11 +26,11 @@ export const Entities = [
   Otp,
   Product,
   ProductInventory,
-  ProductCategory,
   ProductDiscount,
+  Category,
   Jwt,
 ];
-export const Modules = [AuthModule, UserModule, ProductModule];
+export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
 @Module({
   imports: [
     ConfigModule.forRoot({

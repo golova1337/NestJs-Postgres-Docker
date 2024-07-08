@@ -1,6 +1,6 @@
 import { Optional } from 'sequelize';
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
-import { Product } from './Product.entity';
+import { Product } from 'src/product/entities/Product.entity';
 
 export interface ProductCategoryAttributes {
   id: string;
@@ -23,13 +23,13 @@ export interface ProductCategoryCreationAttributes
   paranoid: true,
   schema: 'store',
 })
-export class ProductCategory extends Model<
+export class Category extends Model<
   ProductCategoryAttributes,
   ProductCategoryCreationAttributes
 > {
   @Column({ type: DataType.STRING(100), allowNull: false, unique: true })
   name: string;
-  @Column({ type: DataType.TEXT, allowNull: false })
+  @Column({ type: DataType.TEXT('medium'), allowNull: false })
   desc: string;
   @Column({ type: DataType.DATE, allowNull: false })
   createdAt?: Date;

@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateAddressUserDto } from '../dto/Create-address.dto';
+import { CreateAddressUserDto } from '../dto/create/Create-address.dto';
 import { CreateAddressCommand } from '../commands/address/create/impl/Create-address.command';
 import { UserAddress } from '../entities/Address.entity';
 import { RecieveAddressQuery } from '../queries/address/recieve/impl/Recieve-address.query';

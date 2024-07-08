@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { VerifyUserCommand } from 'src/auth/commands/verify-otp/impl/User-is-verified.command.command';
-import { AuthRepository } from 'src/auth/repository/Auth.repository';
+import { AuthRepository } from 'src/auth/repositories/Auth.repository';
 
 @CommandHandler(VerifyUserCommand)
 export class VerifyUserCommandHandler

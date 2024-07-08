@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsDefined,
   IsNotEmpty,
@@ -12,19 +13,23 @@ import {
 export class CreateAddressUserDto {
   @ApiProperty({ example: 'Zaporizhzhia' })
   @IsDefined()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9]+$/)
   @MaxLength(150)
   city: string;
 
   @ApiProperty({ example: 'Ukraine' })
-  @IsDefined()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
+  @IsDefined()
   @Matches(/^[a-zA-Z0-9]+$/)
   @MaxLength(150)
   country: string;
 
   @ApiProperty({ example: 'Soborny Avenue' })
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsDefined()
   @IsNotEmpty()
   @Matches(/^[\w\s.-]+$/, {
@@ -34,6 +39,8 @@ export class CreateAddressUserDto {
 
   @ApiProperty({ example: '12G' })
   @IsDefined()
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsNotEmpty()
   @Matches(/^[A-Za-z0-9]+$/, {
     message: 'house must contain only letters, numbers, and spaces',
@@ -43,6 +50,8 @@ export class CreateAddressUserDto {
 
   @ApiProperty({ example: '22' })
   @IsOptional()
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsDefined()
   @IsNotEmpty()
   @Matches(/^[A-Za-z0-9]+$/, {
@@ -53,12 +62,15 @@ export class CreateAddressUserDto {
 
   @ApiProperty({ example: '69061' })
   @IsOptional()
+  @Transform(({ value }) => value.trim())
+  @IsNotEmpty()
   @IsNotEmpty()
   @IsPostalCode('UA')
   postal_code: string;
 
   @ApiProperty({ example: '+380507777777' })
   @IsOptional()
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',

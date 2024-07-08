@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RemoveProductsCommand } from '../impl/Remove-products.command';
-import { ProductRepository } from 'src/product/repository/Product.repository';
+import { ProductRepository } from 'src/product/repositories/Product.repository';
 
 @CommandHandler(RemoveProductsCommand)
 export class RemoveProductsCommandHandler

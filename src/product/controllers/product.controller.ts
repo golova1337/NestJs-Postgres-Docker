@@ -11,25 +11,38 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiExtraModels,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
-import { CommonResponse, Response } from 'src/common/response/response';
-import { CreateProductDto } from '../dto/Create-product.dto';
-import { FindAllDto } from '../dto/FindAll-products.dto';
-import { RemoveProductsDto } from '../dto/Remove-product.dto';
-import { UpdateProductCategoryDto } from '../dto/Update-product-category.dto';
-import { UpdateProductDto } from '../dto/Update-product.dto';
+import { RemoveProductsDto } from '../dto/remove/Remove-product.dto';
+import { UpdateProductCategoryDto } from '../dto/update/Update-product-category.dto';
 import { ProductInventory } from '../entities/Product-inventory.entity';
 import { Product } from '../entities/Product.entity';
 import { ProductService } from '../services/product.service';
+import { CommonResponseDto, Response } from 'src/common/response/response.dto';
+import { CreateProductAnswerDto } from '../dto/create/Create-product.api.dto';
+import { CreateProductDto } from '../dto/create/Create-product.dto';
+import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
+import { FindAllAnswerDto } from '../dto/findAll/FindAll-products.api.dto';
+import { CreatedProductDto } from '../dto/create/Created-product.api.dto';
+import { UpdateProductDto } from '../dto/update/Update-product.dto';
 
 @ApiBearerAuth()
 @ApiTags('Products')
+@ApiExtraModels(CreateProductAnswerDto, FindAllAnswerDto, CreatedProductDto)
+@ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+@ApiInternalServerErrorResponse({ status: 500, description: 'Server Error' })
+@ApiBadRequestResponse({ status: 400, description: 'Bad Request' })
 @Controller('products')
 @UseGuards(RolesGuard)
 export class ProductController {
@@ -43,15 +56,29 @@ export class ProductController {
     description:
       'If you are an administrator, you can create an item. Do not forget to create a category and a discount before doing so (no discount required).',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 201 })
+  @ApiCreatedResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              $ref: getSchemaPath(CreateProductAnswerDto),
+            },
+          },
+        },
+      ],
+    },
+  })
   async create(
     @Body() createProductDto: CreateProductDto,
   ): Promise<
-    CommonResponse<{ product: Product; inventory: ProductInventory }>
+    CommonResponseDto<{ product: Product; inventory: ProductInventory }>
   > {
     const result: { product: Product; inventory: ProductInventory } =
       await this.productService.create(createProductDto);
-    return;
+    return Response.succsessfully({ data: result });
   }
 
   @Get()
@@ -62,10 +89,24 @@ export class ProductController {
     description:
       'If you are a verified user or administrator, you get all the products. There is filtering of requests.',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 200 })
+  @ApiOkResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(FindAllAnswerDto) },
+            },
+          },
+        },
+      ],
+    },
+  })
   async findAll(
-    @Query() pagination: FindAllDto,
-  ): Promise<CommonResponse<{ rows: Product[]; count: number }>> {
+    @Query() pagination: FindAllQueriesDto,
+  ): Promise<CommonResponseDto<{ rows: Product[]; count: number }>> {
     const result: { rows: Product[]; count: number } =
       await this.productService.findAll(pagination);
     return Response.succsessfully({ data: result });
@@ -75,10 +116,24 @@ export class ProductController {
   @Roles('admin', 'user')
   @HttpCode(200)
   @ApiOperation({ summary: 'Product search by the id' })
-  @ApiCreatedResponse({ type: CommonResponse, status: 200 })
+  @ApiOkResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              $ref: getSchemaPath(CreatedProductDto),
+            },
+          },
+        },
+      ],
+    },
+  })
   async findOne(
     @Param('id') id: string,
-  ): Promise<CommonResponse<Product | null>> {
+  ): Promise<CommonResponseDto<Product | null>> {
     const result: Product | null = await this.productService.findOne(+id);
     return Response.succsessfully({ data: result });
   }
@@ -90,7 +145,7 @@ export class ProductController {
     summary: 'Update Product',
     description: 'If you an administartor, you can update product ',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 204 })
+  @ApiCreatedResponse({ type: CommonResponseDto, status: 204 })
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -109,7 +164,7 @@ export class ProductController {
     summary: 'Update Product',
     description: 'If you an administartor, you can update the product category',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 204 })
+  @ApiCreatedResponse({ type: CommonResponseDto, status: 204 })
   async updateCategoria(
     @Param('id') id: string,
     @Body() updateProductCategoryDto: UpdateProductCategoryDto,
@@ -128,7 +183,7 @@ export class ProductController {
     description:
       'If you an administartor, you can remove the product by the id',
   })
-  @ApiCreatedResponse({ type: CommonResponse, status: 204 })
+  @ApiCreatedResponse({ type: CommonResponseDto, status: 204 })
   async remove(@Body() body: RemoveProductsDto): Promise<number> {
     const ids = body.ids;
     return this.productService.remove(ids);

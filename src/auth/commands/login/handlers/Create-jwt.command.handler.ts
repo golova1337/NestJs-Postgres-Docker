@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { JwtRepository } from 'src/auth/repository/Jwt.repository';
+import { JwtRepository } from 'src/auth/repositories/Jwt.repository';
 import { InsertJwtCommand } from '../impl/Create-jwt.command';
 
 @CommandHandler(InsertJwtCommand)
