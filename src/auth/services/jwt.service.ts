@@ -1,0 +1,50 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { JwtRepository } from '../repository/Jwt.repository';
+
+@Injectable()
+export class JwtTokenService {
+  constructor(
+    private jwtService: JwtService,
+    private readonly jwtRepository: JwtRepository,
+    private configService: ConfigService,
+  ) {}
+  hashData(data: string): Promise<string> {
+    return bcrypt.hash(data, 10);
+  }
+  async compare(token: string, hashToken: string) {
+    return bcrypt.compare(token, hashToken);
+  }
+
+  async getTokens(userId: string, role: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          id: userId,
+          role,
+        },
+        {
+          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+          expiresIn: '15m',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          id: userId,
+          role,
+        },
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+}
