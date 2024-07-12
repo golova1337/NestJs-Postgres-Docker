@@ -6,6 +6,8 @@ export class CreateProductCommand {
     public readonly price: string,
     public readonly category_id: string,
     public readonly quantity: string,
-    public readonly discount_id?: string,
+    public readonly author_id: string,
+    public readonly files: Array<Express.Multer.File>,
+    public readonly discount_id: string,
   ) {}
 }

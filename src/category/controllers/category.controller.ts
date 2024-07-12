@@ -24,8 +24,8 @@ import {
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import {
-  CommonResponseDto,
   CommonResponse,
+  CommonResponseDto,
 } from 'src/common/response/response.dto';
 import { CreatedCategoryDto } from '../dto/create/create-category.api.dto';
 import { CreateCategoryDto } from '../dto/create/create-category.dto';

@@ -10,9 +10,7 @@ export class InsertJwtCommandHandler
 
   async execute(query: InsertJwtCommand): Promise<void> {
     const { id, token } = query;
-
     await this.jwtRepository.upsert({ userId: id, token });
-
     return;
   }
 }
