@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Otp } from '../entities/Otp.entity';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class OtpRepository {
@@ -20,9 +21,10 @@ export class OtpRepository {
     });
   }
 
-  async remove(code: string): Promise<number> {
+  async remove(code: string, transaction?: Transaction): Promise<number> {
     return this.verificationCodesModel.destroy({
       where: { otp: code },
+      transaction,
     });
   }
 }

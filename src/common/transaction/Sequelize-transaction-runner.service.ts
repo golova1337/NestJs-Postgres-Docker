@@ -7,8 +7,8 @@ import { Transaction } from 'sequelize';
 export class SequelizeTransactionRunner implements TransactionRunner {
   constructor(private readonly sequelize: Sequelize) {}
 
-  async startTransaction(): Promise<Transaction> {
-    return this.sequelize.transaction();
+  async startTransaction(isolationLevel?): Promise<Transaction> {
+    return this.sequelize.transaction(isolationLevel);
   }
 
   async commitTransaction(transaction: Transaction): Promise<void> {

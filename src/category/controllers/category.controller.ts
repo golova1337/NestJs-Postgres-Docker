@@ -23,7 +23,10 @@ import {
 } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
-import { CommonResponseDto, Response } from 'src/common/response/response.dto';
+import {
+  CommonResponseDto,
+  CommonResponse,
+} from 'src/common/response/response.dto';
 import { CreatedCategoryDto } from '../dto/create/create-category.api.dto';
 import { CreateCategoryDto } from '../dto/create/create-category.dto';
 import { RemoveCategoriesDto } from '../dto/remove/Remove-category.dto';
@@ -66,7 +69,7 @@ export class CategoryController {
   ): Promise<CommonResponseDto<Category>> {
     const result: Category =
       await this.categoryService.create(createCategoryDto);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Get()
@@ -93,7 +96,7 @@ export class CategoryController {
   })
   async findAll(): Promise<CommonResponseDto<Category[]>> {
     const result: Category[] = await this.categoryService.findAll();
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Get(':id')
@@ -122,7 +125,7 @@ export class CategoryController {
     @Param('id') id: string,
   ): Promise<CommonResponseDto<Category | null>> {
     const result: Category | null = await this.categoryService.findOne(+id);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Patch(':id')

@@ -24,7 +24,6 @@ export class AddressRepository {
     },
     data: Omit<UpdateAddressCommand, 'userId' | 'addressId'>,
   ): Promise<[affectedCount: number]> {
-    console.log(condition);
 
     return this.userAddress.update(data, {
       where: { id: condition.addressId, userId: condition.userId },

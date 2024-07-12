@@ -29,7 +29,10 @@ import { JwtPayload } from '../../common/strategies/accessToken.strategy';
 import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
 import { User } from '../entities/User.entity';
 
-import { CommonResponseDto, Response } from 'src/common/response/response.dto';
+import {
+  CommonResponseDto,
+  CommonResponse,
+} from 'src/common/response/response.dto';
 import { SingInAuthDto } from '../dto/create/create-auth.dto';
 import { SingInAuthAnswerDto } from '../dto/create/create-auth.dto.api';
 import { LoginAuthAnswerDto } from '../dto/login/login-api.dto';
@@ -72,7 +75,7 @@ export class AuthController {
     @Body() singInAuthDto: SingInAuthDto,
   ): Promise<CommonResponseDto<SingInAuthAnswerDto>> {
     const result: User = await this.authService.singIn(singInAuthDto);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Post('/login')
@@ -103,7 +106,7 @@ export class AuthController {
   ): Promise<CommonResponseDto<LoginAuthAnswerDto>> {
     const result: { accessToken: string; refreshToken: string } =
       await this.authService.login(loginAuthDto);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Patch('/logout')
@@ -151,7 +154,7 @@ export class AuthController {
   ): Promise<CommonResponseDto<LoginAuthAnswerDto>> {
     const result: { accessToken: string; refreshToken: string } =
       await this.authService.refresh(user);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Patch('verify')

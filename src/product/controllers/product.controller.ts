@@ -4,12 +4,17 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -22,20 +27,28 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
+import { diskStorage } from 'multer';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
+import {
+  CommonResponse,
+  CommonResponseDto,
+} from 'src/common/response/response.dto';
+import { CreateProductAnswerDto } from '../dto/create/Create-product.api.dto';
+import { CreateProductDto } from '../dto/create/Create-product.dto';
+import { CreatedProductDto } from '../dto/create/Created-product.api.dto';
+import { FindAllAnswerDto } from '../dto/findAll/FindAll-products.api.dto';
+import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
 import { RemoveProductsDto } from '../dto/remove/Remove-product.dto';
 import { UpdateProductCategoryDto } from '../dto/update/Update-product-category.dto';
+import { UpdateProductDto } from '../dto/update/Update-product.dto';
+import { File } from '../entities/File.entity';
 import { ProductInventory } from '../entities/Product-inventory.entity';
 import { Product } from '../entities/Product.entity';
 import { ProductService } from '../services/product.service';
-import { CommonResponseDto, Response } from 'src/common/response/response.dto';
-import { CreateProductAnswerDto } from '../dto/create/Create-product.api.dto';
-import { CreateProductDto } from '../dto/create/Create-product.dto';
-import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
-import { FindAllAnswerDto } from '../dto/findAll/FindAll-products.api.dto';
-import { CreatedProductDto } from '../dto/create/Created-product.api.dto';
-import { UpdateProductDto } from '../dto/update/Update-product.dto';
+import { UploadFileService } from '../services/upload-files.service';
+import { Size } from 'src/product/enum/multer-enum';
 
 @ApiBearerAuth()
 @ApiTags('Products')
@@ -78,7 +91,39 @@ export class ProductController {
   > {
     const result: { product: Product; inventory: ProductInventory } =
       await this.productService.create(createProductDto);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
+  }
+
+  @Post(':id/upload')
+  @Roles('admin')
+  @HttpCode(201)
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: UploadFileService.localStore(),
+        filename: UploadFileService.fileNameEditor,
+      }),
+    }),
+  )
+  async upload(
+    @UploadedFiles(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: UploadFileService.imageFileFilter(),
+        })
+        .addMaxSizeValidator({
+          maxSize: Size.Product,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    files: Array<Express.Multer.File>,
+    @Param('id') id: string,
+    @CurrentUser('id') userId: string,
+  ): Promise<CommonResponseDto<File[]>> {
+    const result: File[] = await this.productService.upload(files, id, userId);
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Get()
@@ -109,7 +154,7 @@ export class ProductController {
   ): Promise<CommonResponseDto<{ rows: Product[]; count: number }>> {
     const result: { rows: Product[]; count: number } =
       await this.productService.findAll(pagination);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Get(':id')
@@ -135,7 +180,7 @@ export class ProductController {
     @Param('id') id: string,
   ): Promise<CommonResponseDto<Product | null>> {
     const result: Product | null = await this.productService.findOne(+id);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Patch(':id')

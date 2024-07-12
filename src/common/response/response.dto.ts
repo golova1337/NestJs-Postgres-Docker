@@ -22,7 +22,7 @@ export class CommonResponseDto<T> {
   data: T;
 }
 
-export class Response {
+export class CommonResponse {
   static succsessfully<T>(result: Result<T>): CommonResponseDto<T> {
     return {
       status: true,

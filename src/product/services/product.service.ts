@@ -13,6 +13,8 @@ import { UpdateCategoryCommand } from '../commands/updateCategory/impl/Update-ca
 import { CreateProductDto } from '../dto/create/Create-product.dto';
 import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
 import { UpdateProductDto } from '../dto/update/Update-product.dto';
+import { UploadFilesCommand } from '../commands/uploadFiles/impl/Upload-files.command';
+import { File } from '../entities/File.entity';
 
 @Injectable()
 export class ProductService {
@@ -44,6 +46,18 @@ export class ProductService {
         throw new InternalServerErrorException('Internal Server');
       });
     return { product, inventory };
+  }
+  async upload(
+    files: Array<Express.Multer.File>,
+    id: string,
+    userId: string,
+  ): Promise<File[]> {
+    return this.commandBus
+      .execute(new UploadFilesCommand(files, id, userId))
+      .catch((error) => {
+        this.logger.error(error);
+        throw new InternalServerErrorException('Internal Server');
+      });
   }
 
   async findAll(

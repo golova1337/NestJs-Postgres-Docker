@@ -12,8 +12,9 @@ import { InsertJwtCommand } from '../commands/login/impl/Create-jwt.command';
 import { LogoutCommand } from '../commands/logout/impl/Logout.command';
 import { CreateOtpCommand } from '../commands/singIn/impl/Create-otp.command';
 import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
-import { RemoveOtpCommand } from '../commands/verify-otp/impl/Remove-verification-code.command';
-import { VerifyUserCommand } from '../commands/verify-otp/impl/User-is-verified.command.command';
+import { MakeUserVerified } from '../commands/verify-otp/impl/Make-user-verified.command';
+import { SingInAuthDto } from '../dto/create/create-auth.dto';
+import { LoginAuthDto } from '../dto/login/login-auth.dto';
 import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
 import { Jwt } from '../entities/Jwt.entity';
 import { Otp } from '../entities/Otp.entity';
@@ -24,8 +25,6 @@ import { CheckOtpQuery } from '../queries/verify-otp/impl/Check-verification-cod
 import { JwtTokenService } from './Jwt.service';
 import { OtpService } from './Otp.service';
 import { SendCodeService } from './SendCode.service';
-import { SingInAuthDto } from '../dto/create/create-auth.dto';
-import { LoginAuthDto } from '../dto/login/login-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -70,13 +69,6 @@ export class AuthService {
 
     delete user.dataValues.password;
     //running a service that adds a massage to the massage queue
-    console.log({
-      registrationMethod,
-      email,
-      phone,
-      otp: generateOtp,
-    });
-
     this.sendCodeService.send({
       registrationMethod,
       email,
@@ -184,16 +176,11 @@ export class AuthService {
     if (!validateOtp || !!isOtpExpired)
       throw new BadRequestException('Bad Request');
 
-    // update a user in the database, making it verified
+    // remove Otp, update a user in the database, making it verified
     await this.commandBus
-      .execute(new VerifyUserCommand(verificationCode.userId))
-      .catch((err) => {
-        this.logger.error(`verificationCodes:${err}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    // remove Otp
-    await this.commandBus
-      .execute(new RemoveOtpCommand(verificationCode.otp))
+      .execute(
+        new MakeUserVerified(verificationCode.otp, verificationCode.userId),
+      )
       .catch((err) => {
         this.logger.error(`setNull:${err}`);
         throw new InternalServerErrorException('Server Error');

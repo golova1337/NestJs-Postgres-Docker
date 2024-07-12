@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op, where } from 'sequelize';
+import { Op } from 'sequelize';
+import { Sort } from 'src/common/enum/sort-enum';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { CreateProductCommand } from '../commands/createProduct/impl/Create-product.command';
+import { UpdateproductCommand } from '../commands/updateProduct/impl/Update-product.command';
 import { ProductInventory } from '../entities/Product-inventory.entity';
 import { Product } from '../entities/Product.entity';
-import { FindAllProductsQuery } from '../queries/findAllProducts/impl/Find-all-products.query';
-import { Sort } from 'src/common/enum/sort-enum';
 import { SortBy } from '../enum/sort-by.enum';
-import { UpdateproductCommand } from '../commands/updateProduct/impl/Update-product.command';
+import { FindAllProductsQuery } from '../queries/findAllProducts/impl/Find-all-products.query';
+import { File } from '../entities/File.entity';
 
 @Injectable()
 export class ProductRepository {
@@ -43,8 +44,6 @@ export class ProductRepository {
       await this.sequelizeTransactionRunner.commitTransaction(transaction);
       return { inventory, product };
     } catch (error) {
-      console.log(error);
-
       await this.sequelizeTransactionRunner.rollbackTransaction(transaction);
     }
   }
@@ -63,11 +62,12 @@ export class ProductRepository {
       offset: query.pagination.offset,
       limit: +query.pagination.perPage,
       order: [[query.order.sortBy || SortBy.Id, query.order.sort || Sort.ASC]],
+      include: File,
     });
     return { count, rows };
   }
   async findByPk(id: number): Promise<Product | null> {
-    return this.productModel.findByPk(id);
+    return this.productModel.findByPk(id, { include: File });
   }
   async update(
     id: number,

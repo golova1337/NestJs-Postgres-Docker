@@ -28,7 +28,7 @@ import { CreateAddressUserDto } from '../dto/create/Create-address.dto';
 import { RemoveAddressesDto } from '../dto/Remove-address.dto';
 import { UserAddress } from '../entities/Address.entity';
 import { UserAddressService } from '../services/User-address.service';
-import { CommonResponseDto, Response } from 'src/common/response/response.dto';
+import { CommonResponseDto, CommonResponse } from 'src/common/response/response.dto';
 import { CreateAddressAnswerDto } from '../dto/create/Create-address.api.dto';
 
 @ApiBearerAuth()
@@ -73,7 +73,7 @@ export class UserAddressController {
       createAddressUserDto,
       id,
     );
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Roles('user', 'admin')
@@ -102,7 +102,7 @@ export class UserAddressController {
     @Param('id') id: string,
   ): Promise<CommonResponseDto<UserAddress[]>> {
     const result: UserAddress[] = await this.userAddressService.receive(id);
-    return Response.succsessfully({ data: result });
+    return CommonResponse.succsessfully({ data: result });
   }
 
   @Roles('user', 'admin')

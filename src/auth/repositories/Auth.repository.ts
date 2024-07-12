@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../entities/User.entity';
 import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
 import { RegistrationMethod } from '../enums/registMethod-enum';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class AuthRepository {
@@ -27,10 +28,13 @@ export class AuthRepository {
     return this.userModel.findOne({ where: whereOptions });
   }
 
-  async isVerified(userId: number): Promise<[affectedCount: number]> {
+  async isVerified(
+    userId: number,
+    transaction?: Transaction,
+  ): Promise<[affectedCount: number]> {
     return await this.userModel.update(
       { isVerified: true },
-      { where: { id: userId } },
+      { where: { id: userId }, transaction },
     );
   }
   async getUserByRegistrationMethod(

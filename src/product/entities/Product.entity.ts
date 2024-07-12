@@ -4,12 +4,14 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { ProductDiscount } from './Product-discount.entity';
 import { ProductInventory } from './Product-inventory.entity';
 import { Category } from 'src/category/entities/Product-category.entity';
+import { File } from './File.entity';
 
 export interface ProductAttributes {
   id: string;
@@ -88,4 +90,7 @@ export class Product extends Model<
 
   @BelongsTo(() => Category)
   category: Category;
+
+  @HasMany(() => File, 'product_id')
+  files: File[];
 }

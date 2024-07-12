@@ -3,22 +3,26 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { MulterModule } from '@nestjs/platform-express';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
 import { Jwt } from './auth/entities/Jwt.entity';
 import { Otp } from './auth/entities/Otp.entity';
 import { User } from './auth/entities/User.entity';
+import { CategoryModule } from './category/category.module';
+import { Category } from './category/entities/Product-category.entity';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
 import { ProductDiscount } from './product/entities/Product-discount.entity';
-import { Product } from './product/entities/Product.entity';
 import { ProductInventory } from './product/entities/Product-inventory.entity';
+import { Product } from './product/entities/Product.entity';
 import { ProductModule } from './product/product.module';
 import { UserAddress } from './user-settings/entities/Address.entity';
 import { UserModule } from './user-settings/user.module';
-import { CategoryModule } from './category/category.module';
-import { Category } from './category/entities/Product-category.entity';
+import { File } from './product/entities/File.entity';
+import { UploadFileService } from './product/services/upload-files.service';
+import { Size } from './product/enum/multer-enum';
 
 export const Entities = [
   User,
@@ -29,6 +33,7 @@ export const Entities = [
   ProductDiscount,
   Category,
   Jwt,
+  File,
 ];
 export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
 @Module({
@@ -70,6 +75,12 @@ export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
       autoLoadModels: true,
       synchronize: true,
     }),
+
+    MulterModule.register({
+      dest: UploadFileService.localStore(),
+      limits: { fieldSize: Size.Product },
+    }),
+
     ...Modules,
   ],
   controllers: [],
