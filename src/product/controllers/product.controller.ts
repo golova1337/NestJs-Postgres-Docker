@@ -18,6 +18,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
@@ -35,6 +37,7 @@ import {
   CommonResponse,
   CommonResponseDto,
 } from 'src/common/response/response.dto';
+import { Size } from 'src/product/enum/multer-enum';
 import { CreateProductAnswerDto } from '../dto/create/Create-product.api.dto';
 import { CreateProductDto } from '../dto/create/Create-product.dto';
 import { CreatedProductDto } from '../dto/create/Created-product.api.dto';
@@ -48,7 +51,6 @@ import { ProductInventory } from '../entities/Product-inventory.entity';
 import { Product } from '../entities/Product.entity';
 import { ProductService } from '../services/product.service';
 import { UploadFileService } from '../services/upload-files.service';
-import { Size } from 'src/product/enum/multer-enum';
 
 @ApiBearerAuth()
 @ApiTags('Products')
@@ -64,10 +66,23 @@ export class ProductController {
   @Post()
   @Roles('admin')
   @HttpCode(201)
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: UploadFileService.localStore(),
+        filename: UploadFileService.fileNameEditor,
+      }),
+    }),
+  )
   @ApiOperation({
     summary: 'Creation Product',
     description:
       'If you are an administrator, you can create an item. Do not forget to create a category and a discount before doing so (no discount required).',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'product creation',
+    type: CreateProductDto,
   })
   @ApiCreatedResponse({
     schema: {
@@ -86,26 +101,6 @@ export class ProductController {
   })
   async create(
     @Body() createProductDto: CreateProductDto,
-  ): Promise<
-    CommonResponseDto<{ product: Product; inventory: ProductInventory }>
-  > {
-    const result: { product: Product; inventory: ProductInventory } =
-      await this.productService.create(createProductDto);
-    return CommonResponse.succsessfully({ data: result });
-  }
-
-  @Post(':id/upload')
-  @Roles('admin')
-  @HttpCode(201)
-  @UseInterceptors(
-    FilesInterceptor('files', 10, {
-      storage: diskStorage({
-        destination: UploadFileService.localStore(),
-        filename: UploadFileService.fileNameEditor,
-      }),
-    }),
-  )
-  async upload(
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -116,13 +111,24 @@ export class ProductController {
         })
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: false,
         }),
     )
     files: Array<Express.Multer.File>,
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ): Promise<CommonResponseDto<File[]>> {
-    const result: File[] = await this.productService.upload(files, id, userId);
+    @CurrentUser('id')
+    userId: string,
+  ): Promise<
+    CommonResponseDto<{
+      product: Product;
+      inventory: ProductInventory;
+      images: File[];
+    }>
+  > {
+    const result: {
+      product: Product;
+      inventory: ProductInventory;
+      images: File[];
+    } = await this.productService.create(createProductDto, userId, files);
     return CommonResponse.succsessfully({ data: result });
   }
 
@@ -200,37 +206,5 @@ export class ProductController {
       updateProductDto,
     );
     return;
-  }
-
-  @Patch(':id/category')
-  @Roles('admin')
-  @HttpCode(204)
-  @ApiOperation({
-    summary: 'Update Product',
-    description: 'If you an administartor, you can update the product category',
-  })
-  @ApiCreatedResponse({ type: CommonResponseDto, status: 204 })
-  async updateCategoria(
-    @Param('id') id: string,
-    @Body() updateProductCategoryDto: UpdateProductCategoryDto,
-  ): Promise<void> {
-    const { category_id } = updateProductCategoryDto;
-    const result: [affectedCount: number] =
-      await this.productService.updateCategory(+id, category_id);
-    return;
-  }
-
-  @Delete()
-  @Roles('admin')
-  @HttpCode(204)
-  @ApiOperation({
-    summary: 'Remove Product',
-    description:
-      'If you an administartor, you can remove the product by the id',
-  })
-  @ApiCreatedResponse({ type: CommonResponseDto, status: 204 })
-  async remove(@Body() body: RemoveProductsDto): Promise<number> {
-    const ids = body.ids;
-    return this.productService.remove(ids);
   }
 }

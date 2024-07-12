@@ -67,6 +67,14 @@ export class CreateProductDto {
   @Length(2, 100)
   quantity: string;
 
+  @ApiProperty({
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+    required: false,
+  })
+  @IsOptional()
+  files?: any[];
+
   @ApiProperty({ example: '1' })
   @IsOptional()
   @Transform(({ value }) => value.trim())

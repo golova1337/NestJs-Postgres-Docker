@@ -25,7 +25,7 @@ import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import { CreateAddressUserDto } from '../dto/create/Create-address.dto';
-import { RemoveAddressesDto } from '../dto/Remove-address.dto';
+import { RemoveAddressesDto } from '../dto/remove/Remove-address.dto';
 import { UserAddress } from '../entities/Address.entity';
 import { UserAddressService } from '../services/User-address.service';
 import { CommonResponseDto, CommonResponse } from 'src/common/response/response.dto';

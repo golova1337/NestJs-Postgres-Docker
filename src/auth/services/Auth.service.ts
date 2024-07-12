@@ -136,6 +136,7 @@ export class AuthService {
         this.logger.error(`Refresh Query ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
+    // compare token
     const compare = await this.jwtTokenService
       .compare(refreshToken, token.token)
       .catch((error) => {
@@ -143,7 +144,7 @@ export class AuthService {
         throw new InternalServerErrorException('Server Error');
       });
     if (!compare || !token) throw new UnauthorizedException('Unauthorized');
-
+    //create new jwt
     const tokens: {
       accessToken: string;
       refreshToken: string;
@@ -164,7 +165,9 @@ export class AuthService {
       .execute(new CheckOtpQuery(otp))
       .catch((error) => {
         this.logger.error(`verificationCode query ${error}`);
+        throw new InternalServerErrorException('Server Error');
       });
+    //vidate otp
     const validateOtp: boolean = await this.otpService.validateOtp(
       verificationCode.otp,
       otp,

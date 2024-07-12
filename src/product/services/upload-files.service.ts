@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'node:fs/promises';
 import { join } from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
+import { File } from '../entities/File.entity';
 
 @Injectable()
 export class UploadFileService {
-  async deleteFiles(files: Array<Express.Multer.File>) {
+  async deleteFiles(files: Array<Express.Multer.File> | File[]) {
     await Promise.all(
       files.map(async (file) => {
         const path = join(

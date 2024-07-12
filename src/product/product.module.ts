@@ -18,6 +18,10 @@ import { FileRepository } from './repositories/File.repository';
 import { ProductRepository } from './repositories/Product.repository';
 import { ProductService } from './services/product.service';
 import { UploadFileService } from './services/upload-files.service';
+import { ProductInventoryRepository } from './repositories/Inventory.repository';
+import { ProductSettingController } from './controllers/product-setting.controller';
+import { RemoveProductFilesCommandHandler } from './commands/removeProductImages/handlers/remove-product-images.command.handler';
+import { ProductSettingService } from './services/product-setting.service';
 
 export const ProductsEntity = [
   Product,
@@ -25,29 +29,42 @@ export const ProductsEntity = [
   ProductDiscount,
   File,
 ];
-export const Services = [ProductService, UploadFileService];
+export const Services = [
+  ProductService,
+  UploadFileService,
+  ProductSettingService,
+];
 export const Transaction = [SequelizeTransactionRunner];
-export const Repository = [ProductRepository, FileRepository];
-export const CommandHandlers = [
+export const Repository = [
+  ProductRepository,
+  FileRepository,
+  ProductInventoryRepository,
+];
+export const CommandHandlersProduct = [
   CreateProductCommandHandler,
   UpdateProductCommandHandler,
   RemoveProductsCommandHandler,
   UpdateCategoryProductCommandHandler,
-  UploadFilesCommandHandler,
 ];
-export const QueryHandlers = [
+export const CommandHandlersProductFiles = [
+  UploadFilesCommandHandler,
+  RemoveProductFilesCommandHandler,
+];
+export const QueryHandlersProduct = [
   FindAllProductsQueryHandler,
   FindOneProductQueryHAndler,
 ];
+export const ProductControllers = [ProductController, ProductSettingController];
 @Module({
   imports: [CqrsModule, SequelizeModule.forFeature([...ProductsEntity])],
-  controllers: [ProductController],
+  controllers: [...ProductControllers],
   providers: [
     ...Services,
     ...Transaction,
     ...Repository,
-    ...CommandHandlers,
-    ...QueryHandlers,
+    ...CommandHandlersProduct,
+    ...QueryHandlersProduct,
+    ...CommandHandlersProductFiles,
   ],
 })
 export class ProductModule {}

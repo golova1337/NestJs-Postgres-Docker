@@ -3,18 +3,19 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 import { FiltrationUtils, PaginationResult } from 'src/utils/filtration';
 import { CreateProductCommand } from '../commands/createProduct/impl/Create-product.command';
+import { RemoveProductImagesCommand } from '../commands/removeProductImages/impl/remove-product-images.command';
 import { RemoveProductsCommand } from '../commands/removeProducts/impl/Remove-products.command';
+import { UpdateCategoryCommand } from '../commands/updateCategory/impl/Update-category-product.command';
 import { UpdateproductCommand } from '../commands/updateProduct/impl/Update-product.command';
+import { UploadFilesCommand } from '../commands/uploadFiles/impl/Upload-files.command';
+import { CreateProductDto } from '../dto/create/Create-product.dto';
+import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
+import { UpdateProductDto } from '../dto/update/Update-product.dto';
+import { File } from '../entities/File.entity';
 import { ProductInventory } from '../entities/Product-inventory.entity';
 import { Product } from '../entities/Product.entity';
 import { FindAllProductsQuery } from '../queries/findAllProducts/impl/Find-all-products.query';
 import { FindOneProductQuery } from '../queries/findOneProduct/impl/Find-one-product.query';
-import { UpdateCategoryCommand } from '../commands/updateCategory/impl/Update-category-product.command';
-import { CreateProductDto } from '../dto/create/Create-product.dto';
-import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
-import { UpdateProductDto } from '../dto/update/Update-product.dto';
-import { UploadFilesCommand } from '../commands/uploadFiles/impl/Upload-files.command';
-import { File } from '../entities/File.entity';
 
 @Injectable()
 export class ProductService {
@@ -25,11 +26,17 @@ export class ProductService {
   ) {}
   async create(
     createProductDto: CreateProductDto,
-  ): Promise<{ product: Product; inventory: ProductInventory }> {
+    author: string,
+    files: Array<Express.Multer.File>,
+  ): Promise<{
+    product: Product;
+    inventory: ProductInventory;
+    images: File[];
+  }> {
     const { name, desc, discount_id, category_id, SKU, quantity, price } =
       createProductDto;
 
-    const { product, inventory } = await this.commandBus
+    const { product, inventory, images } = await this.commandBus
       .execute(
         new CreateProductCommand(
           name,
@@ -38,6 +45,8 @@ export class ProductService {
           price,
           category_id,
           quantity,
+          author,
+          files,
           discount_id,
         ),
       )
@@ -45,7 +54,7 @@ export class ProductService {
         this.logger.error(error);
         throw new InternalServerErrorException('Internal Server');
       });
-    return { product, inventory };
+    return { product, inventory, images };
   }
   async upload(
     files: Array<Express.Multer.File>,
@@ -116,6 +125,15 @@ export class ProductService {
       .execute(new RemoveProductsCommand(ids))
       .catch((error) => {
         this.logger.error(`Update Product Handler ${error}`);
+        throw new InternalServerErrorException('Internal Server');
+      });
+  }
+
+  async removeImages(ids: string[]): Promise<number> {
+    return this.commandBus
+      .execute(new RemoveProductImagesCommand(ids))
+      .catch((error) => {
+        this.logger.error(`Update Category Product Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');
       });
   }

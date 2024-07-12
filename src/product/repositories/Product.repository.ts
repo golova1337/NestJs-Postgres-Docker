@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import { Sort } from 'src/common/enum/sort-enum';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { CreateProductCommand } from '../commands/createProduct/impl/Create-product.command';
@@ -20,33 +20,19 @@ export class ProductRepository {
     private readonly productInventoryModel: typeof ProductInventory,
     private readonly sequelizeTransactionRunner: SequelizeTransactionRunner,
   ) {}
-  async createProduct(
-    createProduct: Omit<CreateProductCommand, 'quantity'>,
-    quantity: string,
-  ): Promise<{ product: Product; inventory: ProductInventory }> {
-    const transaction =
-      await this.sequelizeTransactionRunner.startTransaction();
-
-    try {
-      const inventory = await this.productInventoryModel.create(
-        {
-          quantity: quantity,
-        },
-        { transaction },
-      );
-
-      const product = await this.productModel.create(
-        { ...createProduct, inventory_id: inventory.id },
-        {
-          transaction,
-        },
-      );
-      await this.sequelizeTransactionRunner.commitTransaction(transaction);
-      return { inventory, product };
-    } catch (error) {
-      await this.sequelizeTransactionRunner.rollbackTransaction(transaction);
-    }
+  async create(
+    product: Omit<CreateProductCommand, 'quantity' | 'files' | 'author_id'>,
+    inventory_id: string,
+    transaction?: Transaction,
+  ): Promise<Product> {
+    return this.productModel.create(
+      { ...product, inventory_id: inventory_id },
+      {
+        transaction,
+      },
+    );
   }
+
   async findAll(
     query: FindAllProductsQuery,
   ): Promise<{ rows: Product[]; count: number }> {
