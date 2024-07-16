@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { RefreshQuery } from '../impl/Refresh.query';
-import { JwtRepository } from 'src/auth/repository/Jwt.repository';
+import { JwtRepository } from 'src/auth/repositories/Jwt.repository';
 import { Jwt } from 'src/auth/entities/Jwt.entity';
 
 @QueryHandler(RefreshQuery)

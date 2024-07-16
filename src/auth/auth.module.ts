@@ -9,8 +9,6 @@ import { InsertJwtCommandHandler } from './commands/login/handlers/Create-jwt.co
 import { LogoutCommandHandler } from './commands/logout/handlers/Logout.command.handler';
 import { CreateOtpCommandHandler } from './commands/singIn/handlers/Create-otp.command.handler';
 import { CreateUserCommandHandler } from './commands/singIn/handlers/Create-user.command.handler';
-import { RemoveOtpCommandHandler } from './commands/verify-otp/handlers/Remove-otp.command.handler';
-import { VerifyUserCommandHandler } from './commands/verify-otp/handlers/Verify-user.command.handler';
 import { AuthController } from './controllers/auth.controller';
 import { LoginByEmailConstraint } from './decorators/class-validator/login/loginByEmail';
 import { LoginByPhoneConstraint } from './decorators/class-validator/login/loginByPhone';
@@ -25,13 +23,15 @@ import { User } from './entities/User.entity';
 import { LoginQueryHandlear } from './queries/login/handlers/Login-check-user.query.handler';
 import { RefreshQueryHandler } from './queries/refresh/handlers/Refresh.query.handler';
 import { CheckOtpQueryHandler } from './queries/verify-otp/handlers/Check-otp.command.handler';
-import { AuthRepository } from './repository/Auth.repository';
-import { JwtRepository } from './repository/Jwt.repository';
-import { OtpRepository } from './repository/Otp.repository';
+import { AuthRepository } from './repositories/Auth.repository';
+import { JwtRepository } from './repositories/Jwt.repository';
+import { OtpRepository } from './repositories/Otp.repository';
 import { AuthService } from './services/Auth.service';
 import { JwtTokenService } from './services/Jwt.service';
 import { OtpService } from './services/Otp.service';
 import { SendCodeService } from './services/SendCode.service';
+import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
+import { MakeUserVerifiedCommandHandler } from './commands/verify-otp/handlers/Make-user-verified.command.handler';
 
 export const Repository = [AuthRepository, OtpRepository, JwtRepository];
 export const Consumer = [EmailConsumer, PhoneConsumer];
@@ -57,8 +57,7 @@ export const CommandHandler = [
   CreateUserCommandHandler,
   CreateOtpCommandHandler,
   LogoutCommandHandler,
-  VerifyUserCommandHandler,
-  RemoveOtpCommandHandler,
+  MakeUserVerifiedCommandHandler,
 ];
 export const Services = [
   OtpService,
@@ -66,10 +65,12 @@ export const Services = [
   SendCodeService,
   AuthService,
 ];
+export const Entities = [User, Otp, Jwt];
+export const Transaction = [SequelizeTransactionRunner];
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([User, Otp, Jwt]),
+    SequelizeModule.forFeature([...Entities]),
     JwtModule.register({}),
     BullModule.registerQueue({
       name: 'phone-sms',
@@ -87,6 +88,7 @@ export const Services = [
     ...QueryHandler,
     ...CommandHandler,
     ...Services,
+    ...Transaction,
   ],
 })
 export class AuthModule {}

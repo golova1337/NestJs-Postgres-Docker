@@ -12,11 +12,10 @@ import { InsertJwtCommand } from '../commands/login/impl/Create-jwt.command';
 import { LogoutCommand } from '../commands/logout/impl/Logout.command';
 import { CreateOtpCommand } from '../commands/singIn/impl/Create-otp.command';
 import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
-import { RemoveOtpCommand } from '../commands/verify-otp/impl/Remove-verification-code.command';
-import { VerifyUserCommand } from '../commands/verify-otp/impl/User-is-verified.command.command';
-import { SingInAuthDto } from '../dto/create-auth.dto';
-import { LoginAuthDto } from '../dto/login-auth.dto';
-import { RepeatSendCode } from '../dto/repeat-code.dto';
+import { MakeUserVerified } from '../commands/verify-otp/impl/Make-user-verified.command';
+import { SingInAuthDto } from '../dto/create/create-auth.dto';
+import { LoginAuthDto } from '../dto/login/login-auth.dto';
+import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
 import { Jwt } from '../entities/Jwt.entity';
 import { Otp } from '../entities/Otp.entity';
 import { User } from '../entities/User.entity';
@@ -137,6 +136,7 @@ export class AuthService {
         this.logger.error(`Refresh Query ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
+    // compare token
     const compare = await this.jwtTokenService
       .compare(refreshToken, token.token)
       .catch((error) => {
@@ -144,7 +144,7 @@ export class AuthService {
         throw new InternalServerErrorException('Server Error');
       });
     if (!compare || !token) throw new UnauthorizedException('Unauthorized');
-
+    //create new jwt
     const tokens: {
       accessToken: string;
       refreshToken: string;
@@ -165,7 +165,9 @@ export class AuthService {
       .execute(new CheckOtpQuery(otp))
       .catch((error) => {
         this.logger.error(`verificationCode query ${error}`);
+        throw new InternalServerErrorException('Server Error');
       });
+    //vidate otp
     const validateOtp: boolean = await this.otpService.validateOtp(
       verificationCode.otp,
       otp,
@@ -177,16 +179,11 @@ export class AuthService {
     if (!validateOtp || !!isOtpExpired)
       throw new BadRequestException('Bad Request');
 
-    // update a user in the database, making it verified
+    // remove Otp, update a user in the database, making it verified
     await this.commandBus
-      .execute(new VerifyUserCommand(verificationCode.userId))
-      .catch((err) => {
-        this.logger.error(`verificationCodes:${err}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    // remove Otp
-    await this.commandBus
-      .execute(new RemoveOtpCommand(verificationCode.otp))
+      .execute(
+        new MakeUserVerified(verificationCode.otp, verificationCode.userId),
+      )
       .catch((err) => {
         this.logger.error(`setNull:${err}`);
         throw new InternalServerErrorException('Server Error');

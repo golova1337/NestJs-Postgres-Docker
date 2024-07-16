@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { User } from 'src/auth/entities/User.entity';
-import { AuthRepository } from 'src/auth/repository/Auth.repository';
+import { AuthRepository } from 'src/auth/repositories/Auth.repository';
 import { EmojiLogger } from 'src/common/logger/EmojiLogger';
 import { LoginCheckUserQuery } from '../impl/Login-check-user.query';
 

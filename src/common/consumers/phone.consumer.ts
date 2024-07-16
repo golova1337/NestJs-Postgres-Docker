@@ -17,6 +17,7 @@ export class PhoneConsumer {
   async sendPhone(job: Job) {
     this.twilioClient = new Twilio(this.accountSid, this.authToken);
     try {
+
       this.twilioClient = new Twilio(this.accountSid, this.authToken);
       await this.twilioClient.messages.create({
         body: job.data.otp,

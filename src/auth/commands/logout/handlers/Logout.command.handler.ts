@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LogoutCommand } from 'src/auth/commands/logout/impl/Logout.command';
-import { JwtRepository } from 'src/auth/repository/Jwt.repository';
+import { JwtRepository } from 'src/auth/repositories/Jwt.repository';
 
 @CommandHandler(LogoutCommand)
 export class LogoutCommandHandler implements ICommandHandler<LogoutCommand> {
