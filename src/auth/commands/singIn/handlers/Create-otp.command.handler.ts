@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { OtpRepository } from 'src/auth/repositories/Otp.repository';
-import { CreateOtpCommand } from '../impl/Create-otp.command';
+import { CreateOtpCommand } from '../impl/create-otp.command';
+import { OtpRepository } from 'src/auth/repositories/otp.repository';
 
 @CommandHandler(CreateOtpCommand)
 export class CreateOtpCommandHandler

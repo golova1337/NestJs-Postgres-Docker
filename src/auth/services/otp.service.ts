@@ -1,5 +1,5 @@
-import { OtpRepository } from '../repositories/Otp.repository';
-import { Otp } from '../entities/Otp.entity';
+import { OtpRepository } from '../repositories/otp.repository';
+import { Otp } from '../entities/otp.entity';
 import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 

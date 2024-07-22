@@ -1,41 +1,49 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
-import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { MulterModule } from '@nestjs/platform-express';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { redisStore } from 'cache-manager-redis-yet';
 import { AuthModule } from './auth/auth.module';
-import { Jwt } from './auth/entities/Jwt.entity';
-import { Otp } from './auth/entities/Otp.entity';
-import { User } from './auth/entities/User.entity';
-import { CategoryModule } from './category/category.module';
-import { Category } from './category/entities/Product-category.entity';
+import { Jwt } from './auth/entities/jwt.entity';
+import { Otp } from './auth/entities/otp.entity';
+import { User } from './auth/entities/user.entity';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
-import { ProductDiscount } from './product/entities/Product-discount.entity';
-import { ProductInventory } from './product/entities/Product-inventory.entity';
-import { Product } from './product/entities/Product.entity';
+import { File } from './product/entities/file.entity';
+import { Category } from './product/entities/category.entity';
+import { Discount } from './product/entities/discount.entity';
+import { Inventory } from './product/entities/inventory.entity';
+import { Product } from './product/entities/product.entity';
 import { ProductModule } from './product/product.module';
-import { UserAddress } from './user-settings/entities/Address.entity';
-import { UserModule } from './user-settings/user.module';
-import { File } from './product/entities/File.entity';
-import { UploadFileService } from './product/services/upload-files.service';
-import { Size } from './product/enum/multer-enum';
+import { CartItem } from './shopping_cart/entities/cart-item.entity';
+import { ShoppingSession } from './shopping_cart/entities/shopping-session.entity';
+import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
+import { Address } from './user/entities/Address.entity';
+import { UserModule } from './user/user.module';
 
 export const Entities = [
   User,
-  UserAddress,
+  Address,
   Otp,
   Product,
-  ProductInventory,
-  ProductDiscount,
+  Inventory,
+  Discount,
   Category,
   Jwt,
   File,
+  ShoppingSession,
+  CartItem,
 ];
-export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
+export const Modules = [
+  AuthModule,
+  UserModule,
+  ProductModule,
+  ShoppingCartModule,
+];
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -76,11 +84,13 @@ export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
       synchronize: true,
     }),
 
-    MulterModule.register({
-      dest: UploadFileService.localStore(),
-      limits: { fieldSize: Size.Product },
-    }),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
 
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+    }),
     ...Modules,
   ],
   controllers: [],
@@ -90,6 +100,10 @@ export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
     },
   ],
 })

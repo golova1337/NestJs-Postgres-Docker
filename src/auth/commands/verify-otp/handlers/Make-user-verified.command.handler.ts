@@ -1,9 +1,9 @@
-import { InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { AuthRepository } from 'src/auth/repositories/Auth.repository';
-import { OtpRepository } from 'src/auth/repositories/Otp.repository';
+import { MakeUserVerified } from '../impl/make-user-verified.command';
+import { OtpRepository } from 'src/auth/repositories/otp.repository';
+import { AuthRepository } from 'src/auth/repositories/auth.repository';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
-import { MakeUserVerified } from '../impl/Make-user-verified.command';
+import { InternalServerErrorException } from '@nestjs/common';
 
 @CommandHandler(MakeUserVerified)
 export class MakeUserVerifiedCommandHandler

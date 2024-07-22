@@ -8,20 +8,21 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { ProductDiscount } from './Product-discount.entity';
-import { ProductInventory } from './Product-inventory.entity';
-import { Category } from 'src/category/entities/Product-category.entity';
-import { File } from './File.entity';
+import { CartItem } from 'src/shopping_cart/entities/cart-item.entity';
+import { File } from './file.entity';
+import { Category } from './category.entity';
+import { Discount } from './discount.entity';
+import { Inventory } from './inventory.entity';
 
 export interface ProductAttributes {
-  id: string;
+  id: number;
   name: string;
   desc: string;
   SKU: string;
-  category_id: string;
-  inventory_id: string;
-  price: string;
-  discount_id: string;
+  category_id: number;
+  inventory_id: number;
+  price: number;
+  discount_id: number;
   createdAt: Date;
   updateAt: Date;
   deletedAt: Date;
@@ -60,18 +61,18 @@ export class Product extends Model<
 
   @ForeignKey(() => Category)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  category_id: string;
+  category_id: number;
 
-  @ForeignKey(() => ProductInventory)
+  @ForeignKey(() => Inventory)
   @Column({ type: DataType.INTEGER, allowNull: false, unique: true })
-  inventory_id: string;
+  inventory_id: number;
 
-  @ForeignKey(() => ProductDiscount)
+  @ForeignKey(() => Discount)
   @Column({ type: DataType.INTEGER, allowNull: true })
-  discount_id?: string;
+  discount_id?: number;
 
   @Column({ type: DataType.DECIMAL(10, 2), allowNull: false })
-  price: string;
+  price: number;
 
   @Column({ type: DataType.DATE, allowNull: false })
   createdAt?: Date;
@@ -82,15 +83,18 @@ export class Product extends Model<
   @Column({ type: DataType.DATE, allowNull: true })
   deletedAt?: Date;
 
-  @BelongsTo(() => ProductDiscount)
-  discount: ProductDiscount;
+  @BelongsTo(() => Discount)
+  discount: Discount;
 
-  @BelongsTo(() => ProductInventory)
-  inventory: ProductInventory;
+  @BelongsTo(() => Inventory)
+  inventory: Inventory;
 
   @BelongsTo(() => Category)
   category: Category;
 
   @HasMany(() => File, 'product_id')
   files: File[];
+
+  @HasMany(() => CartItem, 'product_id')
+  cart_item: CartItem[];
 }

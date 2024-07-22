@@ -8,7 +8,7 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Time } from '../enums/time-enaum';
-import { User } from './User.entity';
+import { User } from './user.entity';
 
 export interface OtpAttributes {
   id: number;

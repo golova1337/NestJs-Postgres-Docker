@@ -7,11 +7,11 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { User } from './User.entity';
+import { User } from './user.entity';
 
 export interface JwtAttributes {
   id: number;
-  userId: string;
+  userId: number;
   token: string;
   deletedAt: Date;
 }

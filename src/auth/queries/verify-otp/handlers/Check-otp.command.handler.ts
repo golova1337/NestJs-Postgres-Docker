@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Otp } from 'src/auth/entities/Otp.entity';
-import { OtpRepository } from 'src/auth/repositories/Otp.repository';
-import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { CheckOtpQuery } from '../impl/Check-verification-code.query';
+import { Otp } from 'src/auth/entities/otp.entity';
+import { OtpRepository } from 'src/auth/repositories/otp.repository';
+import { EmojiLogger } from 'src/common/logger/emojiLogger';
+import { CheckOtpQuery } from '../impl/check-verification-code.query';
 
 @QueryHandler(CheckOtpQuery)
 export class CheckOtpQueryHandler implements IQueryHandler<CheckOtpQuery> {

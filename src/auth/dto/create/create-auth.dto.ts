@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsDefined,
   IsEmail,
@@ -8,14 +10,13 @@ import {
   IsString,
   Length,
   Matches,
-  Validate,
-  ValidateIf,
+  ValidateIf
 } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
-import { SingInByPhoneConstraint } from 'src/auth/decorators/class-validator/singIn/singInByPhone';
-import { SingInByEmailConstraint } from 'src/auth/decorators/class-validator/singIn/signInByEmail';
-import { IsPasswordsMatchingConstraint } from 'src/auth/decorators/class-validator/singIn/isPasswordsMatching';
+import { IsPasswordsMatching } from 'src/auth/decorators/constraint/singIn/isPasswordsMatching';
+import { SingInByEmail } from 'src/auth/decorators/constraint/singIn/signInByEmail';
+import {
+  SingInByPhone
+} from 'src/auth/decorators/constraint/singIn/singInByPhone';
 import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
 export class SingInAuthDto {
@@ -43,7 +44,7 @@ export class SingInAuthDto {
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
   })
-  @Validate(SingInByEmailConstraint)
+  @SingInByEmail({ message: 'Bad Request' })
   email: string;
 
   @ApiProperty({ required: false, example: '+380735433445' })
@@ -59,7 +60,7 @@ export class SingInAuthDto {
   @Matches(/^[0-9+]+$/, {
     message: 'Phone must contain only  numbers and plus',
   })
-  @Validate(SingInByPhoneConstraint)
+  @SingInByPhone({ message: 'Bad Request' })
   phone?: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })
@@ -84,7 +85,7 @@ export class SingInAuthDto {
     message:
       'Password repeat must contain at least 1 uppercase letter, 1 number, and 1 symbol: ?=.[!/_@#$%^&()]',
   })
-  @Validate(IsPasswordsMatchingConstraint)
+  @IsPasswordsMatching({ message: 'The Passwords does not match' })
   passwordRepeat: string;
 
   @ApiProperty({ required: true, example: 'email' })
