@@ -8,10 +8,9 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { CartItem } from 'src/shopping_cart/entities/cart-item.entity';
 import { File } from './file.entity';
 import { Category } from './category.entity';
-import { Discount } from './discount.entity';
+import { Discount } from 'src/discount/entities/discount.entity';
 import { Inventory } from './inventory.entity';
 
 export interface ProductAttributes {
@@ -94,7 +93,4 @@ export class Product extends Model<
 
   @HasMany(() => File, 'product_id')
   files: File[];
-
-  @HasMany(() => CartItem, 'product_id')
-  cart_item: CartItem[];
 }

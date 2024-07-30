@@ -9,8 +9,7 @@ import {
   IsPositive,
   IsString,
   Length,
-  Validate,
-  isInt,
+  Validate
 } from 'class-validator';
 
 export class CreateProductDto {

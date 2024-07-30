@@ -10,7 +10,7 @@ export class FileRepository {
     @InjectModel(File)
     private readonly fileModel: typeof File,
   ) {}
-  
+
   async create(files, transaction?: Transaction): Promise<File[]> {
     return this.fileModel.bulkCreate(files, { transaction });
   }

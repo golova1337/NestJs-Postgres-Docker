@@ -4,7 +4,7 @@ import { ProductRepository } from 'src/product/repositories/product.repository';
 import { Product } from 'src/product/entities/product.entity';
 
 @QueryHandler(FindOneProductQuery)
-export class FindOneProductQueryHAndler
+export class FindOneProductQueryHandler
   implements IQueryHandler<FindOneProductQuery>
 {
   constructor(private readonly productRepository: ProductRepository) {}

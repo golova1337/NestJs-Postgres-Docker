@@ -9,7 +9,6 @@ import {
 } from 'sequelize-typescript';
 import { Product } from './product.entity';
 import { MIME } from 'src/product/enum/multer-enum';
-import { User } from 'src/auth/entities/user.entity';
 
 export interface FileAttributes {
   id: string;

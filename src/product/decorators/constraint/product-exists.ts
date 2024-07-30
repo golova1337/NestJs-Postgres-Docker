@@ -11,8 +11,8 @@ import { ProductRepository } from 'src/product/repositories/product.repository';
 export class ProductExistsConstraint implements ValidatorConstraintInterface {
   constructor(private readonly productRepository: ProductRepository) {}
   async validate(id: number, args: ValidationArguments) {
-    const user = await this.productRepository.findProductById(id);
-    if (!user) return false;
+    const product = await this.productRepository.findProductById(id);
+    if (!product) return false;
 
     return true;
   }

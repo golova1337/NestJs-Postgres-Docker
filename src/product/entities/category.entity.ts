@@ -43,5 +43,5 @@ export class Category extends Model<
   deletedAt?: Date;
 
   @HasMany(() => Product, 'category_id')
-  product: Product[];
+  products: Product[];
 }

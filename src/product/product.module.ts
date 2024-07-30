@@ -9,11 +9,10 @@ import { UpdateProductCommandHandler } from './commands/products/update/handlers
 import { ProductController } from './controllers/product.controller';
 import { ProductExistsConstraint } from './decorators/constraint/product-exists';
 import { File } from './entities/file.entity';
-import { Discount } from './entities/discount.entity';
 import { Inventory } from './entities/inventory.entity';
 import { Product } from './entities/product.entity';
 import { FindAllProductsQueryHandler } from './queries/products/findAll/handlers/find-all-products.query.handler';
-import { FindOneProductQueryHAndler } from './queries/products/findOne/handler/find-one-product.query.handler';
+import { FindOneProductQueryHandler } from './queries/products/findOne/handler/find-one-product.query.handler';
 import { FileRepository } from './repositories/file.repository';
 import { InventoryRepository } from './repositories/inventory.repository';
 import { ProductRepository } from './repositories/product.repository';
@@ -26,6 +25,7 @@ import { FindAllCategoriesQueryHandler } from './queries/categories/findAll/hand
 import { FindOneCategoryQueryHandler } from './queries/categories/findOne/handler/find-one-category.command.handler';
 import { Category } from './entities/category.entity';
 import { CategoryRepository } from './repositories/category.repository';
+import { Discount } from 'src/discount/entities/discount.entity';
 
 export const Entities = [Product, Inventory, File, Discount, Category];
 
@@ -55,7 +55,7 @@ export const CategoryCommandHandlers = [
 
 export const ProductQueryHandlers = [
   FindAllProductsQueryHandler,
-  FindOneProductQueryHAndler,
+  FindOneProductQueryHandler,
 ];
 
 export const CategoryQueryHandlers = [
