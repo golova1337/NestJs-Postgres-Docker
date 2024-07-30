@@ -11,7 +11,6 @@ import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { Jwt } from './jwt.entity';
 import { Otp } from './otp.entity';
-import { ShoppingSession } from 'src/shopping_cart/entities/shopping-session.entity';
 import { Address } from 'src/user/entities/Address.entity';
 
 export interface PersonAttributes {
@@ -102,9 +101,6 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
 
   @HasOne(() => Jwt)
   jwt: Jwt;
-
-  @HasOne(() => ShoppingSession)
-  shoppingSession: ShoppingSession;
 
   @HasMany(() => Address)
   address: Address[];

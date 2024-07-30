@@ -29,6 +29,7 @@ export class UpdateProductCommandHandler
       await this.sequelizeTransactionRunner.startTransaction();
     try {
       //get product by id
+
       const product = await this.productRepository.findProductById(id);
 
       //check  product exists

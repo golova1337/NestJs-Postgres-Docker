@@ -15,15 +15,14 @@ import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
 import { File } from './product/entities/file.entity';
 import { Category } from './product/entities/category.entity';
-import { Discount } from './product/entities/discount.entity';
+import { Discount } from 'src/discount/entities/discount.entity';
 import { Inventory } from './product/entities/inventory.entity';
 import { Product } from './product/entities/product.entity';
 import { ProductModule } from './product/product.module';
-import { CartItem } from './shopping_cart/entities/cart-item.entity';
-import { ShoppingSession } from './shopping_cart/entities/shopping-session.entity';
 import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
+import { DiscountModule } from './discount/discount.module';
 
 export const Entities = [
   User,
@@ -35,8 +34,6 @@ export const Entities = [
   Category,
   Jwt,
   File,
-  ShoppingSession,
-  CartItem,
 ];
 export const Modules = [
   AuthModule,
@@ -92,6 +89,7 @@ export const Modules = [
       port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     }),
     ...Modules,
+    DiscountModule,
   ],
   controllers: [],
   providers: [

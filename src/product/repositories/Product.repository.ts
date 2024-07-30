@@ -10,6 +10,7 @@ import { SortBy } from '../enum/sort-by.enum';
 import { FindAllProductsQuery } from '../queries/products/findAll/impl/find-all-products.query';
 import { UpdateProductCommand } from '../commands/products/update/impl/update-product.command';
 import { Category } from '../entities/category.entity';
+import { Discount } from 'src/discount/entities/discount.entity';
 
 @Injectable()
 export class ProductRepository {
@@ -51,7 +52,14 @@ export class ProductRepository {
 
   async findProductById(id: number): Promise<Product | null> {
     return this.productModel.findByPk(id, {
-      include: [File, Inventory, Category],
+      include: [File, Inventory, Category, Discount],
+    });
+  }
+
+  async findManyProductsByIds(ids: number[]): Promise<Product[]> {
+    return this.productModel.findAll({
+      where: { id: { [Op.in]: ids } },
+      include: [File, Inventory, Category, Discount],
     });
   }
 

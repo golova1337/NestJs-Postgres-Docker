@@ -1,11 +1,8 @@
-export interface UpdateCategory {
-  name: string;
-  desc: string;
-}
+import { UpdateCategoryDto } from 'src/product/dto/category/update/update-category.dto';
 
 export class UpdateCategoryCommand {
   constructor(
     public readonly id: number,
-    public readonly category: UpdateCategory,
+    public readonly category: UpdateCategoryDto,
   ) {}
 }

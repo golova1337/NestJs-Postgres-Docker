@@ -9,8 +9,9 @@ import {
 } from 'class-validator';
 import { Sign } from 'src/product/enum/sign-enum';
 import { CreateProductDto } from '../create/create-product.dto';
+import { PartialType } from '@nestjs/swagger';
 
-export class UpdateProductDto extends CreateProductDto {
+export class UpdateProductDto extends PartialType(CreateProductDto) {
   @ValidateIf((o) => o.changeQuantity)
   @Transform(({ value }) => value.trim())
   @IsDefined()
