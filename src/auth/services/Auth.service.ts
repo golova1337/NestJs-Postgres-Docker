@@ -6,29 +6,30 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
-import { EmojiLogger } from 'src/common/logger/EmojiLogger';
+import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
-import { InsertJwtCommand } from '../commands/login/impl/Create-jwt.command';
-import { LogoutCommand } from '../commands/logout/impl/Logout.command';
-import { CreateOtpCommand } from '../commands/singIn/impl/Create-otp.command';
-import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
-import { MakeUserVerified } from '../commands/verify-otp/impl/Make-user-verified.command';
+import { InsertJwtCommand } from '../commands/login/impl/create-jwt.command';
+import { LogoutCommand } from '../commands/logout/impl/logout.command';
+import { CreateOtpCommand } from '../commands/singIn/impl/create-otp.command';
+import { UserCreateCommand } from '../commands/singIn/impl/create-user.command';
+import { MakeUserVerified } from '../commands/verify-otp/impl/make-user-verified.command';
 import { SingInAuthDto } from '../dto/create/create-auth.dto';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
-import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
-import { Jwt } from '../entities/Jwt.entity';
-import { Otp } from '../entities/Otp.entity';
-import { User } from '../entities/User.entity';
-import { LoginCheckUserQuery } from '../queries/login/impl/Login-check-user.query';
-import { RefreshQuery } from '../queries/refresh/impl/Refresh.query';
-import { CheckOtpQuery } from '../queries/verify-otp/impl/Check-verification-code.query';
-import { JwtTokenService } from './Jwt.service';
-import { OtpService } from './Otp.service';
-import { SendCodeService } from './SendCode.service';
+import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
+import { Jwt } from '../entities/jwt.entity';
+import { Otp } from '../entities/otp.entity';
+import { User } from '../entities/user.entity';
+import { LoginCheckUserQuery } from '../queries/login/impl/login-check-user.query';
+import { RefreshQuery } from '../queries/refresh/impl/refresh.query';
+import { CheckOtpQuery } from '../queries/verify-otp/impl/check-verification-code.query';
+import { JwtTokenService } from './jwt.service';
+import { OtpService } from './otp.service';
+import { SendCodeService } from './sendCode.service';
 
 @Injectable()
 export class AuthService {
   logger = new EmojiLogger();
+
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -36,6 +37,7 @@ export class AuthService {
     private readonly jwtTokenService: JwtTokenService,
     private readonly otpService: OtpService,
   ) {}
+
   async singIn(singInAuthDto: SingInAuthDto): Promise<User> {
     let { registrationMethod, password, name, lastname, email, phone } =
       singInAuthDto;
@@ -57,8 +59,10 @@ export class AuthService {
         this.logger.error(`create user: ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
+
     // creating otp
     const generateOtp: string = await this.otpService.generateOtp();
+
     // saving in DB
     await this.commandBus
       .execute(new CreateOtpCommand(user.id, generateOtp))
@@ -68,6 +72,7 @@ export class AuthService {
       });
 
     delete user.dataValues.password;
+
     //running a service that adds a massage to the massage queue
     this.sendCodeService.send({
       registrationMethod,
@@ -116,9 +121,9 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string): Promise<void> {
+  async logout(userId: number): Promise<void> {
     // refresh token removal
-    await this.commandBus.execute(new LogoutCommand(+userId)).catch((error) => {
+    await this.commandBus.execute(new LogoutCommand(userId)).catch((error) => {
       this.logger.error(`Logout Command ${error}`);
       throw new InternalServerErrorException('Server Error');
     });
@@ -167,6 +172,7 @@ export class AuthService {
         this.logger.error(`verificationCode query ${error}`);
         throw new InternalServerErrorException('Server Error');
       });
+
     //vidate otp
     const validateOtp: boolean = await this.otpService.validateOtp(
       verificationCode.otp,
@@ -193,10 +199,12 @@ export class AuthService {
 
   async repeatCode(repeatSendCode: RepeatSendCode): Promise<void> {
     const { registrationMethod, email, phone } = repeatSendCode;
+
     // recieve user
     const user: User | null = await this.queryBus.execute(
       new LoginCheckUserQuery(registrationMethod, phone, email),
     );
+
     // check user
     if (!user || user.isVerified) throw new BadRequestException('Bad Request');
 

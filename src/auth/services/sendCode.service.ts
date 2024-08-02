@@ -1,17 +1,17 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
-import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { Twilio } from 'twilio';
+import { EmojiLogger } from 'src/common/logger/emojiLogger';
 
 @Injectable()
 export class SendCodeService {
   private readonly logger = new EmojiLogger();
-  private twilioClient: Twilio;
+
   constructor(
     @InjectQueue('phone-sms') private phoneSmsQueue: Queue,
     @InjectQueue('email-sms') private emailSmsQueue: Queue,
   ) {}
+
   async send(messageParams: any) {
     const { registrationMethod, email, phone, otp } = messageParams;
 

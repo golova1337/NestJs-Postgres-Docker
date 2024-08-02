@@ -2,69 +2,61 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
-import { CreateProductCommandHandler } from './commands/createProduct/handlers/Create-product.command.handler';
-import { RemoveProductsCommandHandler } from './commands/removeProducts/handlers/Remove-products.command.handler';
-import { UpdateCategoryProductCommandHandler } from './commands/updateCategory/handlers/Update-category-product.command.handler';
-import { UpdateProductCommandHandler } from './commands/updateProduct/handler/Update-product.command.handler';
-import { UploadFilesCommandHandler } from './commands/uploadFiles/handlers/Upload-files.command.handlers';
+import { Discount } from 'src/discount/entities/discount.entity';
+import { CreateProductCommandHandler } from './commands/products/create/handlers/create-product.command.handler';
+import { RemoveProductFilesCommandHandler } from './commands/products/removeImages/handlers/remove-product-images.command.handler';
+import { UpdateProductCommandHandler } from './commands/products/update/handlers/update-product.command.handler';
 import { ProductController } from './controllers/product.controller';
-import { File } from './entities/File.entity';
-import { ProductDiscount } from './entities/Product-discount.entity';
-import { ProductInventory } from './entities/Product-inventory.entity';
-import { Product } from './entities/Product.entity';
-import { FindAllProductsQueryHandler } from './queries/findAllProducts/handlers/Find-all-products.query.handler';
-import { FindOneProductQueryHAndler } from './queries/findOneProduct/handler/Find-one-product.query.handler';
-import { FileRepository } from './repositories/File.repository';
-import { ProductRepository } from './repositories/Product.repository';
+import { ProductExistsConstraint } from './decorators/constraint/product-exists';
+import { Category } from './entities/category.entity';
+import { File } from './entities/file.entity';
+import { Inventory } from './entities/inventory.entity';
+import { Product } from './entities/product.entity';
+import { CategoryRepository } from './repositories/category.repository';
+import { FileRepository } from './repositories/file.repository';
+import { InventoryRepository } from './repositories/inventory.repository';
+import { ProductRepository } from './repositories/product.repository';
+import { FileService } from './services/files.service';
 import { ProductService } from './services/product.service';
-import { UploadFileService } from './services/upload-files.service';
-import { ProductInventoryRepository } from './repositories/Inventory.repository';
-import { ProductSettingController } from './controllers/product-setting.controller';
-import { RemoveProductFilesCommandHandler } from './commands/removeProductImages/handlers/remove-product-images.command.handler';
-import { ProductSettingService } from './services/product-setting.service';
+import { DiscountExistsConstraint } from './decorators/constraint/discount-exists';
+import { DiscountRepository } from 'src/discount/repositories/discount.repository';
+import { FindAllCommandHandler } from './query/product/findAll/handlers/find-all.command.handlers';
 
-export const ProductsEntity = [
-  Product,
-  ProductInventory,
-  ProductDiscount,
-  File,
-];
-export const Services = [
-  ProductService,
-  UploadFileService,
-  ProductSettingService,
-];
+export const Entities = [Product, Inventory, File, Discount, Category];
+
+export const Services = [ProductService, FileService];
+
 export const Transaction = [SequelizeTransactionRunner];
+
 export const Repository = [
   ProductRepository,
   FileRepository,
-  ProductInventoryRepository,
+  InventoryRepository,
+  CategoryRepository,
+  DiscountRepository,
 ];
-export const CommandHandlersProduct = [
+
+export const ProductCommandHandlers = [
   CreateProductCommandHandler,
   UpdateProductCommandHandler,
-  RemoveProductsCommandHandler,
-  UpdateCategoryProductCommandHandler,
-];
-export const CommandHandlersProductFiles = [
-  UploadFilesCommandHandler,
   RemoveProductFilesCommandHandler,
 ];
-export const QueryHandlersProduct = [
-  FindAllProductsQueryHandler,
-  FindOneProductQueryHAndler,
-];
-export const ProductControllers = [ProductController, ProductSettingController];
+export const ProductQueryHandlers = [FindAllCommandHandler];
+
+export const Constraints = [ProductExistsConstraint, DiscountExistsConstraint];
+
+export const ProductControllers = [ProductController];
+
 @Module({
-  imports: [CqrsModule, SequelizeModule.forFeature([...ProductsEntity])],
+  imports: [CqrsModule, SequelizeModule.forFeature([...Entities])],
   controllers: [...ProductControllers],
   providers: [
     ...Services,
     ...Transaction,
     ...Repository,
-    ...CommandHandlersProduct,
-    ...QueryHandlersProduct,
-    ...CommandHandlersProductFiles,
+    ...ProductCommandHandlers,
+    ...Constraints,
+    ...ProductQueryHandlers,
   ],
 })
 export class ProductModule {}

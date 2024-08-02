@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from '../entities/User.entity';
-import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
+import { User } from '../entities/user.entity';
+import { UserCreateCommand } from '../commands/singIn/impl/create-user.command';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { Transaction } from 'sequelize';
 

@@ -10,11 +10,10 @@ import {
   IsString,
   Length,
   Matches,
-  Validate,
   ValidateIf,
 } from 'class-validator';
-import { LoginByEmailConstraint } from 'src/auth/decorators/class-validator/login/loginByEmail';
-import { LoginByPhoneConstraint } from 'src/auth/decorators/class-validator/login/loginByPhone';
+import { LoginByEmail } from 'src/auth/decorators/constraint/login/loginByEmail';
+import { LoginByPhone } from 'src/auth/decorators/constraint/login/loginByPhone';
 import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
 export class LoginAuthDto {
@@ -27,7 +26,7 @@ export class LoginAuthDto {
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
   })
-  @Validate(LoginByEmailConstraint)
+  @LoginByEmail({ message: 'Bad Request' })
   email: string;
 
   @ApiProperty({ required: false, example: '+380735433445' })
@@ -42,7 +41,7 @@ export class LoginAuthDto {
   @Matches(/^[0-9+]+$/, {
     message: 'Phone must contain only  numbers and plus',
   })
-  @Validate(LoginByPhoneConstraint)
+  @LoginByPhone({ message: 'Bad Request' })
   phone: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })

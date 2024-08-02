@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { User } from 'src/auth/entities/User.entity';
-import { AuthRepository } from 'src/auth/repositories/Auth.repository';
-import { UserCreateCommand } from '../impl/Create-user.command';
+import { UserCreateCommand } from '../impl/create-user.command';
+import { AuthRepository } from 'src/auth/repositories/auth.repository';
+import { User } from 'src/auth/entities/user.entity';
 
 @CommandHandler(UserCreateCommand)
 export class CreateUserCommandHandler

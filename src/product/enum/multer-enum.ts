@@ -5,5 +5,5 @@ export enum MIME {
   GIF = 'image/gif',
 }
 export enum Size {
-  Product = 100 * 100 * 100,
+  Product = 1 * 1024 * 1024,
 }

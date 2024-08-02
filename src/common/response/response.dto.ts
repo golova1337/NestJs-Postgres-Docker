@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export type Result<T> = {
-  data?: T;
-  meta?: object;
-};
-
 export class CommonResponseDto<T> {
   @ApiProperty()
   status: boolean;
@@ -23,7 +18,7 @@ export class CommonResponseDto<T> {
 }
 
 export class CommonResponse {
-  static succsessfully<T>(result: Result<T>): CommonResponseDto<T> {
+  static succsessfully<T>(result): CommonResponseDto<T> {
     return {
       status: true,
       error: false,
