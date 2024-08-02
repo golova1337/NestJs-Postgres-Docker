@@ -8,21 +8,41 @@ import { Product } from 'src/product/entities/product.entity';
 import { ProductRepository } from 'src/product/repositories/product.repository';
 import { ShoppingCartController } from './controllers/shopping_cart.controller';
 import { CheckProductConstraint } from './decorators/constraints/check-product';
-import { FindManyProductsByIdsCommandHandler } from './queries/summary/handlers/summary.command.handler';
+import { SummaryQueryHandler } from './queries/summary/handlers/summary.query.handler';
 import { CartService } from './services/shopping_cart.service';
+import { ShoppingCartHelper } from './helpers/shopping-helper';
+import { AddItemCommandHandler } from './commands/addItem/handlers/add-item.command.handler';
+import { UpdateItemCommandHAndler } from './commands/updateItem/handlers/update-item.command.handler';
+import { RemoveItemCommandHandler } from './commands/removeItem/handlers/remove-item,command.handler';
 
 export const Entities = [Product, Inventory, File, Category];
 
 export const Constraints = [CheckProductConstraint];
 
-export const Queries = [FindManyProductsByIdsCommandHandler];
+export const Queries = [SummaryQueryHandler];
+
+export const Commands = [
+  AddItemCommandHandler,
+  UpdateItemCommandHAndler,
+  RemoveItemCommandHandler,
+];
 
 export const Repositories = [ProductRepository];
 
+export const Helpers = [ShoppingCartHelper];
+
 export const Sevicies = [CartService];
+
 @Module({
   imports: [CqrsModule, SequelizeModule.forFeature([...Entities])],
   controllers: [ShoppingCartController],
-  providers: [...Sevicies, ...Queries, ...Repositories, ...Constraints],
+  providers: [
+    ...Sevicies,
+    ...Queries,
+    ...Repositories,
+    ...Constraints,
+    ...Helpers,
+    ...Commands,
+  ],
 })
 export class ShoppingCartModule {}
