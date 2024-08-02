@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { CreateCategoryCommand } from 'src/product/commands/categories/create/impl/create-category.command';
 import { Category } from 'src/product/entities/category.entity';
+import { CreateCategoryDto } from '../dto/category/create/create-category.dto';
 import { UpdateCategoryDto } from '../dto/category/update/update-category.dto';
 import { Product } from '../entities/product.entity';
 
@@ -12,7 +12,7 @@ export class CategoryRepository {
     private categoryModel: typeof Category,
   ) {}
 
-  async createCategory(data: CreateCategoryCommand): Promise<Category> {
+  async createCategory(data: CreateCategoryDto): Promise<Category> {
     return this.categoryModel.create(data);
   }
 

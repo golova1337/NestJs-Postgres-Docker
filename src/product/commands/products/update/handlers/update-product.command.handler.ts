@@ -23,7 +23,8 @@ export class UpdateProductCommandHandler
   ) {}
   async execute(command: UpdateProductCommand): Promise<any> {
     //desturcturing
-    const { id, quantity, files, sign, changeQuantity, ...rest } = command;
+    const { id, files, updateProductDto } = command;
+    const { changeQuantity, sign, ...updateProduct } = updateProductDto;
     //start transaction
     const transaction =
       await this.sequelizeTransactionRunner.startTransaction();
@@ -36,7 +37,11 @@ export class UpdateProductCommandHandler
       if (!product) throw new BadRequestException('Bad Request');
 
       //update product
-      await this.productRepository.updateProduct(rest, id, transaction);
+      await this.productRepository.updateProduct(
+        updateProduct,
+        id,
+        transaction,
+      );
 
       //update inventory
       if (changeQuantity && sign && changeQuantity > 0) {

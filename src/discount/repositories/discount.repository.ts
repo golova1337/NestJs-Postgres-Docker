@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Discount } from '../entities/discount.entity';
 import { InjectModel } from '@nestjs/sequelize';
-import { CreateDiscountCommand } from '../commands/create/impl/create-discount.command';
 import { Op } from 'sequelize';
-import { UpdateDiscountDto } from '../dto/update-discount.dto';
+import { Discount } from '../entities/discount.entity';
+import { CreateDiscountDto } from '../dto/create/create-discount.dto';
+import { UpdateDiscountDto } from '../dto/update/update-discount.dto';
 
 @Injectable()
 export class DiscountRepository {
@@ -12,14 +12,12 @@ export class DiscountRepository {
     private discountModel: typeof Discount,
   ) {}
 
-  async create(command: CreateDiscountCommand): Promise<Discount> {
-    return this.discountModel.create(command);
+  async create(data: CreateDiscountDto): Promise<Discount> {
+    return this.discountModel.create(data);
   }
 
-  async findAll(name): Promise<Discount[]> {
-    return this.discountModel.findAll({
-      where: { name: { [Op.like]: `%${name}%` } },
-    });
+  async findAll(): Promise<Discount[]> {
+    return this.discountModel.findAll();
   }
 
   async findOne(id: number): Promise<Discount | null> {

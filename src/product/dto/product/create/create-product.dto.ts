@@ -9,7 +9,7 @@ import {
   IsPositive,
   IsString,
   Length,
-  Validate
+  Validate,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -77,13 +77,5 @@ export class CreateProductDto {
     items: { type: 'string', format: 'binary' },
     required: false,
   })
-  @IsOptional()
-  files?: any[];
-
-  @ApiProperty({ example: '1', default: '' })
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNotEmpty()
-  discount_id?: number;
+  files: any[];
 }

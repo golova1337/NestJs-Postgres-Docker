@@ -5,10 +5,10 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { QueryBus } from '@nestjs/cqrs';
 import { Cache } from 'cache-manager';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
-import { FindOneProductQuery } from 'src/product/queries/products/findOne/impl/find-one-product.query';
+import { ProductRepository } from 'src/product/repositories/product.repository';
 import { CreateCartItemDto } from '../dto/create-shopping_cart.dto';
 import { UpdateItemDto } from '../dto/update-shopping_cart.dto';
 import { FindManyProductsByIdsCommand } from '../queries/summary/impl/summary.command';
@@ -18,8 +18,8 @@ export class CartService {
   logger = new EmojiLogger();
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly productRepository: ProductRepository,
   ) {}
 
   async addItem(createCartItemDto: CreateCartItemDto, userId: number) {
@@ -193,7 +193,7 @@ export class CartService {
   private async getCacheCartAndProduct(cacheKey: string, productId: number) {
     return Promise.all([
       this.cacheManager.get<{ cart: any[]; total: number }>(cacheKey),
-      this.queryBus.execute(new FindOneProductQuery(productId)),
+      this.productRepository.findProductById(productId),
     ]);
   }
 

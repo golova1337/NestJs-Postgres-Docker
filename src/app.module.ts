@@ -23,6 +23,11 @@ import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
 import { DiscountModule } from './discount/discount.module';
+import { OrderModule } from './order/order.module';
+import { Order } from './order/entities/order.entity';
+import { OrderItem } from './order/entities/order-item.entity';
+import { PaymentModule } from './payment/payment.module';
+import { Payment } from './payment/entities/payment.entity';
 
 export const Entities = [
   User,
@@ -34,6 +39,9 @@ export const Entities = [
   Category,
   Jwt,
   File,
+  Order,
+  OrderItem,
+  Payment,
 ];
 export const Modules = [
   AuthModule,
@@ -90,6 +98,8 @@ export const Modules = [
     }),
     ...Modules,
     DiscountModule,
+    OrderModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [

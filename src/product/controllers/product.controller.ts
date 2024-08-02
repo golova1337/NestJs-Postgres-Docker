@@ -48,6 +48,7 @@ import { Product } from '../entities/product.entity';
 import { FileService } from '../services/files.service';
 import { ProductService } from '../services/product.service';
 import { FindOneProduct } from '../dto/product/findOrUpdateOne/openApi/find-one-product.api';
+import { ApplyDiscountDto } from '../dto/product/applyDiscount/apply-discount.dto';
 
 @ApiBearerAuth()
 @ApiTags('Products')
@@ -112,10 +113,8 @@ export class ProductController {
     @Param('id') id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ): Promise<void> {
-    const result: number = await this.productService.updateCategory(
-      id,
-      updateCategoryDto,
-    );
+    const result: [affectedCount: number] =
+      await this.productService.updateCategory(id, updateCategoryDto);
     return;
   }
 
@@ -212,6 +211,19 @@ export class ProductController {
     const result: Product | null =
       await this.productService.findProductById(id);
     return CommonResponse.succsessfully({ data: result });
+  }
+
+  @Post(':id/discount')
+  @Roles('admin')
+  @HttpCode(204)
+  async applyDiscount(
+    @Param() params: FindOneDto,
+    @Body() applyDiscountDto: ApplyDiscountDto,
+  ): Promise<void> {
+    const { discountId } = applyDiscountDto;
+    const { id } = params;
+    const result = await this.productService.applyDiscount(id, discountId);
+    return;
   }
 
   @Put(':id')

@@ -13,10 +13,8 @@ export interface JwtAttributes {
   id: number;
   userId: number;
   token: string;
-  deletedAt: Date;
 }
-export interface JwtCreationAttributes
-  extends Optional<JwtAttributes, 'id' | 'deletedAt'> {}
+export interface JwtCreationAttributes extends Optional<JwtAttributes, 'id'> {}
 
 @Table({
   tableName: 'tokens',
@@ -35,9 +33,6 @@ export class Jwt extends Model<JwtAttributes, JwtCreationAttributes> {
 
   @Column({ type: DataType.STRING, allowNull: true })
   token: string;
-
-  @Column({ type: DataType.DATE, allowNull: true })
-  deletedAt?: Date;
 
   @BelongsTo(() => User)
   user: User;

@@ -12,6 +12,7 @@ import { RegistrationMethod } from '../enums/registMethod-enum';
 import { Jwt } from './jwt.entity';
 import { Otp } from './otp.entity';
 import { Address } from 'src/user/entities/Address.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 export interface PersonAttributes {
   id: string;
@@ -104,4 +105,7 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
 
   @HasMany(() => Address)
   address: Address[];
+
+  @HasMany(() => Order)
+  orders: Order[];
 }

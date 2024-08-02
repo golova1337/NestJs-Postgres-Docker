@@ -2,15 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, Transaction } from 'sequelize';
 import { Sort } from 'src/common/enum/sort-enum';
-import { CreateProductCommand } from '../commands/products/create/impl/create-product.command';
+import { Discount } from 'src/discount/entities/discount.entity';
+import { CreateProductDto } from '../dto/product/create/create-product.dto';
+import { UpdateProductDto } from '../dto/product/update/update-product.dto';
+import { Category } from '../entities/category.entity';
 import { File } from '../entities/file.entity';
 import { Inventory } from '../entities/inventory.entity';
 import { Product } from '../entities/product.entity';
 import { SortBy } from '../enum/sort-by.enum';
-import { FindAllProductsQuery } from '../queries/products/findAll/impl/find-all-products.query';
-import { UpdateProductCommand } from '../commands/products/update/impl/update-product.command';
-import { Category } from '../entities/category.entity';
-import { Discount } from 'src/discount/entities/discount.entity';
 
 @Injectable()
 export class ProductRepository {
@@ -20,7 +19,7 @@ export class ProductRepository {
   ) {}
 
   async createProduct(
-    product: Omit<CreateProductCommand, 'quantity' | 'files'>,
+    product: Omit<CreateProductDto, 'quantity' | 'files'>,
     inventory_id: number,
     transaction?: Transaction,
   ): Promise<Product> {
@@ -32,10 +31,11 @@ export class ProductRepository {
     );
   }
 
-  async findAllProduct(
-    query: FindAllProductsQuery,
-  ): Promise<{ rows: Product[]; count: number }> {
-    const { pagination, price, order } = query;
+  async findAllProduct({
+    pagination,
+    price,
+    order,
+  }): Promise<{ rows: Product[]; count: number }> {
     const { count, rows } = await this.productModel.findAndCountAll({
       where: {
         price: {
@@ -50,24 +50,29 @@ export class ProductRepository {
     return { count, rows };
   }
 
-  async findProductById(id: number): Promise<Product | null> {
+  async findProductById(
+    id: number,
+    transaction?: Transaction,
+  ): Promise<Product | null> {
     return this.productModel.findByPk(id, {
       include: [File, Inventory, Category, Discount],
+      transaction: transaction,
     });
   }
 
-  async findManyProductsByIds(ids: number[]): Promise<Product[]> {
+  async findManyProductsByIds(
+    ids: number[],
+    transaction?: Transaction,
+  ): Promise<Product[]> {
     return this.productModel.findAll({
       where: { id: { [Op.in]: ids } },
       include: [File, Inventory, Category, Discount],
+      transaction: transaction,
     });
   }
 
   async updateProduct(
-    data: Omit<
-      UpdateProductCommand,
-      'files' | 'id' | 'quantity' | 'sign' | 'changeQuantity'
-    >,
+    data: any,
     id: number,
     transaction?: Transaction,
   ): Promise<[affectedCount: number]> {

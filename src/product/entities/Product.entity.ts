@@ -12,6 +12,7 @@ import { File } from './file.entity';
 import { Category } from './category.entity';
 import { Discount } from 'src/discount/entities/discount.entity';
 import { Inventory } from './inventory.entity';
+import { OrderItem } from 'src/order/entities/order-item.entity';
 
 export interface ProductAttributes {
   id: number;
@@ -22,16 +23,10 @@ export interface ProductAttributes {
   inventory_id: number;
   price: number;
   discount_id: number;
-  createdAt: Date;
-  updateAt: Date;
-  deletedAt: Date;
 }
 
 export interface ProductCreationAttributes
-  extends Optional<
-    ProductAttributes,
-    'id' | 'discount_id' | 'createdAt' | 'updateAt' | 'deletedAt'
-  > {}
+  extends Optional<ProductAttributes, 'id' | 'discount_id'> {}
 
 @Table({
   timestamps: true,
@@ -73,15 +68,6 @@ export class Product extends Model<
   @Column({ type: DataType.DECIMAL(10, 2), allowNull: false })
   price: number;
 
-  @Column({ type: DataType.DATE, allowNull: false })
-  createdAt?: Date;
-
-  @Column({ type: DataType.DATE, allowNull: false })
-  updatedAt?: Date;
-
-  @Column({ type: DataType.DATE, allowNull: true })
-  deletedAt?: Date;
-
   @BelongsTo(() => Discount)
   discount: Discount;
 
@@ -93,4 +79,7 @@ export class Product extends Model<
 
   @HasMany(() => File, 'product_id')
   files: File[];
+
+  @HasMany(() => OrderItem, 'product_id')
+  orderItems: OrderItem[];
 }

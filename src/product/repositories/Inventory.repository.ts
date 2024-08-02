@@ -17,6 +17,7 @@ export class InventoryRepository {
   ): Promise<Inventory> {
     return this.productInventoryModel.create({ quantity }, { transaction });
   }
+  
   async update(
     changeQuantity: number,
     id: number,

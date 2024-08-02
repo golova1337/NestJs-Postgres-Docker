@@ -7,8 +7,7 @@ import {
   Param,
   Patch,
   Post,
-  Query,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -18,20 +17,20 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiCommonResponse } from 'src/common/decorators/apiSchemas/commonResponse';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
 import {
   CommonResponse,
   CommonResponseDto,
 } from 'src/common/response/response.dto';
+import { DiscountApiDto } from '../dto/create/create-discount.api';
 import { CreateDiscountDto } from '../dto/create/create-discount.dto';
-import { UpdateDiscountDto } from '../dto/update-discount.dto';
+import { DeleteDiscountDto } from '../dto/delete/delete-discount.dto';
+import { FindAllDiscounts } from '../dto/findAll/find-all.api.dto';
+import { UpdateDiscountDto } from '../dto/update/update-discount.dto';
 import { Discount } from '../entities/discount.entity';
 import { DiscountService } from '../services/discount.service';
-import { DeleteDiscountDto } from '../dto/delete-discount.dto';
-import { ApiCommonResponse } from 'src/common/decorators/apiSchemas/commonResponse';
-import { DiscountApiDto } from '../dto/create/create-discount.api';
-import { FindAllDiscounts } from '../dto/findAll/find-all.api.dto';
 
 @ApiBearerAuth()
 @ApiTags('Discounts')
@@ -60,10 +59,8 @@ export class DiscountController {
   @ApiOperation({ summary: 'Receive all discounts' })
   @HttpCode(200)
   @ApiCommonResponse(FindAllDiscounts)
-  async findAll(
-    @Query('name') name?: string,
-  ): Promise<CommonResponseDto<{ discounts: Discount[] }>> {
-    const result = await this.discountService.findAll(name);
+  async findAll(): Promise<CommonResponseDto<{ discounts: Discount[] }>> {
+    const result = await this.discountService.findAll();
     return CommonResponse.succsessfully({ data: { discounts: result } });
   }
 

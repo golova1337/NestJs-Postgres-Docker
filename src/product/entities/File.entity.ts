@@ -19,15 +19,9 @@ export interface FileAttributes {
   size: number;
   path: string;
   metadata: object;
-  createdAt: Date;
-  updateAt: Date;
-  deletedAt: Date;
 }
 export interface FileCreationAttributes
-  extends Optional<
-    FileAttributes,
-    'id' | 'metadata' | 'createdAt' | 'updateAt' | 'deletedAt'
-  > {}
+  extends Optional<FileAttributes, 'id' | 'metadata'> {}
 
 @Table({
   tableName: 'files',
