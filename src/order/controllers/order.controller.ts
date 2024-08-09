@@ -18,6 +18,7 @@ import {
   ApiExtraModels,
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import {
@@ -42,6 +43,7 @@ export class OrderController {
 
   @Post()
   @Roles('admin', 'user')
+  @ApiOperation({ summary: 'Creation a order' })
   async create(
     @CurrentUser('id') userId: number,
   ): Promise<CommonResponseDto<{ order: Order; orderItems: OrderItem[] }>> {
@@ -51,6 +53,7 @@ export class OrderController {
 
   @Get()
   @Roles('admin', 'user')
+  @ApiOperation({ summary: 'Recieve all your orders' })
   async findAll(
     @CurrentUser('id') userId: number,
   ): Promise<CommonResponseDto<{ order: Order[]; orderItems: OrderItem[] }>> {
@@ -60,6 +63,7 @@ export class OrderController {
 
   @Get(':id')
   @Roles('admin', 'user')
+  @ApiOperation({ summary: 'Recieve one your order' })
   async findOne(
     @Param('id') id: string,
   ): Promise<CommonResponseDto<{ order: Order; orderItems: OrderItem[] }>> {
@@ -70,6 +74,7 @@ export class OrderController {
   @Patch(':id')
   @Roles('admin')
   @HttpCode(204)
+  @ApiOperation({ summary: 'order status update for administrator only' })
   async update(
     @Param('id') id: number,
     @Body() updateStatusOrderDto: UpdateStatusOrderDto,
@@ -81,6 +86,7 @@ export class OrderController {
   @Delete(':id')
   @Roles('admin', 'user')
   @HttpCode(204)
+  @ApiOperation({ summary: 'Remove a order by id' })
   async remove(@Param('id') id: number): Promise<void> {
     const result = await this.orderService.remove(id);
     return;

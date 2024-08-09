@@ -75,7 +75,7 @@ export class CreateOrderCommandHandler
       const order = await this.orderRepository.create(
         {
           user_id: userId,
-          status: OrderStatus.Placed,
+          status: OrderStatus.Created,
           total_amount: total,
         },
         transaction,

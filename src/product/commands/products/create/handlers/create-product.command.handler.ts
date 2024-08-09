@@ -1,8 +1,6 @@
-import {
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { File } from 'src/product/entities/file.entity';
 import { Inventory } from 'src/product/entities/inventory.entity';
 import { Product } from 'src/product/entities/product.entity';
@@ -11,7 +9,6 @@ import { InventoryRepository } from 'src/product/repositories/inventory.reposito
 import { ProductRepository } from 'src/product/repositories/product.repository';
 import { FileService } from 'src/product/services/files.service';
 import { CreateProductCommand } from '../impl/create-product.command';
-import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductCommandHandler
@@ -42,6 +39,7 @@ export class CreateProductCommandHandler
         quantity,
         transaction,
       );
+
       //create product
       const newProduct = await this.productRepository.createProduct(
         rest,
@@ -54,7 +52,6 @@ export class CreateProductCommandHandler
         files,
         newProduct.id,
       );
-
       //save product files in DB
       const newFiles: File[] = await this.fileRepository.create(
         data,

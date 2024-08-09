@@ -4,15 +4,15 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CommandBus } from '@nestjs/cqrs';
 import { Cache } from 'cache-manager';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { CreateOrderCommand } from '../command/create/create-order.impl';
+import { UpdateOrderCommand } from '../command/update/update-order.impl';
+import { UpdateStatusOrderDto } from '../dto/update-order.dto';
 import { OrderItem } from '../entities/order-item.entity';
 import { Order } from '../entities/order.entity';
 import { OrderRepository } from '../repositories/order.repository';
-import { UpdateStatusOrderDto } from '../dto/update-order.dto';
-import { UpdateOrderCommand } from '../command/update/update-order.impl';
 
 @Injectable()
 export class OrderService {
@@ -21,7 +21,6 @@ export class OrderService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly commandBus: CommandBus,
     private readonly orderRepository: OrderRepository,
-    private readonly queryBus: QueryBus,
   ) {}
   async create(
     userId: number,

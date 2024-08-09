@@ -1,5 +1,4 @@
 import { Optional } from 'sequelize';
-import { OrderStatus } from '../enum/order-status.enum';
 import {
   BelongsTo,
   Column,
@@ -11,8 +10,9 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { User } from 'src/auth/entities/user.entity';
-import { OrderItem } from './order-item.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { OrderStatus } from '../enum/order-status.enum';
+import { OrderItem } from './order-item.entity';
 
 interface OrderAttributes {
   id: number;
@@ -41,6 +41,7 @@ export class Order extends Model<OrderCreationAttributes, OrderAttributes> {
   })
   status: OrderStatus;
 
+  @ForeignKey(() => Payment)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
@@ -56,6 +57,6 @@ export class Order extends Model<OrderCreationAttributes, OrderAttributes> {
   @HasMany(() => OrderItem)
   orderItems: OrderItem[];
 
-  @HasOne(() => Payment)
+  @BelongsTo(() => Payment)
   payment: Payment;
 }

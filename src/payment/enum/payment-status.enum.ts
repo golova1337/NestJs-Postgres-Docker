@@ -1,6 +1,6 @@
 export enum PaymentStatus {
-  Paid = 'Paid',
+  Succeeded = 'Succeeded',
   Cancelled = 'Cancelled',
-  Refunded = 'Refunded',
   Failed = 'Failed',
+  Created = 'Created',
 }

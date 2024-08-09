@@ -1,33 +1,40 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
-import { Module, ValidationPipe } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { redisStore } from 'cache-manager-redis-yet';
+import { Discount } from 'src/discount/entities/discount.entity';
 import { AuthModule } from './auth/auth.module';
 import { Jwt } from './auth/entities/jwt.entity';
 import { Otp } from './auth/entities/otp.entity';
 import { User } from './auth/entities/user.entity';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
+import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
-import { File } from './product/entities/file.entity';
+import { DiscountModule } from './discount/discount.module';
+import { OrderItem } from './order/entities/order-item.entity';
+import { Order } from './order/entities/order.entity';
+import { OrderModule } from './order/order.module';
+import { Payment } from './payment/entities/payment.entity';
+import { PaymentModule } from './payment/payment.module';
 import { Category } from './product/entities/category.entity';
-import { Discount } from 'src/discount/entities/discount.entity';
+import { File } from './product/entities/file.entity';
 import { Inventory } from './product/entities/inventory.entity';
 import { Product } from './product/entities/product.entity';
 import { ProductModule } from './product/product.module';
 import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
-import { DiscountModule } from './discount/discount.module';
-import { OrderModule } from './order/order.module';
-import { Order } from './order/entities/order.entity';
-import { OrderItem } from './order/entities/order-item.entity';
-import { PaymentModule } from './payment/payment.module';
-import { Payment } from './payment/entities/payment.entity';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 export const Entities = [
   User,
@@ -43,12 +50,17 @@ export const Entities = [
   OrderItem,
   Payment,
 ];
+
 export const Modules = [
   AuthModule,
   UserModule,
   ProductModule,
   ShoppingCartModule,
+  DiscountModule,
+  OrderModule,
+  PaymentModule,
 ];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -96,10 +108,8 @@ export const Modules = [
       host: process.env.REDIS_HOST,
       port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     }),
+    EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,
-    DiscountModule,
-    OrderModule,
-    PaymentModule,
   ],
   controllers: [],
   providers: [
@@ -115,4 +125,8 @@ export const Modules = [
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

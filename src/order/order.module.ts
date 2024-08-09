@@ -26,5 +26,6 @@ export const Commands = [CreateOrderCommandHandler, UpdateOrderCommandHandler];
   imports: [CqrsModule, SequelizeModule.forFeature([...Entities])],
   controllers: [OrderController],
   providers: [...Services, ...Repositories, ...Transaction, ...Commands],
+  exports: [OrderRepository],
 })
 export class OrderModule {}

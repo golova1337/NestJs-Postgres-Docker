@@ -1,34 +1,72 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Headers,
+  HttpCode,
+  Param,
+  Post,
+  RawBodyRequest,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { Public } from 'src/common/decorators/public/public.decorator';
 import { PaymentService } from './payment.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import {
+  CommonResponse,
+  CommonResponseDto,
+} from 'src/common/response/response.dto';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiExtraModels,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { RolesGuard } from 'src/common/guards/roles/role.guard';
+import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { ApiCommonResponse } from 'src/common/decorators/apiSchemas/commonResponse';
+import { CreatePaymentIntent } from './dto/api/create-payment-intent.api';
+import { CurrentUser } from 'src/common/decorators/user/currentUser.decorator';
 
-@Controller('payment')
+@ApiBearerAuth()
+@ApiTags('Stripe')
+@ApiExtraModels(CommonResponseDto)
+@ApiForbiddenResponse({ status: 403, description: 'Forbidden' })
+@ApiInternalServerErrorResponse({ status: 500, description: 'Server Error' })
+@ApiBadRequestResponse({ status: 400, description: 'Bad Request' })
+@UseGuards(RolesGuard)
+@Controller('payments')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(private readonly paymentsService: PaymentService) {}
 
-  @Post()
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentService.create(createPaymentDto);
+  @Post('create-payment-intent/:orderId')
+  @Roles('admin', 'user')
+  @ApiOperation({ summary: 'The end point for creating a payment intention' })
+  @ApiCommonResponse(CreatePaymentIntent)
+  async createPaymentIntent(
+    @Param('orderId') orderId: number,
+  ): Promise<CommonResponseDto<{ secret_key: string }>> {
+    const result = await this.paymentsService.createPaymentIntent(orderId);
+    return CommonResponse.succsessfully({ data: result });
   }
 
-  @Get()
-  findAll() {
-    return this.paymentService.findAll();
-  }
+  @Post('webhook')
+  @HttpCode(200)
+  @Public()
+  @ApiOperation({ summary: 'The endpoint receives messages from the strip' })
+  async handleWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') sig: string,
+  ) {
+    const stripeEvent = this.paymentsService.stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.WHSEC,
+    );
+    await this.paymentsService.handleWebhook(stripeEvent);
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentService.update(+id, updatePaymentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.paymentService.remove(+id);
+    return;
   }
 }

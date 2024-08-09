@@ -4,11 +4,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 import { EmojiLogger } from './common/logger/emojiLogger';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new EmojiLogger(),
+    rawBody: true,
   });
+  app.useBodyParser('text');
   app.setGlobalPrefix('v1/api');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const port = parseInt(process.env.PORT, 10) || 3000;

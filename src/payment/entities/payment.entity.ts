@@ -4,6 +4,7 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasOne,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -19,7 +20,8 @@ interface PaymentAttributes {
   status: PaymentStatus;
 }
 
-interface PaymentCreationAttributes extends Optional<PaymentAttributes, 'id'> {}
+export interface PaymentCreationAttributes
+  extends Optional<PaymentAttributes, 'id'> {}
 @Table({
   timestamps: true,
   paranoid: true,
@@ -30,7 +32,6 @@ export class Payment extends Model<
   PaymentCreationAttributes,
   PaymentAttributes
 > {
-  @ForeignKey(() => Order)
   @Column({ type: DataType.INTEGER, allowNull: false })
   order_id: number;
 
@@ -49,6 +50,6 @@ export class Payment extends Model<
   })
   status: PaymentStatus;
 
-  @BelongsTo(() => Order)
+  @HasOne(() => Order)
   order: Order;
 }

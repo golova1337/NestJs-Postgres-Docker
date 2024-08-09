@@ -4,7 +4,6 @@ import { Op, Transaction } from 'sequelize';
 import { Sort } from 'src/common/enum/sort-enum';
 import { Discount } from 'src/discount/entities/discount.entity';
 import { CreateProductDto } from '../dto/product/create/create-product.dto';
-import { UpdateProductDto } from '../dto/product/update/update-product.dto';
 import { Category } from '../entities/category.entity';
 import { File } from '../entities/file.entity';
 import { Inventory } from '../entities/inventory.entity';

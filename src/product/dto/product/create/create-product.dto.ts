@@ -1,11 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsAlphanumeric,
   IsDefined,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsPositive,
   IsString,
   Length,
@@ -72,10 +71,10 @@ export class CreateProductDto {
   @IsPositive()
   quantity: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'array',
     items: { type: 'string', format: 'binary' },
     required: false,
   })
-  files: any[];
+  files?: any[];
 }

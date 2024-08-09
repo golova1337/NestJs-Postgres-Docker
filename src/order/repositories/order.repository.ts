@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
 import { Order, OrderCreationAttributes } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Injectable()
 export class OrderRepository {
@@ -25,8 +26,11 @@ export class OrderRepository {
     });
   }
 
-  async findOne(id: number): Promise<Order | null> {
-    return this.orderModel.findByPk(id, { include: [OrderItem] });
+  async findOne(id: number, transaction?: Transaction): Promise<Order | null> {
+    return this.orderModel.findByPk(id, {
+      include: [OrderItem, Payment],
+      transaction: transaction,
+    });
   }
 
   async remove(id: number): Promise<number> {
