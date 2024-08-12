@@ -21,8 +21,10 @@ import { ProductService } from './services/product.service';
 import { DiscountExistsConstraint } from './decorators/constraint/discount-exists';
 import { DiscountRepository } from 'src/discount/repositories/discount.repository';
 import { FindAllCommandHandler } from './query/product/findAll/handlers/find-all.command.handlers';
+import { ReviewRepository } from 'src/reviews/repositories/review.repository';
+import { Review } from 'src/reviews/entities/review.entity';
 
-export const Entities = [Product, Inventory, File, Discount, Category];
+export const Entities = [Product, Inventory, File, Discount, Category, Review];
 
 export const Services = [ProductService, FileService];
 
@@ -34,6 +36,7 @@ export const Repository = [
   InventoryRepository,
   CategoryRepository,
   DiscountRepository,
+  ReviewRepository,
 ];
 
 export const ProductCommandHandlers = [

@@ -9,7 +9,7 @@ export class FindAllCommandHandler implements IQueryHandler<FindAllCommand> {
   constructor(private readonly productRepository: ProductRepository) {}
   async execute(
     query: FindAllCommand,
-  ): Promise<{ rows: Product[]; count: number }> {
+  ): Promise<{ products: Product[]; count: number }> {
     const { filtration } = query;
 
     const { perPage, page, minPrice, maxPrice, sort, sortBy } = filtration;
@@ -21,6 +21,24 @@ export class FindAllCommandHandler implements IQueryHandler<FindAllCommand> {
     const price = { minPrice, maxPrice };
     const order = { sort, sortBy };
 
-    return this.productRepository.findAllProduct({ pagination, price, order });
+    let { count, products } = await this.productRepository.findAllProduct({
+      pagination,
+      price,
+      order,
+    });
+
+    await this.calculatePriceWithDiscount(products);
+
+    return { products, count };
+  }
+
+  async calculatePriceWithDiscount(products) {
+    for (const product of products) {
+      if (product.discount) {
+        product.dataValues['priceWithDiscount'] =
+          product.price -
+          (product.price * product.discount['discount_percent']) / 100;
+      }
+    }
   }
 }

@@ -35,6 +35,8 @@ import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ReviewsModule } from './reviews/reviews.module';
+import { Review } from './reviews/entities/review.entity';
 
 export const Entities = [
   User,
@@ -49,6 +51,7 @@ export const Entities = [
   Order,
   OrderItem,
   Payment,
+  Review,
 ];
 
 export const Modules = [
@@ -59,6 +62,7 @@ export const Modules = [
   DiscountModule,
   OrderModule,
   PaymentModule,
+  ReviewsModule,
 ];
 
 @Module({

@@ -16,6 +16,7 @@ import { Product } from '../entities/product.entity';
 import { FindAllCommand } from '../query/product/findAll/impl/find-all.command';
 import { CategoryRepository } from '../repositories/category.repository';
 import { ProductRepository } from '../repositories/product.repository';
+import { ReviewRepository } from 'src/reviews/repositories/review.repository';
 
 @Injectable()
 export class ProductService {
@@ -26,6 +27,7 @@ export class ProductService {
     private readonly queryBus: QueryBus,
     private readonly categoryRepository: CategoryRepository,
     private readonly productRepository: ProductRepository,
+    private readonly reviewRepository: ReviewRepository,
   ) {}
 
   async createCategory(
@@ -92,7 +94,7 @@ export class ProductService {
 
   async findAllProduct(
     filtration: FindAllQueriesDto,
-  ): Promise<{ rows: Product[]; count: number }> {
+  ): Promise<{ products: Product[]; count: number }> {
     return this.queryBus
       .execute(new FindAllCommand(filtration))
       .catch((error) => {
@@ -102,10 +104,23 @@ export class ProductService {
   }
 
   async findProductById(id: number): Promise<Product | null> {
-    return this.productRepository.findProductById(id).catch((error) => {
-      this.logger.error(`Find One Product Handler ${error}`);
-      throw new InternalServerErrorException('Internal Server');
-    });
+    let [product, averageProductRating] = await Promise.all([
+      this.productRepository.findProductById(id).catch((error) => {
+        this.logger.error(`Error in findProductById: ${error}`);
+        return null;
+      }),
+      this.reviewRepository.averageProductRating(id).catch((error) => {
+        this.logger.error(`'Error in averageProductRating:', ${error}`);
+        return 0;
+      }),
+      ,
+    ]);
+
+    product.dataValues.avgRating = averageProductRating['avgRating']
+      ? averageProductRating['avgRating']
+      : 0;
+
+    return product;
   }
 
   async updateProduct(

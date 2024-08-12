@@ -9,6 +9,7 @@ import { File } from '../entities/file.entity';
 import { Inventory } from '../entities/inventory.entity';
 import { Product } from '../entities/product.entity';
 import { SortBy } from '../enum/sort-by.enum';
+import { Review } from 'src/reviews/entities/review.entity';
 
 @Injectable()
 export class ProductRepository {
@@ -34,7 +35,7 @@ export class ProductRepository {
     pagination,
     price,
     order,
-  }): Promise<{ rows: Product[]; count: number }> {
+  }): Promise<{ products: Product[]; count: number }> {
     const { count, rows } = await this.productModel.findAndCountAll({
       where: {
         price: {
@@ -44,9 +45,9 @@ export class ProductRepository {
       offset: pagination.offset,
       limit: pagination.perPage,
       order: [[order.sortBy || SortBy.Id, order.sort || Sort.ASC]],
-      include: File,
+      include: [File, Discount],
     });
-    return { count, rows };
+    return { count, products: rows };
   }
 
   async findProductById(
@@ -54,7 +55,7 @@ export class ProductRepository {
     transaction?: Transaction,
   ): Promise<Product | null> {
     return this.productModel.findByPk(id, {
-      include: [File, Inventory, Category, Discount],
+      include: [File, Inventory, Category, Discount, Review],
       transaction: transaction,
     });
   }

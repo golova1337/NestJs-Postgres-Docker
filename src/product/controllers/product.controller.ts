@@ -193,8 +193,8 @@ export class ProductController {
   @ApiCommonResponse(FindAllAnswerDto)
   async findAllProduct(
     @Query() queries: FindAllQueriesDto,
-  ): Promise<CommonResponseDto<{ rows: Product[]; count: number }>> {
-    const result: { rows: Product[]; count: number } =
+  ): Promise<CommonResponseDto<{ products: Product[]; count: number }>> {
+    const result: { products: Product[]; count: number } =
       await this.productService.findAllProduct(queries);
     return CommonResponse.succsessfully({ data: result });
   }

@@ -13,6 +13,7 @@ import { Jwt } from './jwt.entity';
 import { Otp } from './otp.entity';
 import { Address } from 'src/user/entities/Address.entity';
 import { Order } from 'src/order/entities/order.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 export interface PersonAttributes {
   id: string;
@@ -108,4 +109,7 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
 
   @HasMany(() => Order)
   orders: Order[];
+
+  @HasMany(() => Review, 'user_id')
+  review: Review[];
 }

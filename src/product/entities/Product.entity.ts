@@ -13,6 +13,7 @@ import { Category } from './category.entity';
 import { Discount } from 'src/discount/entities/discount.entity';
 import { Inventory } from './inventory.entity';
 import { OrderItem } from 'src/order/entities/order-item.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 export interface ProductAttributes {
   id: number;
@@ -82,4 +83,7 @@ export class Product extends Model<
 
   @HasMany(() => OrderItem, 'product_id')
   orderItems: OrderItem[];
+
+  @HasMany(() => Review, 'product_id')
+  reviews: Review[];
 }
