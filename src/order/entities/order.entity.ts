@@ -5,7 +5,6 @@ import {
   DataType,
   ForeignKey,
   HasMany,
-  HasOne,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -23,7 +22,7 @@ interface OrderAttributes {
 }
 
 export interface OrderCreationAttributes
-  extends Optional<OrderAttributes, 'id' | 'payment_id'> {}
+  extends Optional<OrderAttributes, 'id' | 'payment_id' | 'total_amount'> {}
 @Table({
   timestamps: true,
   paranoid: true,
@@ -48,7 +47,7 @@ export class Order extends Model<OrderCreationAttributes, OrderAttributes> {
   })
   payment_id: number;
 
-  @Column({ type: DataType.DECIMAL(10, 2), allowNull: false })
+  @Column({ type: DataType.DECIMAL(10, 2), allowNull: true })
   total_amount: number;
 
   @BelongsTo(() => User)

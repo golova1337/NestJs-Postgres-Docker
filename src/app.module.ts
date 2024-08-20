@@ -1,17 +1,13 @@
 import { MailerModule } from '@nestjs-modules/mailer';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 import { CacheModule } from '@nestjs/cache-manager';
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  ValidationPipe,
-} from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { redisStore } from 'cache-manager-redis-yet';
 import { Discount } from 'src/discount/entities/discount.entity';
+import { redisStore } from 'cache-manager-redis-yet';
 import { AuthModule } from './auth/auth.module';
 import { Jwt } from './auth/entities/jwt.entity';
 import { Otp } from './auth/entities/otp.entity';
@@ -21,6 +17,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
 import { DiscountModule } from './discount/discount.module';
+import { ElasticsearchModule } from './elasticsearch/elasticsearch.module';
 import { OrderItem } from './order/entities/order-item.entity';
 import { Order } from './order/entities/order.entity';
 import { OrderModule } from './order/order.module';
@@ -31,12 +28,11 @@ import { File } from './product/entities/file.entity';
 import { Inventory } from './product/entities/inventory.entity';
 import { Product } from './product/entities/product.entity';
 import { ProductModule } from './product/product.module';
+import { Review } from './reviews/entities/review.entity';
+import { ReviewsModule } from './reviews/reviews.module';
 import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ReviewsModule } from './reviews/reviews.module';
-import { Review } from './reviews/entities/review.entity';
 
 export const Entities = [
   User,
@@ -83,7 +79,7 @@ export const Modules = [
       },
     }),
     BullModule.forRoot({
-      redis: {
+      connection: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT, 10) || 6379,
       },
@@ -114,6 +110,7 @@ export const Modules = [
     }),
     EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,
+    ElasticsearchModule,
   ],
   controllers: [],
   providers: [
@@ -122,10 +119,6 @@ export const Modules = [
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard,
-    },
-    {
-      provide: APP_PIPE,
-      useClass: ValidationPipe,
     },
   ],
 })

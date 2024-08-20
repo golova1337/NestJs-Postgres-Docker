@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
@@ -11,8 +11,11 @@ async function bootstrap() {
     logger: new EmojiLogger(),
     rawBody: true,
   });
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
   app.useBodyParser('text');
-  app.setGlobalPrefix('v1/api');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const port = parseInt(process.env.PORT, 10) || 3000;
 

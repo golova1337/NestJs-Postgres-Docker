@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Cache } from 'cache-manager';
 import { ProductRepository } from 'src/product/repositories/product.repository';
-import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helper';
+import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helpers';
 import { SummaryQuery } from '../impl/summary.query';
 
 @QueryHandler(SummaryQuery)

@@ -3,7 +3,7 @@ import {
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  registerDecorator
+  registerDecorator,
 } from 'class-validator';
 import { User } from '../../../entities/user.entity';
 import { AuthRepository } from '../../../repositories/auth.repository';

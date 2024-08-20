@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateItemCommand } from '../impl/update-item.command';
-import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helper';
+import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helpers';
 
 @CommandHandler(UpdateItemCommand)
 export class UpdateItemCommandHAndler

@@ -9,6 +9,8 @@ import { InventoryRepository } from 'src/product/repositories/inventory.reposito
 import { ProductRepository } from 'src/product/repositories/product.repository';
 import { FileService } from 'src/product/services/files.service';
 import { CreateProductCommand } from '../impl/create-product.command';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductCommandHandler
@@ -20,6 +22,7 @@ export class CreateProductCommandHandler
     private readonly fileRepository: FileRepository,
     private readonly inventoryRepository: InventoryRepository,
     private readonly sequelizeTransactionRunner: SequelizeTransactionRunner,
+    @InjectQueue('product-indexing') private productIndexingQueue: Queue,
   ) {}
 
   async execute(command: CreateProductCommand): Promise<{
@@ -59,6 +62,16 @@ export class CreateProductCommandHandler
       );
 
       await this.sequelizeTransactionRunner.commitTransaction(transaction);
+      console.log('skks');
+
+      const job = await this.productIndexingQueue.add(
+        'product-indexing-elastic',
+        newProduct,
+        {
+          delay: 3000,
+          attempts: 3,
+        },
+      );
       return { inventory, product: newProduct, images: newFiles };
     } catch (error) {
       await this.sequelizeTransactionRunner.rollbackTransaction(transaction);

@@ -19,6 +19,7 @@ export class OtpService {
       .replace(/[^a-zA-Z0-9]/g, '')
       .slice(0, 6);
   }
+
   async validateOtp(verificationCode: string, code: string): Promise<boolean> {
     return verificationCode === code;
   }

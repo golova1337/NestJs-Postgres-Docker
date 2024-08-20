@@ -10,10 +10,10 @@ import { ShoppingCartController } from './controllers/shopping_cart.controller';
 import { CheckProductConstraint } from './decorators/constraints/check-product';
 import { SummaryQueryHandler } from './queries/summary/handlers/summary.query.handler';
 import { CartService } from './services/shopping_cart.service';
-import { ShoppingCartHelper } from './helpers/shopping-helper';
+import { ShoppingCartHelper } from './helpers/shopping-helpers';
 import { AddItemCommandHandler } from './commands/addItem/handlers/add-item.command.handler';
 import { UpdateItemCommandHAndler } from './commands/updateItem/handlers/update-item.command.handler';
-import { RemoveItemCommandHandler } from './commands/removeItem/handlers/remove-item,command.handler';
+import { RemoveItemCommandHandler } from './commands/addItem/removeItem/handlers/remove-item,command.handler';
 
 export const Entities = [Product, Inventory, File, Category];
 

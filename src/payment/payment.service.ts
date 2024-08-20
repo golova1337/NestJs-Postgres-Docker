@@ -65,7 +65,7 @@ export class PaymentService {
         break;
 
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        (`Unhandled event type ${event.type}`);
     }
 
     return;

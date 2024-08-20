@@ -10,13 +10,11 @@ import {
   IsString,
   Length,
   Matches,
-  ValidateIf
+  ValidateIf,
 } from 'class-validator';
 import { IsPasswordsMatching } from 'src/auth/decorators/constraint/singIn/isPasswordsMatching';
 import { SingInByEmail } from 'src/auth/decorators/constraint/singIn/signInByEmail';
-import {
-  SingInByPhone
-} from 'src/auth/decorators/constraint/singIn/singInByPhone';
+import { SingInByPhone } from 'src/auth/decorators/constraint/singIn/singInByPhone';
 import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
 export class SingInAuthDto {

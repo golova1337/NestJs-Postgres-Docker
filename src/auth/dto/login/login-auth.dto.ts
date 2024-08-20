@@ -19,6 +19,7 @@ import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 export class LoginAuthDto {
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })
   @ValidateIf((o) => !o.phone)
+  @LoginByEmail({ message: 'Bad Request' })
   @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsNotEmpty()
@@ -26,20 +27,15 @@ export class LoginAuthDto {
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
   })
-  @LoginByEmail({ message: 'Bad Request' })
   email: string;
 
   @ApiProperty({ required: false, example: '+380735433445' })
   @ValidateIf((o) => !o.email)
-  @IsOptional()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @IsString()
+  @IsOptional()
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
-  })
-  @Matches(/^[0-9+]+$/, {
-    message: 'Phone must contain only  numbers and plus',
   })
   @LoginByPhone({ message: 'Bad Request' })
   phone: string;

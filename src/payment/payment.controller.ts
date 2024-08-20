@@ -8,13 +8,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { Public } from 'src/common/decorators/public/public.decorator';
-import { PaymentService } from './payment.service';
-import {
-  CommonResponse,
-  CommonResponseDto,
-} from 'src/common/response/response.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -24,11 +17,17 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { RolesGuard } from 'src/common/guards/roles/role.guard';
-import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { Request } from 'express';
 import { ApiCommonResponse } from 'src/common/decorators/apiSchemas/commonResponse';
+import { Public } from 'src/common/decorators/public/public.decorator';
+import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles/role.guard';
+import {
+  CommonResponse,
+  CommonResponseDto,
+} from 'src/common/response/response.dto';
 import { CreatePaymentIntent } from './dto/api/create-payment-intent.api';
-import { CurrentUser } from 'src/common/decorators/user/currentUser.decorator';
+import { PaymentService } from './payment.service';
 
 @ApiBearerAuth()
 @ApiTags('Stripe')

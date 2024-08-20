@@ -2,17 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { JwtRepository } from '../repositories/jwt.repository';
 
 @Injectable()
 export class JwtTokenService {
   constructor(
     private jwtService: JwtService,
-    private readonly jwtRepository: JwtRepository,
     private configService: ConfigService,
   ) {}
 
-  hashData(data: string): Promise<string> {
+  async hashData(data: string): Promise<string> {
     return bcrypt.hash(data, 10);
   }
 

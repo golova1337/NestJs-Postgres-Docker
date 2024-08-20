@@ -1,18 +1,21 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Cache } from 'cache-manager';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
-import { CreateOrderCommand } from '../command/create/create-order.impl';
-import { UpdateOrderCommand } from '../command/update/update-order.impl';
+import { CreateOrderCommand } from '../commands/create/impl/create-order.impl';
+import { UpdateOrderCommand } from '../commands/update/update-order.impl';
 import { UpdateStatusOrderDto } from '../dto/update-order.dto';
 import { OrderItem } from '../entities/order-item.entity';
 import { Order } from '../entities/order.entity';
 import { OrderRepository } from '../repositories/order.repository';
+import { GetAndCheckOrderItemQuery } from '../queries/create/impl/get-and-check-order-item.query';
 
 @Injectable()
 export class OrderService {
@@ -20,27 +23,31 @@ export class OrderService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly orderRepository: OrderRepository,
   ) {}
   async create(
     userId: number,
   ): Promise<{ order: Order; orderItems: OrderItem[] }> {
-    const cacheKey = `cart:${userId}`;
-    // check cart
+    try {
+      // check cart
+      const cacheCart = await this.queryBus.execute(
+        new GetAndCheckOrderItemQuery(userId),
+      );
+      // order creation
+      return this.commandBus.execute(new CreateOrderCommand(userId, cacheCart));
+    } catch (error) {
+      this.logger.error(`Order Creation: ${error.message}`);
 
-    const cacheCart = await this.cacheManager.get<{
-      cart: any[];
-      total: number;
-    }>(cacheKey);
-    let cart = cacheCart?.cart;
-    if (!cart || cart.length === 0) return;
-
-    return this.commandBus
-      .execute(new CreateOrderCommand(userId, cacheCart))
-      .catch((error) => {
-        this.logger.error(`create order ${error}`);
-        throw new InternalServerErrorException('ServerError');
-      });
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Server Error');
+      }
+    }
   }
 
   findAll(userId: number): Promise<Order[]> {

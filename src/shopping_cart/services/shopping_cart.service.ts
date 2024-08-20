@@ -6,7 +6,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { AddItemCommand } from '../commands/addItem/impl/add-item.command';
-import { RemoveItemCommand } from '../commands/removeItem/impl/remove-item.command';
+import { RemoveItemCommand } from '../commands/addItem/removeItem/impl/remove-item.command';
 import { UpdateItemCommand } from '../commands/updateItem/impl/update-item.command';
 import { CreateCartItemDto } from '../dto/create-shopping_cart.dto';
 import { UpdateItemDto } from '../dto/update-shopping_cart.dto';

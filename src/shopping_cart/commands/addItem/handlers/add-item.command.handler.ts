@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AddItemCommand } from '../impl/add-item.command';
-import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helper';
+import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helpers';
 import { BadRequestException, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -31,10 +31,11 @@ export class AddItemCommandHandler implements ICommandHandler<AddItemCommand> {
 
     if (indexItem !== -1) {
       // finding out that the current quantity and the quantity the user wants to add are not more than the item's inventory
-      if (
+      const isInventorySufficient =
         cacheCart.cart[indexItem].quantity + quantity >
-        product.inventory.quantity
-      ) {
+        product.inventory.quantity;
+
+      if (isInventorySufficient) {
         throw new BadRequestException('The amount of product is not enough');
       }
       // update quantity to calculation total price for a particular item
