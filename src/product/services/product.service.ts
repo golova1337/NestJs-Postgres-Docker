@@ -17,6 +17,9 @@ import { FindAllCommand } from '../query/product/findAll/impl/find-all.command';
 import { CategoryRepository } from '../repositories/category.repository';
 import { ProductRepository } from '../repositories/product.repository';
 import { ReviewRepository } from 'src/reviews/repositories/review.repository';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { FindOneProductQuery } from '../query/product/findOne/impl/find-one-product.query';
 
 @Injectable()
 export class ProductService {
@@ -28,6 +31,7 @@ export class ProductService {
     private readonly categoryRepository: CategoryRepository,
     private readonly productRepository: ProductRepository,
     private readonly reviewRepository: ReviewRepository,
+    @InjectQueue('elastic') private productIndexingQueue: Queue,
   ) {}
 
   async createCategory(
@@ -104,23 +108,10 @@ export class ProductService {
   }
 
   async findProductById(id: number): Promise<Product | null> {
-    let [product, averageProductRating] = await Promise.all([
-      this.productRepository.findProductById(id).catch((error) => {
-        this.logger.error(`Error in findProductById: ${error}`);
-        return null;
-      }),
-      this.reviewRepository.averageProductRating(id).catch((error) => {
-        this.logger.error(`'Error in averageProductRating:', ${error}`);
-        return 0;
-      }),
-      ,
-    ]);
-
-    product.dataValues.avgRating = averageProductRating['avgRating']
-      ? averageProductRating['avgRating']
-      : 0;
-
-    return product;
+    return this.queryBus.execute(new FindOneProductQuery(id)).catch((error) => {
+      this.logger.error(`find one product Handler ${error}`);
+      throw new InternalServerErrorException('Internal Server');
+    });
   }
 
   async updateProduct(
@@ -129,26 +120,47 @@ export class ProductService {
     id: number,
   ): Promise<[affectedCount: number]> {
     // handler
-    return this.commandBus
+    const result = await this.commandBus
       .execute(new UpdateProductCommand(id, files, updateProductDto))
       .catch((error) => {
-        this.logger.error(`Product removal Handler ${error}`);
+        this.logger.error(`Product updating Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');
       });
+    const job = await this.productIndexingQueue.add(
+      'product-updating',
+      { id: id, name: updateProductDto.name, desc: updateProductDto.desc },
+      {
+        delay: 3000,
+        attempts: 3,
+        removeOnComplete: true,
+      },
+    );
+
+    return result;
   }
 
-  async removeProduct(ids: number[]): Promise<number> {
-    return this.productRepository.removeProduct(ids).catch((error) => {
-      this.logger.error(`Product files removal Handler ${error}`);
+  async removeProduct(ids: number[]): Promise<void> {
+    await this.productRepository.removeProduct(ids).catch((error) => {
+      this.logger.error(`Product removing Handler ${error}`);
       throw new InternalServerErrorException('Internal Server');
     });
+
+    const job = await this.productIndexingQueue.add(
+      'product-removing',
+      { ids },
+      {
+        delay: 3000,
+        attempts: 3,
+        removeOnComplete: true,
+      },
+    );
   }
 
   async removeFileProduct(ids: number[]): Promise<number> {
     return this.commandBus
       .execute(new RemoveProductImagesCommand(ids))
       .catch((error) => {
-        this.logger.error(`Update Category Product Handler ${error}`);
+        this.logger.error(`File removing Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');
       });
   }

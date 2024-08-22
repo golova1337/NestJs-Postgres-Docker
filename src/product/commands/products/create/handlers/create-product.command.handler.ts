@@ -22,7 +22,7 @@ export class CreateProductCommandHandler
     private readonly fileRepository: FileRepository,
     private readonly inventoryRepository: InventoryRepository,
     private readonly sequelizeTransactionRunner: SequelizeTransactionRunner,
-    @InjectQueue('product-indexing') private productIndexingQueue: Queue,
+    @InjectQueue('elastic') private productIndexingQueue: Queue,
   ) {}
 
   async execute(command: CreateProductCommand): Promise<{
@@ -62,14 +62,14 @@ export class CreateProductCommandHandler
       );
 
       await this.sequelizeTransactionRunner.commitTransaction(transaction);
-      console.log('skks');
 
       const job = await this.productIndexingQueue.add(
-        'product-indexing-elastic',
+        'product-indexing',
         newProduct,
         {
           delay: 3000,
           attempts: 3,
+          removeOnComplete: true,
         },
       );
       return { inventory, product: newProduct, images: newFiles };

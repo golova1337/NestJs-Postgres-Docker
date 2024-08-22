@@ -4,6 +4,8 @@ import { Transaction } from 'sequelize';
 import { Order, OrderCreationAttributes } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
 import { Payment } from 'src/payment/entities/payment.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class OrderRepository {
@@ -28,7 +30,14 @@ export class OrderRepository {
 
   async findOne(id: number, transaction?: Transaction): Promise<Order | null> {
     return this.orderModel.findByPk(id, {
-      include: [OrderItem, Payment],
+      include: [
+        {
+          model: OrderItem,
+          include: [Product],
+        },
+        User,
+        Payment,
+      ],
       transaction: transaction,
     });
   }

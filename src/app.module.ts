@@ -33,6 +33,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
+import { InvoicesModule } from './invoices/invoices.module';
 
 export const Entities = [
   User,
@@ -111,6 +112,7 @@ export const Modules = [
     EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,
     ElasticsearchModule,
+    InvoicesModule,
   ],
   controllers: [],
   providers: [

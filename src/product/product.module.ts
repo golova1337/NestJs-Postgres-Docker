@@ -25,6 +25,7 @@ import { ReviewRepository } from 'src/reviews/repositories/review.repository';
 import { Review } from 'src/reviews/entities/review.entity';
 import { ProductIndexingConsumer } from './consumers/product-indexing.consumer';
 import { BullModule } from '@nestjs/bullmq';
+import { FindOneProductQueryHandler } from './query/product/findOne/handlers/find-one-product.query.handler';
 
 export const Entities = [Product, Inventory, File, Discount, Category, Review];
 
@@ -46,7 +47,10 @@ export const ProductCommandHandlers = [
   UpdateProductCommandHandler,
   RemoveProductFilesCommandHandler,
 ];
-export const ProductQueryHandlers = [FindAllCommandHandler];
+export const ProductQueryHandlers = [
+  FindAllCommandHandler,
+  FindOneProductQueryHandler,
+];
 
 export const Constraints = [ProductExistsConstraint, DiscountExistsConstraint];
 
@@ -59,7 +63,7 @@ export const Consumers = [ProductIndexingConsumer];
     CqrsModule,
     SequelizeModule.forFeature([...Entities]),
     BullModule.registerQueue({
-      name: 'product-indexing',
+      name: 'elastic',
       defaultJobOptions: { removeOnComplete: true },
       streams: { events: { maxLen: 5000 } },
     }),
