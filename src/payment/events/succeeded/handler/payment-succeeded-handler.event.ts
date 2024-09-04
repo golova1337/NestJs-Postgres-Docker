@@ -27,6 +27,7 @@ export class PaymentSucceededEventHandler
       const orderId = paymentIntentCreated.metadata.orderId;
 
       let order = await this.orderRepository.findOne(parseInt(orderId, 10));
+
       order.status = OrderStatus.Placed;
       order.payment.status = PaymentStatus.Succeeded;
       await order.save();

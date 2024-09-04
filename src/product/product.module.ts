@@ -26,6 +26,9 @@ import { Review } from 'src/reviews/entities/review.entity';
 import { ProductIndexingConsumer } from './consumers/product-indexing.consumer';
 import { BullModule } from '@nestjs/bullmq';
 import { FindOneProductQueryHandler } from './query/product/findOne/handlers/find-one-product.query.handler';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SearchModule } from 'src/search/search.module';
 
 export const Entities = [Product, Inventory, File, Discount, Category, Review];
 
@@ -61,6 +64,7 @@ export const Consumers = [ProductIndexingConsumer];
 @Module({
   imports: [
     CqrsModule,
+    SearchModule,
     SequelizeModule.forFeature([...Entities]),
     BullModule.registerQueue({
       name: 'elastic',

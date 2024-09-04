@@ -6,8 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Discount } from 'src/discount/entities/discount.entity';
 import { redisStore } from 'cache-manager-redis-yet';
+import { Discount } from 'src/discount/entities/discount.entity';
 import { AuthModule } from './auth/auth.module';
 import { Jwt } from './auth/entities/jwt.entity';
 import { Otp } from './auth/entities/otp.entity';
@@ -17,7 +17,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
 import { DiscountModule } from './discount/discount.module';
-import { ElasticsearchModule } from './elasticsearch/elasticsearch.module';
+import { InvoicesModule } from './invoices/invoices.module';
 import { OrderItem } from './order/entities/order-item.entity';
 import { Order } from './order/entities/order.entity';
 import { OrderModule } from './order/order.module';
@@ -30,10 +30,10 @@ import { Product } from './product/entities/product.entity';
 import { ProductModule } from './product/product.module';
 import { Review } from './reviews/entities/review.entity';
 import { ReviewsModule } from './reviews/reviews.module';
+import { SearchModule } from './search/search.module';
 import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
 import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
-import { InvoicesModule } from './invoices/invoices.module';
 
 export const Entities = [
   User,
@@ -60,6 +60,8 @@ export const Modules = [
   OrderModule,
   PaymentModule,
   ReviewsModule,
+  SearchModule,
+  InvoicesModule,
 ];
 
 @Module({
@@ -111,8 +113,6 @@ export const Modules = [
     }),
     EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,
-    ElasticsearchModule,
-    InvoicesModule,
   ],
   controllers: [],
   providers: [

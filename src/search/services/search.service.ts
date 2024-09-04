@@ -1,26 +1,22 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Client } from '@elastic/elasticsearch';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Injectable()
-export class ElasticsearchService implements OnModuleInit {
-  private client: Client;
-
+export class SearchService implements OnModuleInit {
   private readonly indexName = 'products';
-  constructor() {
-    this.client = new Client({ node: process.env.ELASTICSEARCH_HOST });
-  }
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
   async onModuleInit() {
     await this.createIndexIfNotExists();
   }
 
   private async createIndexIfNotExists() {
-    const indexExists = await this.client.indices.exists({
+    const indexExists = await this.elasticsearchService.indices.exists({
       index: this.indexName,
     });
 
     if (!indexExists) {
-      const response = await this.client.indices.create({
+      const response = await this.elasticsearchService.indices.create({
         index: this.indexName,
         body: {
           settings: {
@@ -65,7 +61,7 @@ export class ElasticsearchService implements OnModuleInit {
   }
 
   async searchProducts(query: string) {
-    const response = await this.client.search({
+    const response = await this.elasticsearchService.search({
       index: this.indexName,
       body: {
         query: {

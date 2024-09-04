@@ -12,11 +12,11 @@ export class ReceivingAndCheckingJwtQueryHandler
     private readonly jwtRepository: JwtRepository,
     private readonly jwtTokenService: JwtTokenService,
   ) {}
-  async execute(query: ReceivingAndCheckingJwtQuery): Promise<void> {
+  async execute(query: ReceivingAndCheckingJwtQuery): Promise<boolean> {
     const { id, role, refreshToken } = query.user;
     const jwt = await this.jwtRepository.findOne(id);
     const compare = await this.jwtTokenService.compare(refreshToken, jwt.token);
     if (!compare || !jwt) throw new UnauthorizedException('Unauthorized');
-    return;
+    return true;
   }
 }

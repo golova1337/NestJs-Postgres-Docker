@@ -1,5 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
+import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { Twilio } from 'twilio';
@@ -9,11 +10,14 @@ export class SentSmsConsumer extends WorkerHost {
   private readonly logger = new EmojiLogger();
   private twilioClient: Twilio;
 
-  constructor(private readonly mailService: MailerService) {
+  constructor(
+    private readonly mailService: MailerService,
+    private readonly configService: ConfigService,
+  ) {
     super();
     this.twilioClient = new Twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN,
+      this.configService.get<string>('TWILIO_ACCOUNT_SID'),
+      this.configService.get<string>('TWILIO_AUTH_TOKEN'),
     );
   }
 

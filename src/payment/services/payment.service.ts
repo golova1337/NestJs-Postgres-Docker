@@ -26,7 +26,7 @@ export class PaymentService {
     }
 
     const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: Math.round(order.total_amount * 100), // Stripe amount is in cents
+      amount: Math.round(order.total_amount * 100),
       currency: 'usd',
       metadata: {
         user: order.user_id.toString(),
@@ -65,7 +65,7 @@ export class PaymentService {
         break;
 
       default:
-        (`Unhandled event type ${event.type}`);
+        `Unhandled event type ${event.type}`;
     }
 
     return;

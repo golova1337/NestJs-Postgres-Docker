@@ -10,22 +10,19 @@ import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import { JwtCreationCommand } from '../commands/login/impl/jwt-cration.command';
 import { LogoutCommand } from '../commands/logout/impl/logout.command';
-import { UserCreationCommand } from '../commands/singIn/impl/user-creation.command';
 import { OtpCreationAndSavingCommand } from '../commands/singIn/impl/otp-creation-and-saving.command';
+import { UserCreationCommand } from '../commands/singIn/impl/user-creation.command';
+import { OtpUpdatingAndSavingCommandr } from '../commands/update-otp/impl/otp-updating-and-saving.command';
 import { VerifyUserCommand } from '../commands/verify-user/impl/verify-user.command';
 import { SingInAuthDto } from '../dto/create/create-auth.dto';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
 import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
-import { Jwt } from '../entities/jwt.entity';
 import { Otp } from '../entities/otp.entity';
 import { User } from '../entities/user.entity';
 import { LoginCheckingUserQuery } from '../queries/login/impl/login-checking-user.query';
 import { ReceivingAndCheckingJwtQuery } from '../queries/refresh/impl/receiving-and-checking-jwt.query';
 import { ReceivingAndCheckingOtpQuery } from '../queries/verify-otp/impl/receiving-and-checking.query';
-import { JwtTokenService } from './jwt.service';
-import { OtpService } from './otp.service';
 import { SendCodeService } from './sendCode.service';
-import { OtpUpdatingAndSavingCommandr } from '../commands/update-otp/impl/otp-updating-and-saving.command';
 
 @Injectable()
 export class AuthService {
@@ -35,8 +32,6 @@ export class AuthService {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly sendCodeService: SendCodeService,
-    private readonly jwtTokenService: JwtTokenService,
-    private readonly otpService: OtpService,
   ) {}
 
   async singIn(singInAuthDto: SingInAuthDto): Promise<User> {
@@ -117,13 +112,15 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       //recieve token from DB
-      await this.queryBus.execute(new ReceivingAndCheckingJwtQuery(user));
-
-      // creation new tokens and insert token in DB
-      const tokens = await this.commandBus.execute(
-        new JwtCreationCommand(user.id, user.role),
+      const checking = await this.queryBus.execute(
+        new ReceivingAndCheckingJwtQuery(user),
       );
-      return tokens;
+      if (checking) {
+        // creation new tokens and insert token in DB
+        return await this.commandBus.execute(
+          new JwtCreationCommand(user.id, user.role),
+        );
+      }
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`);
 

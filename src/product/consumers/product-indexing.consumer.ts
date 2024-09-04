@@ -1,17 +1,20 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { Client } from '@elastic/elasticsearch';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Processor('elastic')
 export class ProductIndexingConsumer extends WorkerHost {
+  constructor(private readonly elasticsearchService: ElasticsearchService) {
+    super();
+  }
+
   logger = new EmojiLogger();
 
-  client = new Client({ node: process.env.ELASTICSEARCH_HOST });
   async process(job: Job<any, any, string>): Promise<any> {
     switch (job.name) {
       case 'product-indexing': {
-        const result = await this.client.index({
+        const result = await this.elasticsearchService.index({
           index: 'products',
           id: job.data.id,
           document: {
@@ -26,7 +29,7 @@ export class ProductIndexingConsumer extends WorkerHost {
         const body = ids.map((id) => {
           return { delete: { _index: 'products', _id: id } };
         });
-        const result = await this.client.bulk({
+        const result = await this.elasticsearchService.bulk({
           refresh: true,
           operations: body,
         });
@@ -34,7 +37,7 @@ export class ProductIndexingConsumer extends WorkerHost {
       }
       case 'product-updating': {
         const { id, name, desc } = job.data;
-        const result = await this.client.update({
+        const result = await this.elasticsearchService.update({
           index: 'products',
           id: id,
           doc: { name: name, desc: desc },
