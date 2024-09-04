@@ -6,119 +6,101 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
-import { EmojiLogger } from 'src/common/logger/EmojiLogger';
+import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
-import { InsertJwtCommand } from '../commands/login/impl/Create-jwt.command';
-import { LogoutCommand } from '../commands/logout/impl/Logout.command';
-import { CreateOtpCommand } from '../commands/singIn/impl/Create-otp.command';
-import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
-import { MakeUserVerified } from '../commands/verify-otp/impl/Make-user-verified.command';
+import { JwtCreationCommand } from '../commands/login/impl/jwt-cration.command';
+import { LogoutCommand } from '../commands/logout/impl/logout.command';
+import { OtpCreationAndSavingCommand } from '../commands/singIn/impl/otp-creation-and-saving.command';
+import { UserCreationCommand } from '../commands/singIn/impl/user-creation.command';
+import { OtpUpdatingAndSavingCommandr } from '../commands/update-otp/impl/otp-updating-and-saving.command';
+import { VerifyUserCommand } from '../commands/verify-user/impl/verify-user.command';
 import { SingInAuthDto } from '../dto/create/create-auth.dto';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
-import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
-import { Jwt } from '../entities/Jwt.entity';
-import { Otp } from '../entities/Otp.entity';
-import { User } from '../entities/User.entity';
-import { LoginCheckUserQuery } from '../queries/login/impl/Login-check-user.query';
-import { RefreshQuery } from '../queries/refresh/impl/Refresh.query';
-import { CheckOtpQuery } from '../queries/verify-otp/impl/Check-verification-code.query';
-import { JwtTokenService } from './Jwt.service';
-import { OtpService } from './Otp.service';
-import { SendCodeService } from './SendCode.service';
+import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
+import { Otp } from '../entities/otp.entity';
+import { User } from '../entities/user.entity';
+import { LoginCheckingUserQuery } from '../queries/login/impl/login-checking-user.query';
+import { ReceivingAndCheckingJwtQuery } from '../queries/refresh/impl/receiving-and-checking-jwt.query';
+import { ReceivingAndCheckingOtpQuery } from '../queries/verify-otp/impl/receiving-and-checking.query';
+import { SendCodeService } from './sendCode.service';
 
 @Injectable()
 export class AuthService {
   logger = new EmojiLogger();
+
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly sendCodeService: SendCodeService,
-    private readonly jwtTokenService: JwtTokenService,
-    private readonly otpService: OtpService,
   ) {}
+
   async singIn(singInAuthDto: SingInAuthDto): Promise<User> {
-    let { registrationMethod, password, name, lastname, email, phone } =
-      singInAuthDto;
+    const { registrationMethod, email, phone } = singInAuthDto;
+    try {
+      // creation new user
+      const user: User = await this.commandBus.execute(
+        new UserCreationCommand(singInAuthDto),
+      );
 
-    password = await bcrypt.hash(password, 10);
-    // creation new user
-    const user: User = await this.commandBus
-      .execute(
-        new UserCreateCommand(
-          registrationMethod,
-          password,
-          name,
-          lastname,
-          email,
-          phone,
-        ),
-      )
-      .catch((error) => {
-        this.logger.error(`create user: ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    // creating otp
-    const generateOtp: string = await this.otpService.generateOtp();
-    // saving in DB
-    await this.commandBus
-      .execute(new CreateOtpCommand(user.id, generateOtp))
-      .catch((error) => {
-        this.logger.error(`create otpRepository: ${error}`);
-        throw new InternalServerErrorException('Server Error');
+      // OTP creating and saving  in DB
+      const otp = await this.commandBus.execute(
+        new OtpCreationAndSavingCommand(user.id),
+      );
+
+      //running a service that adds a massage to the massage queue
+      await this.sendCodeService.send({
+        registrationMethod,
+        email,
+        phone,
+        otp: otp.otp,
       });
 
-    delete user.dataValues.password;
-    //running a service that adds a massage to the massage queue
-    this.sendCodeService.send({
-      registrationMethod,
-      email,
-      phone,
-      otp: generateOtp,
-    });
+      return user;
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`);
 
-    return user;
+      if (error instanceof BadRequestException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Server Error');
+      }
+    }
   }
 
   async login(
     loginAuthDto: LoginAuthDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { registrationMethod, email, phone, password } = loginAuthDto;
+    try {
+      //get user by email or phone
+      const user: User | null = await this.queryBus.execute(
+        new LoginCheckingUserQuery(registrationMethod, phone, email),
+      );
 
-    //get user by email or phone
-    const user: User | null = await this.queryBus
-      .execute(new LoginCheckUserQuery(registrationMethod, phone, email))
-      .catch((error) => {
-        this.logger.error(`Login QueryHandler ${error}`);
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) throw new BadRequestException('Password is incorrect');
+
+      // tokens creation
+      const tokens = await this.commandBus.execute(
+        new JwtCreationCommand(user.id, user.role),
+      );
+
+      return tokens;
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`);
+
+      if (error instanceof BadRequestException) {
+        throw error;
+      } else {
         throw new InternalServerErrorException('Server Error');
-      });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!user || !isMatch) throw new BadRequestException('Bad Request');
-
-    const { accessToken, refreshToken } = await this.jwtTokenService.getTokens(
-      user.id,
-      user.role,
-    );
-    const hashToken = await this.jwtTokenService.hashData(refreshToken);
-
-    // tokens creation
-    await this.commandBus
-      .execute(new InsertJwtCommand(user.id, hashToken))
-      .catch((error) => {
-        this.logger.error(`getTokens : ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-
-    return {
-      accessToken,
-      refreshToken,
-    };
+      }
+    }
   }
 
-  async logout(userId: string): Promise<void> {
+  async logout(userId: number): Promise<void> {
     // refresh token removal
-    await this.commandBus.execute(new LogoutCommand(+userId)).catch((error) => {
+    await this.commandBus.execute(new LogoutCommand(userId)).catch((error) => {
       this.logger.error(`Logout Command ${error}`);
       throw new InternalServerErrorException('Server Error');
     });
@@ -128,85 +110,68 @@ export class AuthService {
   async refresh(
     user: JwtPayload,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const { id, role, refreshToken } = user;
-    //recieve token from DB
-    const token: Jwt | null = await this.queryBus
-      .execute(new RefreshQuery(id))
-      .catch((error) => {
-        this.logger.error(`Refresh Query ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    // compare token
-    const compare = await this.jwtTokenService
-      .compare(refreshToken, token.token)
-      .catch((error) => {
-        this.logger.error(`Compare ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    if (!compare || !token) throw new UnauthorizedException('Unauthorized');
-    //create new jwt
-    const tokens: {
-      accessToken: string;
-      refreshToken: string;
-    } = await this.jwtTokenService.getTokens(id, role);
+    try {
+      //recieve token from DB
+      const checking = await this.queryBus.execute(
+        new ReceivingAndCheckingJwtQuery(user),
+      );
+      if (checking) {
+        // creation new tokens and insert token in DB
+        return await this.commandBus.execute(
+          new JwtCreationCommand(user.id, user.role),
+        );
+      }
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`);
 
-    const hashToken: string = await this.jwtTokenService.hashData(
-      tokens.refreshToken,
-    );
-
-    // insert token in DB
-    await this.commandBus.execute(new InsertJwtCommand(id, hashToken));
-    return tokens;
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Server Error');
+      }
+    }
   }
 
   async verify(otp: string): Promise<void> {
-    // recieve otp
-    const verificationCode: Otp | null = await this.queryBus
-      .execute(new CheckOtpQuery(otp))
-      .catch((error) => {
-        this.logger.error(`verificationCode query ${error}`);
-        throw new InternalServerErrorException('Server Error');
-      });
-    //vidate otp
-    const validateOtp: boolean = await this.otpService.validateOtp(
-      verificationCode.otp,
-      otp,
-    );
-    const isOtpExpired: boolean = await this.otpService.isOtpExpired(
-      verificationCode.otpExpiresAt,
-    );
+    try {
+      // recieve otp
+      const verificationCode: Otp | null = await this.queryBus.execute(
+        new ReceivingAndCheckingOtpQuery(otp),
+      );
 
-    if (!validateOtp || !!isOtpExpired)
-      throw new BadRequestException('Bad Request');
+      // remove Otp, update a user in the database, making it verified
+      await this.commandBus.execute(
+        new VerifyUserCommand(verificationCode.otp, verificationCode.userId),
+      );
+      return;
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`);
 
-    // remove Otp, update a user in the database, making it verified
-    await this.commandBus
-      .execute(
-        new MakeUserVerified(verificationCode.otp, verificationCode.userId),
-      )
-      .catch((err) => {
-        this.logger.error(`setNull:${err}`);
+      if (error instanceof BadRequestException) {
+        throw error;
+      } else {
         throw new InternalServerErrorException('Server Error');
-      });
-    return;
+      }
+    }
   }
 
   async repeatCode(repeatSendCode: RepeatSendCode): Promise<void> {
     const { registrationMethod, email, phone } = repeatSendCode;
+
     // recieve user
     const user: User | null = await this.queryBus.execute(
-      new LoginCheckUserQuery(registrationMethod, phone, email),
+      new LoginCheckingUserQuery(registrationMethod, phone, email),
     );
-    // check user
-    if (!user || user.isVerified) throw new BadRequestException('Bad Request');
 
-    //generat eOtp
-    const generateOtp: string = await this.otpService.generateOtp();
+    // check user
+    if (user.isVerified) throw new BadRequestException('Bad Request');
 
     // update otp in DB
-    const otp = await this.commandBus.execute(
-      new CreateOtpCommand(user.id, generateOtp),
-    );
+    const otp = await this.commandBus
+      .execute(new OtpUpdatingAndSavingCommandr(user.id))
+      .catch((error) => {
+        console.log(error);
+      });
     //send mуssage
     await this.sendCodeService.send({ ...repeatSendCode, otp });
     return;

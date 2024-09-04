@@ -8,30 +8,26 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { ProductDiscount } from './Product-discount.entity';
-import { ProductInventory } from './Product-inventory.entity';
-import { Category } from 'src/category/entities/Product-category.entity';
-import { File } from './File.entity';
+import { File } from './file.entity';
+import { Category } from './category.entity';
+import { Discount } from 'src/discount/entities/discount.entity';
+import { Inventory } from './inventory.entity';
+import { OrderItem } from 'src/order/entities/order-item.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 export interface ProductAttributes {
-  id: string;
+  id: number;
   name: string;
   desc: string;
   SKU: string;
-  category_id: string;
-  inventory_id: string;
-  price: string;
-  discount_id: string;
-  createdAt: Date;
-  updateAt: Date;
-  deletedAt: Date;
+  category_id: number;
+  inventory_id: number;
+  price: number;
+  discount_id: number;
 }
 
 export interface ProductCreationAttributes
-  extends Optional<
-    ProductAttributes,
-    'id' | 'discount_id' | 'createdAt' | 'updateAt' | 'deletedAt'
-  > {}
+  extends Optional<ProductAttributes, 'id' | 'discount_id'> {}
 
 @Table({
   timestamps: true,
@@ -60,37 +56,34 @@ export class Product extends Model<
 
   @ForeignKey(() => Category)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  category_id: string;
+  category_id: number;
 
-  @ForeignKey(() => ProductInventory)
+  @ForeignKey(() => Inventory)
   @Column({ type: DataType.INTEGER, allowNull: false, unique: true })
-  inventory_id: string;
+  inventory_id: number;
 
-  @ForeignKey(() => ProductDiscount)
+  @ForeignKey(() => Discount)
   @Column({ type: DataType.INTEGER, allowNull: true })
-  discount_id?: string;
+  discount_id?: number;
 
   @Column({ type: DataType.DECIMAL(10, 2), allowNull: false })
-  price: string;
+  price: number;
 
-  @Column({ type: DataType.DATE, allowNull: false })
-  createdAt?: Date;
+  @BelongsTo(() => Discount)
+  discount: Discount;
 
-  @Column({ type: DataType.DATE, allowNull: false })
-  updatedAt?: Date;
-
-  @Column({ type: DataType.DATE, allowNull: true })
-  deletedAt?: Date;
-
-  @BelongsTo(() => ProductDiscount)
-  discount: ProductDiscount;
-
-  @BelongsTo(() => ProductInventory)
-  inventory: ProductInventory;
+  @BelongsTo(() => Inventory)
+  inventory: Inventory;
 
   @BelongsTo(() => Category)
   category: Category;
 
   @HasMany(() => File, 'product_id')
   files: File[];
+
+  @HasMany(() => OrderItem, 'product_id')
+  orderItems: OrderItem[];
+
+  @HasMany(() => Review, 'product_id')
+  reviews: Review[];
 }

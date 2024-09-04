@@ -1,5 +1,5 @@
-import { OtpRepository } from '../repositories/Otp.repository';
-import { Otp } from '../entities/Otp.entity';
+import { OtpRepository } from '../repositories/otp.repository';
+import { Otp } from '../entities/otp.entity';
 import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 
@@ -19,6 +19,7 @@ export class OtpService {
       .replace(/[^a-zA-Z0-9]/g, '')
       .slice(0, 6);
   }
+
   async validateOtp(verificationCode: string, code: string): Promise<boolean> {
     return verificationCode === code;
   }

@@ -8,11 +8,11 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Time } from '../enums/time-enaum';
-import { User } from './User.entity';
+import { User } from './user.entity';
 
 export interface OtpAttributes {
   id: number;
-  userId: string;
+  userId: number;
   otp: string;
   otpExpiresAt: string;
   deletedAt: Date;
@@ -34,7 +34,7 @@ export class Otp extends Model<OtpAttributes, OtpCreationAttributes> {
     unique: true,
     allowNull: false,
   })
-  userId: string;
+  userId: number;
 
   @Column({
     type: DataType.STRING,

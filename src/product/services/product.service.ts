@@ -1,140 +1,174 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { EmojiLogger } from 'src/common/logger/EmojiLogger';
-import { FiltrationUtils, PaginationResult } from 'src/utils/filtration';
-import { CreateProductCommand } from '../commands/createProduct/impl/Create-product.command';
-import { RemoveProductImagesCommand } from '../commands/removeProductImages/impl/remove-product-images.command';
-import { RemoveProductsCommand } from '../commands/removeProducts/impl/Remove-products.command';
-import { UpdateCategoryCommand } from '../commands/updateCategory/impl/Update-category-product.command';
-import { UpdateproductCommand } from '../commands/updateProduct/impl/Update-product.command';
-import { UploadFilesCommand } from '../commands/uploadFiles/impl/Upload-files.command';
-import { CreateProductDto } from '../dto/create/Create-product.dto';
-import { FindAllQueriesDto } from '../dto/findAll/FindAll-products.dto';
-import { UpdateProductDto } from '../dto/update/Update-product.dto';
-import { File } from '../entities/File.entity';
-import { ProductInventory } from '../entities/Product-inventory.entity';
-import { Product } from '../entities/Product.entity';
-import { FindAllProductsQuery } from '../queries/findAllProducts/impl/Find-all-products.query';
-import { FindOneProductQuery } from '../queries/findOneProduct/impl/Find-one-product.query';
+import { EmojiLogger } from 'src/common/logger/emojiLogger';
+import { CreateProductCommand } from '../commands/products/create/impl/create-product.command';
+import { RemoveProductImagesCommand } from '../commands/products/removeImages/impl/remove-product-images.command';
+import { UpdateProductCommand } from '../commands/products/update/impl/update-product.command';
+import { CreateCategoryDto } from '../dto/category/create/create-category.dto';
+import { UpdateCategoryDto } from '../dto/category/update/update-category.dto';
+import { CreateProductDto } from '../dto/product/create/create-product.dto';
+import { FindAllQueriesDto } from '../dto/product/findAll/findAll-products.dto';
+import { UpdateProductDto } from '../dto/product/update/update-product.dto';
+import { Category } from '../entities/category.entity';
+import { File } from '../entities/file.entity';
+import { Inventory } from '../entities/inventory.entity';
+import { Product } from '../entities/product.entity';
+import { FindAllCommand } from '../query/product/findAll/impl/find-all.command';
+import { CategoryRepository } from '../repositories/category.repository';
+import { ProductRepository } from '../repositories/product.repository';
+import { ReviewRepository } from 'src/reviews/repositories/review.repository';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { FindOneProductQuery } from '../query/product/findOne/impl/find-one-product.query';
 
 @Injectable()
 export class ProductService {
   logger = new EmojiLogger();
+
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
+    private readonly categoryRepository: CategoryRepository,
+    private readonly productRepository: ProductRepository,
+    private readonly reviewRepository: ReviewRepository,
+    @InjectQueue('elastic') private productIndexingQueue: Queue,
   ) {}
-  async create(
+
+  async createCategory(
+    createCategoryDto: CreateCategoryDto,
+  ): Promise<Category> {
+    const { name, desc } = createCategoryDto;
+    return this.categoryRepository
+      .createCategory(createCategoryDto)
+      .catch((error) => {
+        this.logger.error(`Create category command ${error}`);
+        throw new InternalServerErrorException('Server Error');
+      });
+  }
+
+  async findAllCategories(): Promise<Category[]> {
+    return this.categoryRepository.findAllCategory().catch((error) => {
+      this.logger.error(`Find All ${error}`);
+      throw new InternalServerErrorException('Server Error');
+    });
+  }
+
+  async findCategoryById(id: number): Promise<Category | null> {
+    return this.categoryRepository.findCategoryById(id).catch((error) => {
+      this.logger.error(`Find one category command ${error}`);
+      throw new InternalServerErrorException('Server Error');
+    });
+  }
+
+  async updateCategory(
+    id: number,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<[affectedCount: number]> {
+    return this.categoryRepository
+      .updateCategory(id, updateCategoryDto)
+      .catch((error) => {
+        this.logger.error(`update category command ${error}`);
+        throw new InternalServerErrorException('Server Error');
+      });
+  }
+
+  async removeCategory(id: number): Promise<number> {
+    return this.categoryRepository.removeCategory(id).catch((error) => {
+      this.logger.error(`remove category command ${error}`);
+      throw new InternalServerErrorException('Server Error');
+    });
+  }
+
+  async createProduct(
     createProductDto: CreateProductDto,
-    author: string,
     files: Array<Express.Multer.File>,
   ): Promise<{
     product: Product;
-    inventory: ProductInventory;
+    inventory: Inventory;
     images: File[];
   }> {
-    const { name, desc, discount_id, category_id, SKU, quantity, price } =
-      createProductDto;
-
     const { product, inventory, images } = await this.commandBus
-      .execute(
-        new CreateProductCommand(
-          name,
-          desc,
-          SKU,
-          price,
-          category_id,
-          quantity,
-          author,
-          files,
-          discount_id,
-        ),
-      )
+      .execute(new CreateProductCommand(createProductDto, files))
       .catch((error) => {
         this.logger.error(error);
         throw new InternalServerErrorException('Internal Server');
       });
     return { product, inventory, images };
   }
-  async upload(
-    files: Array<Express.Multer.File>,
-    id: string,
-    userId: string,
-  ): Promise<File[]> {
-    return this.commandBus
-      .execute(new UploadFilesCommand(files, id, userId))
-      .catch((error) => {
-        this.logger.error(error);
-        throw new InternalServerErrorException('Internal Server');
-      });
-  }
 
-  async findAll(
+  async findAllProduct(
     filtration: FindAllQueriesDto,
-  ): Promise<{ rows: Product[]; count: number }> {
-    const { perPage, page, minPrice, maxPrice, sort, sortBy } = filtration;
-    const pagination: PaginationResult = FiltrationUtils.pagination(
-      page,
-      perPage,
-    );
-    const price = { minPrice, maxPrice };
-    const sorting = { sort, sortBy };
-    const products: { rows: Product[]; count: number } = await this.queryBus
-      .execute(new FindAllProductsQuery(pagination, price, sorting))
+  ): Promise<{ products: Product[]; count: number }> {
+    return this.queryBus
+      .execute(new FindAllCommand(filtration))
       .catch((error) => {
-        this.logger.error(`FindAll Query Command ${error}`);
-        throw new InternalServerErrorException('Internal Server');
+        this.logger.error(`Find all product ${error}`);
+        throw new InternalServerErrorException('ServerError');
       });
-
-    return products;
   }
 
-  async findOne(id: number): Promise<Product | null> {
+  async findProductById(id: number): Promise<Product | null> {
     return this.queryBus.execute(new FindOneProductQuery(id)).catch((error) => {
-      this.logger.error(`Find One Product Handler ${error}`);
+      this.logger.error(`find one product Handler ${error}`);
       throw new InternalServerErrorException('Internal Server');
     });
   }
 
-  async update(
-    id: number,
+  async updateProduct(
     updateProductDto: UpdateProductDto,
-  ): Promise<[affectedCount: number]> {
-    const { name, desc, SKU, price } = updateProductDto;
-    return this.commandBus
-      .execute(new UpdateproductCommand(id, name, desc, SKU, price))
-      .catch((error) => {
-        this.logger.error(`Update Product Handler ${error}`);
-        throw new InternalServerErrorException('Internal Server');
-      });
-  }
-  async updateCategory(
+    files: Array<Express.Multer.File>,
     id: number,
-    categoria: string,
   ): Promise<[affectedCount: number]> {
-    return this.commandBus
-      .execute(new UpdateCategoryCommand(id, categoria))
+    // handler
+    const result = await this.commandBus
+      .execute(new UpdateProductCommand(id, files, updateProductDto))
       .catch((error) => {
-        this.logger.error(`Update Category Product Handler ${error}`);
+        this.logger.error(`Product updating Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');
       });
+    const job = await this.productIndexingQueue.add(
+      'product-updating',
+      { id: id, name: updateProductDto.name, desc: updateProductDto.desc },
+      {
+        delay: 3000,
+        attempts: 3,
+        removeOnComplete: true,
+      },
+    );
+
+    return result;
   }
 
-  async remove(ids: string[]): Promise<number> {
-    return this.commandBus
-      .execute(new RemoveProductsCommand(ids))
-      .catch((error) => {
-        this.logger.error(`Update Product Handler ${error}`);
-        throw new InternalServerErrorException('Internal Server');
-      });
+  async removeProduct(ids: number[]): Promise<void> {
+    await this.productRepository.removeProduct(ids).catch((error) => {
+      this.logger.error(`Product removing Handler ${error}`);
+      throw new InternalServerErrorException('Internal Server');
+    });
+
+    const job = await this.productIndexingQueue.add(
+      'product-removing',
+      { ids },
+      {
+        delay: 3000,
+        attempts: 3,
+        removeOnComplete: true,
+      },
+    );
   }
 
-  async removeImages(ids: string[]): Promise<number> {
+  async removeFileProduct(ids: number[]): Promise<number> {
     return this.commandBus
       .execute(new RemoveProductImagesCommand(ids))
       .catch((error) => {
-        this.logger.error(`Update Category Product Handler ${error}`);
+        this.logger.error(`File removing Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');
       });
+  }
+
+  async applyDiscount(productId: number, discountId: number) {
+    return this.productRepository.updateProduct(
+      { discount_id: discountId },
+      productId,
+    );
   }
 }

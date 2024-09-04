@@ -9,10 +9,11 @@ import {
 } from 'sequelize-typescript';
 import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
-import { Jwt } from './Jwt.entity';
-import { UserAddress } from 'src/user-settings/entities/Address.entity';
-import { Otp } from './Otp.entity';
-import { File } from 'src/product/entities/File.entity';
+import { Jwt } from './jwt.entity';
+import { Otp } from './otp.entity';
+import { Address } from 'src/user/entities/Address.entity';
+import { Order } from 'src/order/entities/order.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 
 export interface PersonAttributes {
   id: string;
@@ -103,9 +104,12 @@ export class User extends Model<PersonAttributes, PersonCreationAttributes> {
   @HasOne(() => Jwt)
   jwt: Jwt;
 
-  @HasMany(() => UserAddress)
-  address: UserAddress[];
+  @HasMany(() => Address)
+  address: Address[];
 
-  @HasMany(() => File)
-  author: File[];
+  @HasMany(() => Order)
+  orders: Order[];
+
+  @HasMany(() => Review, 'user_id')
+  review: Review[];
 }

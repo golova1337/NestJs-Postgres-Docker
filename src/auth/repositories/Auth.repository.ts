@@ -1,16 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from '../entities/User.entity';
-import { UserCreateCommand } from '../commands/singIn/impl/Create-user.command';
-import { RegistrationMethod } from '../enums/registMethod-enum';
 import { Transaction } from 'sequelize';
+import { SingInAuthDto } from '../dto/create/create-auth.dto';
+import { User } from '../entities/user.entity';
+import { RegistrationMethod } from '../enums/registMethod-enum';
 
 @Injectable()
 export class AuthRepository {
   constructor(@InjectModel(User) private userModel: typeof User) {}
-  async create(data: UserCreateCommand): Promise<User> {
+  async create(data: SingInAuthDto): Promise<User> {
     return this.userModel.create(data);
   }
+
   async findOneByEmail(
     email: string,
     additionalOptions?: Partial<User | null>,
@@ -20,6 +21,7 @@ export class AuthRepository {
       where: whereOptions,
     });
   }
+
   async findOneByPhone(
     phone: string,
     additionalOptions?: Partial<User>,

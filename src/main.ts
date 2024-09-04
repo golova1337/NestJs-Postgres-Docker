@@ -1,15 +1,21 @@
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { useContainer } from 'class-validator';
-import { EmojiLogger } from './common/logger/EmojiLogger';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { useContainer } from 'class-validator';
+import { AppModule } from './app.module';
+import { EmojiLogger } from './common/logger/emojiLogger';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new EmojiLogger(),
+    rawBody: true,
   });
-  app.setGlobalPrefix('v1/api');
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+  app.useBodyParser('text');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const port = parseInt(process.env.PORT, 10) || 3000;
 
@@ -23,7 +29,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   await app.listen(port);
 }
 bootstrap();

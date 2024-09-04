@@ -20,24 +20,23 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators/public/public';
+import { Public } from 'src/common/decorators/public/public.decorator';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';
-import { CurrentUser } from 'src/common/decorators/user/сurrentUser.decorator';
+import { CurrentUser } from 'src/common/decorators/user/currentUser.decorator';
 import { RefreshTokenGuard } from 'src/common/guards/jwt/refreshToken.guard';
 import { RolesGuard } from 'src/common/guards/roles/role.guard';
-import { JwtPayload } from '../../common/strategies/accessToken.strategy';
-import { RepeatSendCode } from '../dto/rapeatCode/Repeat-code.dto';
-import { User } from '../entities/User.entity';
-
 import {
-  CommonResponseDto,
   CommonResponse,
+  CommonResponseDto,
 } from 'src/common/response/response.dto';
+import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import { SingInAuthDto } from '../dto/create/create-auth.dto';
-import { SingInAuthAnswerDto } from '../dto/create/create-auth.dto.api';
-import { LoginAuthAnswerDto } from '../dto/login/login-api.dto';
+import { LoginAuthAnswerDto } from '../dto/login/openApi/login-api.dto';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
-import { AuthService } from '../services/Auth.service';
+import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
+import { User } from '../entities/user.entity';
+import { AuthService } from '../services/auth.service';
+import { SingInAuthAnswerDto } from '../dto/create/openApi/create-auth.dto.api';
 
 @ApiTags('Auth')
 @ApiExtraModels(SingInAuthAnswerDto, LoginAuthAnswerDto)
@@ -119,7 +118,7 @@ export class AuthController {
   @ApiCreatedResponse({ status: 204 })
   @Roles('user', 'admin')
   @UseGuards(RolesGuard)
-  async logout(@CurrentUser('id') userId: string): Promise<void> {
+  async logout(@CurrentUser('id') userId: number): Promise<void> {
     await this.authService.logout(userId);
     return;
   }

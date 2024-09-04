@@ -10,16 +10,16 @@ import {
   IsString,
   Length,
   Matches,
-  Validate,
   ValidateIf,
 } from 'class-validator';
-import { LoginByEmailConstraint } from 'src/auth/decorators/class-validator/login/loginByEmail';
-import { LoginByPhoneConstraint } from 'src/auth/decorators/class-validator/login/loginByPhone';
+import { LoginByEmail } from 'src/auth/decorators/constraint/login/loginByEmail';
+import { LoginByPhone } from 'src/auth/decorators/constraint/login/loginByPhone';
 import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
 
 export class LoginAuthDto {
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })
   @ValidateIf((o) => !o.phone)
+  @LoginByEmail({ message: 'Bad Request' })
   @Transform(({ value }) => value.trim())
   @IsOptional()
   @IsNotEmpty()
@@ -27,22 +27,17 @@ export class LoginAuthDto {
   @Length(8, 32, {
     message: 'The length must be min 8, max 32',
   })
-  @Validate(LoginByEmailConstraint)
   email: string;
 
   @ApiProperty({ required: false, example: '+380735433445' })
   @ValidateIf((o) => !o.email)
-  @IsOptional()
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
-  @IsString()
+  @IsOptional()
   @IsPhoneNumber('UA', {
     message: 'Phone number must be a valid Ukrainian phone number.',
   })
-  @Matches(/^[0-9+]+$/, {
-    message: 'Phone must contain only  numbers and plus',
-  })
-  @Validate(LoginByPhoneConstraint)
+  @LoginByPhone({ message: 'Bad Request' })
   phone: string;
 
   @ApiProperty({ required: true, example: 'Example12345!' })

@@ -1,41 +1,69 @@
 import { MailerModule } from '@nestjs-modules/mailer';
-import { BullModule } from '@nestjs/bull';
-import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { CacheModule } from '@nestjs/cache-manager';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { MulterModule } from '@nestjs/platform-express';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { redisStore } from 'cache-manager-redis-yet';
+import { Discount } from 'src/discount/entities/discount.entity';
 import { AuthModule } from './auth/auth.module';
-import { Jwt } from './auth/entities/Jwt.entity';
-import { Otp } from './auth/entities/Otp.entity';
-import { User } from './auth/entities/User.entity';
-import { CategoryModule } from './category/category.module';
-import { Category } from './category/entities/Product-category.entity';
+import { Jwt } from './auth/entities/jwt.entity';
+import { Otp } from './auth/entities/otp.entity';
+import { User } from './auth/entities/user.entity';
 import { AccessTokenGuard } from './common/guards/jwt/accessToken.guard';
+import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { AccessTokenStrategy } from './common/strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './common/strategies/refreshToken.strategy';
-import { ProductDiscount } from './product/entities/Product-discount.entity';
-import { ProductInventory } from './product/entities/Product-inventory.entity';
-import { Product } from './product/entities/Product.entity';
+import { DiscountModule } from './discount/discount.module';
+import { InvoicesModule } from './invoices/invoices.module';
+import { OrderItem } from './order/entities/order-item.entity';
+import { Order } from './order/entities/order.entity';
+import { OrderModule } from './order/order.module';
+import { Payment } from './payment/entities/payment.entity';
+import { PaymentModule } from './payment/payment.module';
+import { Category } from './product/entities/category.entity';
+import { File } from './product/entities/file.entity';
+import { Inventory } from './product/entities/inventory.entity';
+import { Product } from './product/entities/product.entity';
 import { ProductModule } from './product/product.module';
-import { UserAddress } from './user-settings/entities/Address.entity';
-import { UserModule } from './user-settings/user.module';
-import { File } from './product/entities/File.entity';
-import { UploadFileService } from './product/services/upload-files.service';
-import { Size } from './product/enum/multer-enum';
+import { Review } from './reviews/entities/review.entity';
+import { ReviewsModule } from './reviews/reviews.module';
+import { SearchModule } from './search/search.module';
+import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
+import { Address } from './user/entities/Address.entity';
+import { UserModule } from './user/user.module';
 
 export const Entities = [
   User,
-  UserAddress,
+  Address,
   Otp,
   Product,
-  ProductInventory,
-  ProductDiscount,
+  Inventory,
+  Discount,
   Category,
   Jwt,
   File,
+  Order,
+  OrderItem,
+  Payment,
+  Review,
 ];
-export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
+
+export const Modules = [
+  AuthModule,
+  UserModule,
+  ProductModule,
+  ShoppingCartModule,
+  DiscountModule,
+  OrderModule,
+  PaymentModule,
+  ReviewsModule,
+  SearchModule,
+  InvoicesModule,
+];
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,7 +82,7 @@ export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
       },
     }),
     BullModule.forRoot({
-      redis: {
+      connection: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT, 10) || 6379,
       },
@@ -76,11 +104,14 @@ export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
       synchronize: true,
     }),
 
-    MulterModule.register({
-      dest: UploadFileService.localStore(),
-      limits: { fieldSize: Size.Product },
-    }),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
 
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+    }),
+    EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,
   ],
   controllers: [],
@@ -93,4 +124,8 @@ export const Modules = [AuthModule, UserModule, CategoryModule, ProductModule];
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

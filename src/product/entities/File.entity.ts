@@ -7,9 +7,8 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { Product } from './Product.entity';
+import { Product } from './product.entity';
 import { MIME } from 'src/product/enum/multer-enum';
-import { User } from 'src/auth/entities/User.entity';
 
 export interface FileAttributes {
   id: string;
@@ -20,15 +19,9 @@ export interface FileAttributes {
   size: number;
   path: string;
   metadata: object;
-  createdAt: Date;
-  updateAt: Date;
-  deletedAt: Date;
 }
 export interface FileCreationAttributes
-  extends Optional<
-    FileAttributes,
-    'id' | 'metadata' | 'createdAt' | 'updateAt' | 'deletedAt'
-  > {}
+  extends Optional<FileAttributes, 'id' | 'metadata'> {}
 
 @Table({
   tableName: 'files',
@@ -67,8 +60,4 @@ export class File extends Model<FileAttributes, FileCreationAttributes> {
 
   @Column({ type: DataType.JSONB, allowNull: true })
   metadata?: object;
-
-  @ForeignKey(() => User)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  author_id: string;
 }
