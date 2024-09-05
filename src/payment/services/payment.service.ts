@@ -2,10 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { OrderRepository } from 'src/order/repositories/order.repository';
 import Stripe from 'stripe';
-import { PaymentCanceledEvent } from './events/canceled/impl/payment-canceled.event';
-import { PaymentCreatedEvent } from './events/created/impl/payment-created.event';
-import { PaymentFailedEvent } from './events/failed/impl/payment-failed.event';
-import { PaymentSucceededEvent } from './events/succeeded/impl/payment-succeeded.event';
+import { PaymentCreatedEvent } from '../events/created/impl/payment-created.event';
+import { PaymentSucceededEvent } from '../events/succeeded/impl/payment-succeeded.event';
+import { PaymentFailedEvent } from '../events/failed/impl/payment-failed.event';
+import { PaymentCanceledEvent } from '../events/canceled/impl/payment-canceled.event';
 
 @Injectable()
 export class PaymentService {

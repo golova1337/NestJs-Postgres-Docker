@@ -8,9 +8,9 @@ import { PaymentCanceledEventHandler } from './events/canceled/handler/payment-c
 import { PaymentCreatedEventHandler } from './events/created/handler/payment-created.event.handler';
 import { PaymentFailedEventHandler } from './events/failed/handler/payment-failed-handler.event';
 import { PaymentSucceededEventHandler } from './events/succeeded/handler/payment-succeeded-handler.event';
-import { PaymentController } from './payment.controller';
-import { PaymentService } from './payment.service';
 import { PaymentRepository } from './repositories/payment.repository';
+import { PaymentService } from './services/payment.service';
+import { PaymentController } from './controllers/payment.controller';
 
 export const Entities = [Payment];
 

@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { JwtCreationCommandHandler } from './commands/login/handlers/jwt-creation.command.handler';
 import { LogoutCommandHandler } from './commands/logout/handlers/logout.command.handler';
 import { UserCreationCommandHandler } from './commands/singIn/handlers/user-creation.command.handler';
@@ -32,6 +31,7 @@ import { JwtTokenService } from './services/jwt.service';
 import { OtpService } from './services/otp.service';
 import { SendCodeService } from './services/sendCode.service';
 import { OtpUpdatingAndSavingCommandHandler } from './commands/update-otp/handlers/otp-updating-and-saving.command.handler';
+import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 
 export const Repository = [AuthRepository, OtpRepository, JwtRepository];
 

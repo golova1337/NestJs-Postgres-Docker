@@ -26,8 +26,8 @@ import {
   CommonResponse,
   CommonResponseDto,
 } from 'src/common/response/response.dto';
-import { CreatePaymentIntent } from './dto/api/create-payment-intent.api';
-import { PaymentService } from './payment.service';
+import { PaymentService } from '../services/payment.service';
+import { CreatePaymentIntent } from '../dto/api/create-payment-intent.api';
 
 @ApiBearerAuth()
 @ApiTags('Stripe')

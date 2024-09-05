@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtCreationCommand } from '../impl/jwt-cration.command';
-import { JwtRepository } from 'src/auth/repositories/jwt.repository';
-import { JwtTokenService } from 'src/auth/services/jwt.service';
+import { JwtTokenService } from '../../../services/jwt.service';
+import { JwtRepository } from '../../../repositories/jwt.repository';
 
 @CommandHandler(JwtCreationCommand)
 export class JwtCreationCommandHandler
