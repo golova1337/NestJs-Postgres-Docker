@@ -32,14 +32,17 @@ export class GetAndCheckOrderItemQueryHandler
 
     //get all product ids from a cart
     const ids = await this.orderHelpers.getProductIdsFromCart(cart);
+
     //get products by id from DB
     const products = await this.productRepository.findManyProductsByIds(ids);
+
     //create a Map colection for quick recieving
     const productsMap = await this.orderHelpers.createColection(products);
 
     //check product
     for (const item of cart) {
       const product = productsMap.get(item.productId);
+
       if (!product) {
         throw new NotFoundException(
           `Product with ID ${item.productId} not found`,

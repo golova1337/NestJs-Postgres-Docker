@@ -1,4 +1,4 @@
-import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
+import { RegistrationMethod } from '../../../enums/registMethod-enum';
 
 export class LoginCheckingUserQuery {
   constructor(

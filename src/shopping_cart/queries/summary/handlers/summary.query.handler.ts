@@ -11,7 +11,6 @@ export class SummaryQueryHandler implements IQueryHandler<SummaryQuery> {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly shoppingCartHelper: ShoppingCartHelper,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
   async execute(query: SummaryQuery): Promise<{ cart: any[]; total: number }> {
     const { userId } = query;

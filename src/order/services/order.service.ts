@@ -34,6 +34,7 @@ export class OrderService {
       const cacheCart = await this.queryBus.execute(
         new GetAndCheckOrderItemQuery(userId),
       );
+
       // order creation
       return this.commandBus.execute(new CreateOrderCommand(userId, cacheCart));
     } catch (error) {

@@ -11,9 +11,9 @@ import { Roles } from '../enums/roles-enum';
 import { RegistrationMethod } from '../enums/registMethod-enum';
 import { Jwt } from './jwt.entity';
 import { Otp } from './otp.entity';
-import { Address } from 'src/user/entities/address.entity';
-import { Order } from 'src/order/entities/order.entity';
-import { Review } from 'src/reviews/entities/review.entity';
+import { Order } from '../../order/entities/order.entity';
+import { Review } from '../../reviews/entities/review.entity';
+import { Address } from '../../user/entities/Address.entity';
 
 export interface PersonAttributes {
   id: string;

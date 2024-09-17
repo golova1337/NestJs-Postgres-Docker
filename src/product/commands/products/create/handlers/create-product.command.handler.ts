@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { File } from 'src/product/entities/file.entity';
 import { Inventory } from 'src/product/entities/inventory.entity';
@@ -51,15 +51,17 @@ export class CreateProductCommandHandler
       );
 
       //filtratin date for File entity
+
       const data = await this.fileService.filterProperties(
         files,
         newProduct.id,
       );
       //save product files in DB
-      const newFiles: File[] = await this.fileRepository.create(
-        data,
-        transaction,
-      );
+
+      let newFiles: File[];
+      if (data) {
+        newFiles = await this.fileRepository.create(data, transaction);
+      }
 
       await this.sequelizeTransactionRunner.commitTransaction(transaction);
 

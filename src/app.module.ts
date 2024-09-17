@@ -104,12 +104,16 @@ export const Modules = [
       synchronize: true,
     }),
 
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      store: redisStore,
-
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+      useFactory: async () => ({
+        store: await redisStore({
+          socket: {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+          },
+        }),
+      }),
     }),
     EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,

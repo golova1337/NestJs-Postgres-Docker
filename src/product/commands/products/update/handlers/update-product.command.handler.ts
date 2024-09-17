@@ -54,7 +54,7 @@ export class UpdateProductCommandHandler
       }
 
       // save the photos, if they  exist
-      if (files.length > 0) {
+      if (files) {
         const data = await this.fileService.filterProperties(files, id);
         await this.fileRepository.create(data, transaction);
       }

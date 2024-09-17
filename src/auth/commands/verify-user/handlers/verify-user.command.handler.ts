@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { VerifyUserCommand } from '../impl/verify-user.command';
-import { OtpRepository } from 'src/auth/repositories/otp.repository';
-import { AuthRepository } from 'src/auth/repositories/auth.repository';
-import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { InternalServerErrorException } from '@nestjs/common';
+import { OtpRepository } from '../../../repositories/otp.repository';
+import { AuthRepository } from '../../../repositories/auth.repository';
+import { SequelizeTransactionRunner } from '../../../../common/transaction/sequelize-transaction-runner.service';
 
 @CommandHandler(VerifyUserCommand)
 export class VerifyUserCommandHandler

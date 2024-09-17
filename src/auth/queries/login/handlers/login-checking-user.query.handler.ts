@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { User } from 'src/auth/entities/user.entity';
-import { AuthRepository } from 'src/auth/repositories/auth.repository';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { LoginCheckingUserQuery } from '../impl/login-checking-user.query';
 import { BadRequestException } from '@nestjs/common';
+import { EmojiLogger } from '../../../../common/logger/emojiLogger';
+import { AuthRepository } from '../../../repositories/auth.repository';
+import { User } from '../../../entities/user.entity';
 
 @QueryHandler(LoginCheckingUserQuery)
 export class LoginCheckingQueryHandler

@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
+import { EmojiLogger } from '../../common/logger/emojiLogger';
 
 @Injectable()
 export class SendCodeService {
@@ -20,7 +20,7 @@ export class SendCodeService {
             email: email,
             otp: otp,
           },
-          { delay: 3000, priority: 1 },
+          { delay: 3000, priority: 1, removeOnComplete: true },
         );
         break;
       case 'phone':
@@ -30,7 +30,7 @@ export class SendCodeService {
             phone: phone,
             otp: otp,
           },
-          { delay: 3000, priority: 1 },
+          { delay: 3000, priority: 1, removeOnComplete: true },
         );
         break;
       default:

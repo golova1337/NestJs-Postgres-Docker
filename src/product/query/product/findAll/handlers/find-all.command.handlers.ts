@@ -1,14 +1,16 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { FindAllCommand } from '../impl/find-all.command';
+import { FindAllProductsQuery } from '../impl/find-all.command';
 import { ProductRepository } from 'src/product/repositories/product.repository';
 import { FiltrationUtils, PaginationResult } from 'src/utils/filtration';
 import { Product } from 'src/product/entities/product.entity';
 
-@QueryHandler(FindAllCommand)
-export class FindAllCommandHandler implements IQueryHandler<FindAllCommand> {
+@QueryHandler(FindAllProductsQuery)
+export class FindAllProductsQueryHandler
+  implements IQueryHandler<FindAllProductsQuery>
+{
   constructor(private readonly productRepository: ProductRepository) {}
   async execute(
-    query: FindAllCommand,
+    query: FindAllProductsQuery,
   ): Promise<{ products: Product[]; count: number }> {
     const { filtration } = query;
 

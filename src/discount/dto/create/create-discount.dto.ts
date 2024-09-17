@@ -24,7 +24,7 @@ export class CreateDiscountDto {
   @IsNotEmpty()
   @IsString()
   @Length(10, 300)
-  disc: string;
+  desc: string;
 
   @ApiProperty()
   @IsDefined()

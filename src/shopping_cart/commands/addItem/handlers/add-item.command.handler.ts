@@ -31,6 +31,7 @@ export class AddItemCommandHandler implements ICommandHandler<AddItemCommand> {
 
     if (indexItem !== -1) {
       // finding out that the current quantity and the quantity the user wants to add are not more than the item's inventory
+
       const isInventorySufficient =
         cacheCart.cart[indexItem].quantity + quantity >
         product.inventory.quantity;

@@ -24,7 +24,7 @@ export class RemoveItemCommandHandler
 
     let cart = cacheCart.cart;
     // get index item
-    const indexItem = cart.findIndex((i) => i.productId === itemId);
+    const indexItem = cart.findIndex((i) => i['productId'] == itemId);
 
     // item does not exist
     if (indexItem === -1) return cacheCart;

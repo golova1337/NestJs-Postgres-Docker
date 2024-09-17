@@ -51,11 +51,11 @@ export class CreateOrderCommandHandler
         );
 
         // decrease quantity and save
-        await this.orderHelpers.decreaseQuantityAndSave(
-          product,
-          item,
-          transaction,
-        );
+        await this.orderHelpers
+          .decreaseQuantityAndSave(product, item, transaction)
+          .catch((error) => {
+            console.log(error);
+          });
 
         const newItem = this.orderHelpers.createItem(order, product, item);
 

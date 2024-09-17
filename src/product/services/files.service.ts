@@ -18,10 +18,11 @@ export class FileService {
   }
 
   async filterProperties(
-    files: Array<Express.Multer.File>,
+    files: Array<Express.Multer.File> | undefined,
     product_id: number,
     metadata?: object,
   ) {
+    if (typeof files === 'undefined') return false;
     const obj = await Promise.all(
       files.map((file) => {
         return {

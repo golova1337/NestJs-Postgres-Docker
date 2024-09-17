@@ -1,10 +1,10 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Otp } from 'src/auth/entities/otp.entity';
-import { OtpRepository } from 'src/auth/repositories/otp.repository';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { ReceivingAndCheckingOtpQuery } from '../impl/receiving-and-checking.query';
-import { OtpService } from 'src/auth/services/otp.service';
 import { BadRequestException } from '@nestjs/common';
+import { EmojiLogger } from '../../../../common/logger/emojiLogger';
+import { OtpRepository } from '../../../repositories/otp.repository';
+import { OtpService } from '../../../services/otp.service';
+import { Otp } from '../../../entities/otp.entity';
 
 @QueryHandler(ReceivingAndCheckingOtpQuery)
 export class ReceivingAndCheckingOtpQueryHandler

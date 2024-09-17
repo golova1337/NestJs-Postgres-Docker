@@ -20,23 +20,24 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators/public/public.decorator';
-import { Roles } from 'src/common/decorators/roles/roles.decorator';
-import { CurrentUser } from 'src/common/decorators/user/currentUser.decorator';
-import { RefreshTokenGuard } from 'src/common/guards/jwt/refreshToken.guard';
-import { RolesGuard } from 'src/common/guards/roles/role.guard';
-import {
-  CommonResponse,
-  CommonResponseDto,
-} from 'src/common/response/response.dto';
-import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
-import { SingInAuthDto } from '../dto/create/create-auth.dto';
-import { LoginAuthAnswerDto } from '../dto/login/openApi/login-api.dto';
+
+import { Public } from '../../common/decorators/public/public.decorator';
+import { Roles } from '../../common/decorators/roles/roles.decorator';
+import { CurrentUser } from '../../common/decorators/user/currentUser.decorator';
+import { RefreshTokenGuard } from '../../common/guards/jwt/refreshToken.guard';
+import { RolesGuard } from '../../common/guards/roles/role.guard';
+import { JwtPayload } from '../../common/strategies/accessToken.strategy';
+import { SingInAuthUserDto } from '../dto/create/create-auth.dto';
+import { SingInAuthAnswerDto } from '../dto/create/openApi/create-auth.dto.api';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
+import { LoginAuthAnswerDto } from '../dto/login/openApi/login-api.dto';
 import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
 import { User } from '../entities/user.entity';
 import { AuthService } from '../services/auth.service';
-import { SingInAuthAnswerDto } from '../dto/create/openApi/create-auth.dto.api';
+import {
+  CommonResponse,
+  CommonResponseDto,
+} from '../../common/response/response.dto';
 
 @ApiTags('Auth')
 @ApiExtraModels(SingInAuthAnswerDto, LoginAuthAnswerDto)
@@ -47,7 +48,7 @@ import { SingInAuthAnswerDto } from '../dto/create/openApi/create-auth.dto.api';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
+  @Post('/sing-in')
   @HttpCode(201)
   @Public()
   @ApiOperation({
@@ -70,10 +71,39 @@ export class AuthController {
       ],
     },
   })
-  async singIn(
-    @Body() singInAuthDto: SingInAuthDto,
+  async singInUser(
+    @Body() singInAuthDto: SingInAuthUserDto,
   ): Promise<CommonResponseDto<SingInAuthAnswerDto>> {
-    const result: User = await this.authService.singIn(singInAuthDto);
+    const result: User = await this.authService.singInUser(singInAuthDto);
+    return CommonResponse.succsessfully({ data: result });
+  }
+
+  @Post('/sing-in/admin')
+  @HttpCode(201)
+  @Public()
+  @ApiOperation({
+    description: 'Registration for an admin',
+    summary: 'You can register by email or phone number',
+  })
+  @ApiCreatedResponse({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(CommonResponseDto) },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              $ref: getSchemaPath(SingInAuthAnswerDto),
+            },
+          },
+        },
+      ],
+    },
+  })
+  async singInAdmin(
+    @Body() singInAuthDto: SingInAuthUserDto,
+  ): Promise<CommonResponseDto<SingInAuthAnswerDto>> {
+    const result: User = await this.authService.singInAdmin(singInAuthDto);
     return CommonResponse.succsessfully({ data: result });
   }
 

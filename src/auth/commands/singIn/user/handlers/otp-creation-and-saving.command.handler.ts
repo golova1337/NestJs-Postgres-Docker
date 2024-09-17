@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { OtpRepository } from 'src/auth/repositories/otp.repository';
 import { OtpCreationAndSavingCommand } from '../impl/otp-creation-and-saving.command';
-import { OtpService } from 'src/auth/services/otp.service';
-import { Otp } from 'src/auth/entities/otp.entity';
+import { OtpRepository } from '../../../../repositories/otp.repository';
+import { Otp } from '../../../../entities/otp.entity';
+import { OtpService } from '../../../../services/otp.service';
 
 @CommandHandler(OtpCreationAndSavingCommand)
 export class OtpCreationAndSavingCommandHandler

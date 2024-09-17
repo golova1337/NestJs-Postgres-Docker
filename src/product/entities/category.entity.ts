@@ -1,6 +1,6 @@
 import { Optional } from 'sequelize';
 import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
-import { Product } from 'src/product/entities/product.entity';
+import { Product } from './product.entity';
 
 export interface CategoryAttributes {
   id: number;
@@ -24,7 +24,10 @@ export class Category extends Model<
   @Column({ type: DataType.STRING(100), allowNull: false, unique: true })
   name: string;
 
-  @Column({ type: DataType.TEXT('medium'), allowNull: false })
+  @Column({
+    type: DataType.STRING({ length: 100000 }),
+    allowNull: false,
+  })
   desc: string;
 
   @HasMany(() => Product, 'category_id')

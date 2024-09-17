@@ -1,5 +1,7 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Queue } from 'bullmq';
 import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { CreateProductCommand } from '../commands/products/create/impl/create-product.command';
 import { RemoveProductImagesCommand } from '../commands/products/removeImages/impl/remove-product-images.command';
@@ -13,13 +15,10 @@ import { Category } from '../entities/category.entity';
 import { File } from '../entities/file.entity';
 import { Inventory } from '../entities/inventory.entity';
 import { Product } from '../entities/product.entity';
-import { FindAllCommand } from '../query/product/findAll/impl/find-all.command';
+import { FindAllProductsQuery } from '../query/product/findAll/impl/find-all.command';
+import { FindOneProductQuery } from '../query/product/findOne/impl/find-one-product.query';
 import { CategoryRepository } from '../repositories/category.repository';
 import { ProductRepository } from '../repositories/product.repository';
-import { ReviewRepository } from 'src/reviews/repositories/review.repository';
-import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import { FindOneProductQuery } from '../query/product/findOne/impl/find-one-product.query';
 
 @Injectable()
 export class ProductService {
@@ -30,14 +29,12 @@ export class ProductService {
     private readonly queryBus: QueryBus,
     private readonly categoryRepository: CategoryRepository,
     private readonly productRepository: ProductRepository,
-    private readonly reviewRepository: ReviewRepository,
     @InjectQueue('elastic') private productIndexingQueue: Queue,
   ) {}
 
   async createCategory(
     createCategoryDto: CreateCategoryDto,
   ): Promise<Category> {
-    const { name, desc } = createCategoryDto;
     return this.categoryRepository
       .createCategory(createCategoryDto)
       .catch((error) => {
@@ -100,7 +97,7 @@ export class ProductService {
     filtration: FindAllQueriesDto,
   ): Promise<{ products: Product[]; count: number }> {
     return this.queryBus
-      .execute(new FindAllCommand(filtration))
+      .execute(new FindAllProductsQuery(filtration))
       .catch((error) => {
         this.logger.error(`Find all product ${error}`);
         throw new InternalServerErrorException('ServerError');
@@ -126,7 +123,8 @@ export class ProductService {
         this.logger.error(`Product updating Handler ${error}`);
         throw new InternalServerErrorException('Internal Server');
       });
-    const job = await this.productIndexingQueue.add(
+
+    await this.productIndexingQueue.add(
       'product-updating',
       { id: id, name: updateProductDto.name, desc: updateProductDto.desc },
       {
@@ -145,7 +143,7 @@ export class ProductService {
       throw new InternalServerErrorException('Internal Server');
     });
 
-    const job = await this.productIndexingQueue.add(
+    await this.productIndexingQueue.add(
       'product-removing',
       { ids },
       {
