@@ -13,7 +13,7 @@ import { Jwt } from './jwt.entity';
 import { Otp } from './otp.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Review } from '../../reviews/entities/review.entity';
-import { Address } from '../../user/entities/Address.entity';
+import { Address } from '../../user/entities/address.entity';
 
 export interface PersonAttributes {
   id: string;

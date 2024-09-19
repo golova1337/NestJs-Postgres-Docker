@@ -14,7 +14,6 @@ import { OtpUpdatingAndSavingCommandr } from '../commands/update-otp/impl/otp-up
 import { VerifyUserCommand } from '../commands/verify-user/impl/verify-user.command';
 import { SingInAuthUserDto } from '../dto/create/create-auth.dto';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
-import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
 import { Otp } from '../entities/otp.entity';
 import { User } from '../entities/user.entity';
 import { LoginCheckingUserQuery } from '../queries/login/impl/login-checking-user.query';
@@ -25,6 +24,7 @@ import { OtpCreationAndSavingCommand } from '../commands/singIn/user/impl/otp-cr
 import { UserCreationCommand } from '../commands/singIn/user/impl/user-creation.command';
 import { AdminCreationCommand } from '../commands/singIn/admin/impl/admin-creation.command';
 import { Roles } from '../enums/roles-enum';
+import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
 
 @Injectable()
 export class AuthService {

@@ -9,12 +9,12 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { Sequelize } from 'sequelize-typescript';
 import { Entities } from 'src/app.module';
 import { AccessTokenGuard } from 'src/common/guards/jwt/accessToken.guard';
+import { Category } from 'src/product/entities/category.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { ProductModule } from 'src/product/product.module';
 import * as request from 'supertest';
+import { CreateCategoryDto } from 'src/product/dto/category/create/create-category.dto';
 import { MockAuthGuard } from './guard/mock-auth.guard';
-import { Category } from '../src/product/entities/category.entity';
-import { ProductModule } from '../src/product/product.module';
-import { CreateCategoryDto } from '../src/product/dto/category/create/create-category.dto';
-import { Product } from '../src/product/entities/product.entity';
 
 describe('product', () => {
   let sequelize: Sequelize;

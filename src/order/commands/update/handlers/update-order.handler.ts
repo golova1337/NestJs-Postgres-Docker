@@ -17,7 +17,6 @@ export class UpdateOrderCommandHandler
 
     if (!order) throw new NotFoundException('Not Found');
     if (this.isStatusTransitionAllowed(order.status, status)) {
-      console.log(order);
       order.status = status;
       return order.save();
     } else {

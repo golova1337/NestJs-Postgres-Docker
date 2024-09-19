@@ -20,24 +20,23 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-
-import { Public } from '../../common/decorators/public/public.decorator';
-import { Roles } from '../../common/decorators/roles/roles.decorator';
-import { CurrentUser } from '../../common/decorators/user/currentUser.decorator';
-import { RefreshTokenGuard } from '../../common/guards/jwt/refreshToken.guard';
-import { RolesGuard } from '../../common/guards/roles/role.guard';
-import { JwtPayload } from '../../common/strategies/accessToken.strategy';
 import { SingInAuthUserDto } from '../dto/create/create-auth.dto';
 import { SingInAuthAnswerDto } from '../dto/create/openApi/create-auth.dto.api';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
 import { LoginAuthAnswerDto } from '../dto/login/openApi/login-api.dto';
-import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
 import { User } from '../entities/user.entity';
 import { AuthService } from '../services/auth.service';
+import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
+import { Public } from 'src/common/decorators/public/public.decorator';
+import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles/role.guard';
+import { CurrentUser } from 'src/common/decorators/user/currentUser.decorator';
+import { RefreshTokenGuard } from 'src/common/guards/jwt/refreshToken.guard';
+import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import {
   CommonResponse,
   CommonResponseDto,
-} from '../../common/response/response.dto';
+} from 'src/common/response/response.dto';
 
 @ApiTags('Auth')
 @ApiExtraModels(SingInAuthAnswerDto, LoginAuthAnswerDto)

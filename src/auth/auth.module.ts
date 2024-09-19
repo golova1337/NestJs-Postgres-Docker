@@ -4,7 +4,6 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { JwtCreationCommandHandler } from './commands/login/handlers/jwt-creation.command.handler';
-import { LogoutCommandHandler } from './commands/logout/handlers/logout.command.handler';
 import { UserCreationCommandHandler } from './commands/singIn/user/handlers/user-creation.command.handler';
 import { OtpCreationAndSavingCommandHandler } from './commands/singIn/user/handlers/otp-creation-and-saving.command.handler';
 import { VerifyUserCommandHandler } from './commands/verify-user/handlers/verify-user.command.handler';
@@ -26,13 +25,14 @@ import { ReceivingAndCheckingOtpQueryHandler } from './queries/verify-otp/handle
 import { AuthRepository } from './repositories/auth.repository';
 import { JwtRepository } from './repositories/jwt.repository';
 import { OtpRepository } from './repositories/otp.repository';
-import { AuthService } from './services/auth.service';
 import { JwtTokenService } from './services/jwt.service';
 import { OtpService } from './services/otp.service';
 import { SendCodeService } from './services/sendCode.service';
 import { OtpUpdatingAndSavingCommandHandler } from './commands/update-otp/handlers/otp-updating-and-saving.command.handler';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
 import { AdminCreationCommandHandler } from './commands/singIn/admin/handler/admin-creation.command.handler';
+import { LogoutCommandHandler } from './commands/logout/handlers/Logout.command.handler';
+import { AuthService } from './services/auth.service';
 
 export const Repository = [AuthRepository, OtpRepository, JwtRepository];
 

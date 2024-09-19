@@ -5,7 +5,7 @@ import { CreateAddressCommand } from '../commands/address/create/handlers/impl/c
 import { RemoveAddressCommand } from '../commands/address/remove/impl/remove-address.command';
 import { UpdateAddressCommand } from '../commands/address/update/impl/update-address.command';
 import { CreateAddressUserDto } from '../dto/create/create-address.dto';
-import { Address } from '../entities/Address.entity';
+import { Address } from '../entities/address.entity';
 import { FindAllAddressQuery } from '../queries/address/findAllAddress/impl/recieve-address.query';
 import { FindOneAddressByIdQuery } from '../queries/address/findOneAddressById/impl/find-one-address-by-id.query';
 

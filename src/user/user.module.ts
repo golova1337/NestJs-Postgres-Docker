@@ -9,7 +9,7 @@ import { CreateAddressCommandHandler } from './commands/address/create/create-ad
 import { RemoveAddressCommandHandler } from './commands/address/remove/handlers/remove-address.command.handler';
 import { UpdateAddressCommandHandler } from './commands/address/update/handler/update-address.command.handler';
 import { UserController } from './controllers/user.controller';
-import { Address } from './entities/Address.entity';
+import { Address } from './entities/address.entity';
 import { FindAllAddressQueryHandler } from './queries/address/findAllAddress/handlers/recieve-address.query.handler';
 import { FindOneAddressByIdQueryHandler } from './queries/address/findOneAddressById/handlers/find-one-address-by-id.query.handler';
 import { AddressRepository } from './repositories/address-repository';

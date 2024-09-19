@@ -2,7 +2,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bullmq';
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -32,8 +32,8 @@ import { Review } from './reviews/entities/review.entity';
 import { ReviewsModule } from './reviews/reviews.module';
 import { SearchModule } from './search/search.module';
 import { ShoppingCartModule } from './shopping_cart/shopping_cart.module';
-import { Address } from './user/entities/Address.entity';
 import { UserModule } from './user/user.module';
+import { Address } from './user/entities/address.entity';
 
 export const Entities = [
   User,
@@ -70,42 +70,54 @@ export const Modules = [
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MailerModule.forRoot({
-      transport: {
-        host: process.env.MAIL_HOST,
-        port: process.env.MAIL_PORT,
-        secure: false,
-        auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASS,
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: process.env.MAIL_HOST,
+          port: process.env.MAIL_PORT,
+          secure: false,
+          auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASS,
+          },
         },
-      },
+      }),
+      inject: [ConfigService],
     }),
-    BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT, 10) || 6379,
-      },
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: process.env.REDIS_HOST,
+          port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+        },
+      }),
+      inject: [ConfigService],
     }),
-    SequelizeModule.forRoot({
-      dialect: 'postgres',
-      host: 'localhost',
-      port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
-      schema: 'store',
-      models: [...Entities],
-      pool: {
-        max: 10,
-        min: 3,
-      },
-      autoLoadModels: true,
-      synchronize: true,
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        dialect: 'postgres',
+        host: 'localhost',
+        port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
+        username: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD,
+        database: process.env.POSTGRES_DB,
+        schema: 'store',
+        models: [...Entities],
+        pool: {
+          max: 10,
+          min: 3,
+        },
+        autoLoadModels: true,
+        synchronize: true,
+      }),
+      inject: [ConfigService],
     }),
-
     CacheModule.registerAsync({
       isGlobal: true,
+      imports: [ConfigModule],
       useFactory: async () => ({
         store: await redisStore({
           socket: {
@@ -114,6 +126,7 @@ export const Modules = [
           },
         }),
       }),
+      inject: [ConfigService],
     }),
     EventEmitterModule.forRoot({ delimiter: '.' }),
     ...Modules,

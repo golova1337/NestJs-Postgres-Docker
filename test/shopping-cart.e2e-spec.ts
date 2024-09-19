@@ -9,10 +9,10 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { Entities } from 'src/app.module';
 import { AccessTokenGuard } from 'src/common/guards/jwt/accessToken.guard';
 import { Sign } from 'src/product/enum/sign-enum';
-import { ProductRepository } from 'src/product/repositories/product.repository';
 import { ShoppingCartModule } from 'src/shopping_cart/shopping_cart.module';
 import * as request from 'supertest';
 import { MockAuthGuard } from './guard/mock-auth.guard';
+import { ProductRepository } from 'src/product/repositories/product.repository';
 
 describe('shopping cart', () => {
   let app: INestApplication;

@@ -1,16 +1,16 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { InternalServerErrorException } from '@nestjs/common';
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Queue } from 'bullmq';
 import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
-import { File } from 'src/product/entities/file.entity';
-import { Inventory } from 'src/product/entities/inventory.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { FileRepository } from 'src/product/repositories/file.repository';
 import { InventoryRepository } from 'src/product/repositories/inventory.repository';
 import { ProductRepository } from 'src/product/repositories/product.repository';
 import { FileService } from 'src/product/services/files.service';
 import { CreateProductCommand } from '../impl/create-product.command';
-import { Queue } from 'bullmq';
-import { InjectQueue } from '@nestjs/bullmq';
+import { Inventory } from 'src/product/entities/inventory.entity';
+import { File } from 'src/product/entities/file.entity';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductCommandHandler
