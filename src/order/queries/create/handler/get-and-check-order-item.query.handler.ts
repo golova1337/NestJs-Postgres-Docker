@@ -1,10 +1,9 @@
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ICommandHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetAndCheckOrderItemQuery } from '../impl/get-and-check-order-item.query';
-import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
+import { CashManagerService } from 'src/infrastructure/cash-manager/cash-manager.service';
 import { OrderHelpers } from 'src/order/helpers/order.helper';
 import { ProductRepository } from 'src/product/repositories/product.repository';
-import { Cache } from 'cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { GetAndCheckOrderItemQuery } from '../impl/get-and-check-order-item.query';
 
 @QueryHandler(GetAndCheckOrderItemQuery)
 export class GetAndCheckOrderItemQueryHandler
@@ -13,7 +12,7 @@ export class GetAndCheckOrderItemQueryHandler
   constructor(
     private readonly orderHelpers: OrderHelpers,
     private readonly productRepository: ProductRepository,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly cashManagerService: CashManagerService,
   ) {}
 
   async execute(command: GetAndCheckOrderItemQuery) {
@@ -21,10 +20,7 @@ export class GetAndCheckOrderItemQueryHandler
     const cacheKey = `cart:${userId}`;
 
     // check cart
-    const cacheCart = await this.cacheManager.get<{
-      cart: any[];
-      total: number;
-    }>(cacheKey);
+    const cacheCart = await this.cashManagerService.get(cacheKey);
 
     const cart = cacheCart?.cart;
     if (!cart || cart.length === 0)

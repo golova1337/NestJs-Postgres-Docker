@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import { JwtCreationCommand } from '../commands/login/impl/jwt-cration.command';
 import { LogoutCommand } from '../commands/logout/impl/logout.command';
@@ -25,15 +24,15 @@ import { UserCreationCommand } from '../commands/singIn/user/impl/user-creation.
 import { AdminCreationCommand } from '../commands/singIn/admin/impl/admin-creation.command';
 import { Roles } from '../enums/roles-enum';
 import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class AuthService {
-  logger = new EmojiLogger();
-
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly sendCodeService: SendCodeService,
+    private readonly logger: MyLogger,
   ) {}
 
   async singInUser(singInAuthDto: SingInAuthUserDto): Promise<User> {

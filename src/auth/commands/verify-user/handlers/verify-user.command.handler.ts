@@ -3,7 +3,7 @@ import { VerifyUserCommand } from '../impl/verify-user.command';
 import { InternalServerErrorException } from '@nestjs/common';
 import { OtpRepository } from '../../../repositories/otp.repository';
 import { AuthRepository } from '../../../repositories/auth.repository';
-import { SequelizeTransactionRunner } from '../../../../common/transaction/sequelize-transaction-runner.service';
+import { SequelizeTransactionRunner } from 'src/infrastructure/database/transaction/sequelize-transaction-runner.service';
 
 @CommandHandler(VerifyUserCommand)
 export class VerifyUserCommandHandler
@@ -20,7 +20,7 @@ export class VerifyUserCommandHandler
     const transaction =
       await this.sequelizeTransactionRunner.startTransaction();
     try {
-      //run the remove method of otp from OTP repository and throw our transaction in there
+      //run the remove method of a otp from OTP repository and throw our transaction in there
       await this.otpRepository.remove(verificationCode, transaction);
       // run the isVerified method of AuthRepository (this is the Repositroty of User Entity) and throw our transaction in there
       await this.authRepository.isVerified(id, transaction);

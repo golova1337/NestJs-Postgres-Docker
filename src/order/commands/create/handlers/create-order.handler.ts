@@ -1,8 +1,6 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Cache } from 'cache-manager';
-import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
+import { CashManagerService } from 'src/infrastructure/cash-manager/cash-manager.service';
+import { SequelizeTransactionRunner } from 'src/infrastructure/database/transaction/sequelize-transaction-runner.service';
 import { OrderItem } from 'src/order/entities/order-item.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { OrderStatus } from 'src/order/enum/order-status.enum';
@@ -22,7 +20,8 @@ export class CreateOrderCommandHandler
     private readonly orderRepository: OrderRepository,
     private readonly sequelizeTransactionRunner: SequelizeTransactionRunner,
     private readonly orderHelpers: OrderHelpers,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+
+    private readonly cashManagerService: CashManagerService,
   ) {}
   async execute(
     command: CreateOrderCommand,
@@ -73,7 +72,7 @@ export class CreateOrderCommandHandler
       // update order
       await order.update({ total_amount: total }, { transaction });
       //remove cash
-      await this.cacheManager.del(`cart:${userId}`);
+      await this.cashManagerService.del(`cart:${userId}`);
       //commit
       await this.sequelizeTransactionRunner.commitTransaction(transaction);
       return { order, orderItems };

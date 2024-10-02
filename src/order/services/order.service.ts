@@ -1,27 +1,24 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BadRequestException,
-  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { Cache } from 'cache-manager';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
+import { CashManagerService } from 'src/infrastructure/cash-manager/cash-manager.service';
 import { CreateOrderCommand } from '../commands/create/impl/create-order.impl';
 import { UpdateOrderCommand } from '../commands/update/update-order.impl';
 import { UpdateStatusOrderDto } from '../dto/update-order.dto';
 import { OrderItem } from '../entities/order-item.entity';
 import { Order } from '../entities/order.entity';
-import { OrderRepository } from '../repositories/order.repository';
 import { GetAndCheckOrderItemQuery } from '../queries/create/impl/get-and-check-order-item.query';
+import { OrderRepository } from '../repositories/order.repository';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class OrderService {
-  logger = new EmojiLogger();
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly logger: MyLogger,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly orderRepository: OrderRepository,

@@ -3,21 +3,27 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
-import { EmojiLogger } from './common/logger/emojiLogger';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
+import { MyLogger } from './logger/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: new EmojiLogger(),
+    bufferLogs: true,
     rawBody: true,
   });
+  app.useLogger(new MyLogger());
+
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('app.port');
+
   app.useBodyParser('text');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  const port = parseInt(process.env.PORT, 10) || 3000;
 
   const config = new DocumentBuilder()
     .setTitle('Shope')

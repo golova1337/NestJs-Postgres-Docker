@@ -1,20 +1,21 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { Job } from 'bullmq';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Processor('elastic')
 export class ProductIndexingConsumer extends WorkerHost {
-  constructor(private readonly elasticsearchService: ElasticsearchService) {
+  constructor(
+    private readonly elasticsearchService: ElasticsearchService,
+    private readonly logger: MyLogger,
+  ) {
     super();
   }
-
-  logger = new EmojiLogger();
 
   async process(job: Job<any, any, string>): Promise<any> {
     switch (job.name) {
       case 'product-indexing': {
-        const result = await this.elasticsearchService.index({
+        return this.elasticsearchService.index({
           index: 'products',
           id: job.data.id,
           document: {
@@ -22,27 +23,24 @@ export class ProductIndexingConsumer extends WorkerHost {
             desc: job.data.desc,
           },
         });
-        return {};
+      }
+      case 'product-updating': {
+        const { id, name, desc } = job.data;
+        return this.elasticsearchService.update({
+          index: 'products',
+          id: id,
+          doc: { name: name, desc: desc },
+        });
       }
       case 'product-removing': {
         const ids = job.data.ids;
         const body = ids.map((id) => {
           return { delete: { _index: 'products', _id: id } };
         });
-        const result = await this.elasticsearchService.bulk({
+        return this.elasticsearchService.bulk({
           refresh: true,
           operations: body,
         });
-        return {};
-      }
-      case 'product-updating': {
-        const { id, name, desc } = job.data;
-        const result = await this.elasticsearchService.update({
-          index: 'products',
-          id: id,
-          doc: { name: name, desc: desc },
-        });
-        return {};
       }
     }
   }

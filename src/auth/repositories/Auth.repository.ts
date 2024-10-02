@@ -42,6 +42,7 @@ export class AuthRepository {
       { where: { id: userId }, transaction },
     );
   }
+
   async getUserByRegistrationMethod(
     registrationMethod: RegistrationMethod,
     email: string,

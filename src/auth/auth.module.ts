@@ -1,89 +1,25 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { JwtCreationCommandHandler } from './commands/login/handlers/jwt-creation.command.handler';
-import { UserCreationCommandHandler } from './commands/singIn/user/handlers/user-creation.command.handler';
-import { OtpCreationAndSavingCommandHandler } from './commands/singIn/user/handlers/otp-creation-and-saving.command.handler';
-import { VerifyUserCommandHandler } from './commands/verify-user/handlers/verify-user.command.handler';
-import { SentSmsConsumer } from './consumers/sent-sms.consumer';
+import { QueueModule } from 'src/infrastructure/queue/queue.module';
+import { CommandHandlers } from './commands';
+import { Consumers } from './consumers';
 import { AuthController } from './controllers/auth.controller';
-import { LoginByEmailConstraint } from './decorators/constraint/login/loginByEmail';
-import { LoginByPhoneConstraint } from './decorators/constraint/login/loginByPhone';
-import { IsPasswordsMatchingConstraint } from './decorators/constraint/singIn/isPasswordsMatching';
-import { SingInByEmailConstraint } from './decorators/constraint/singIn/signInByEmail';
-import { SingInByPhoneConstraint } from './decorators/constraint/singIn/singInByPhone';
-import { RepeatSendOtpByEmailConstraint } from './decorators/constraint/verify/repeat-code-email.constraint';
-import { RepeatSendOtpByPhoneConstraint } from './decorators/constraint/verify/repeat-code-phone.constraint';
-import { Jwt } from './entities/jwt.entity';
-import { Otp } from './entities/otp.entity';
-import { User } from './entities/user.entity';
-import { LoginCheckingQueryHandler } from './queries/login/handlers/login-checking-user.query.handler';
-import { ReceivingAndCheckingJwtQueryHandler } from './queries/refresh/handlers/receiving-and-checking-jwt.query.handler';
-import { ReceivingAndCheckingOtpQueryHandler } from './queries/verify-otp/handlers/receiving-and-checking.query.handler';
-import { AuthRepository } from './repositories/auth.repository';
-import { JwtRepository } from './repositories/jwt.repository';
-import { OtpRepository } from './repositories/otp.repository';
-import { JwtTokenService } from './services/jwt.service';
-import { OtpService } from './services/otp.service';
-import { SendCodeService } from './services/sendCode.service';
-import { OtpUpdatingAndSavingCommandHandler } from './commands/update-otp/handlers/otp-updating-and-saving.command.handler';
-import { SequelizeTransactionRunner } from 'src/common/transaction/sequelize-transaction-runner.service';
-import { AdminCreationCommandHandler } from './commands/singIn/admin/handler/admin-creation.command.handler';
-import { LogoutCommandHandler } from './commands/logout/handlers/Logout.command.handler';
-import { AuthService } from './services/auth.service';
-
-export const Repository = [AuthRepository, OtpRepository, JwtRepository];
-
-export const Consumer = [SentSmsConsumer];
-
-export const Constraint = [
-  SingInByEmailConstraint,
-  SingInByPhoneConstraint,
-
-  LoginByEmailConstraint,
-  LoginByPhoneConstraint,
-
-  IsPasswordsMatchingConstraint,
-
-  RepeatSendOtpByPhoneConstraint,
-  RepeatSendOtpByEmailConstraint,
-];
-
-export const QueryHandler = [
-  LoginCheckingQueryHandler,
-
-  ReceivingAndCheckingOtpQueryHandler,
-  ReceivingAndCheckingJwtQueryHandler,
-];
-
-export const CommandHandler = [
-  UserCreationCommandHandler,
-  JwtCreationCommandHandler,
-  OtpCreationAndSavingCommandHandler,
-  LogoutCommandHandler,
-  VerifyUserCommandHandler,
-  OtpUpdatingAndSavingCommandHandler,
-  AdminCreationCommandHandler,
-];
-
-export const Services = [
-  OtpService,
-  JwtTokenService,
-  SendCodeService,
-  AuthService,
-];
-
-export const Entities = [User, Otp, Jwt];
-export const Transaction = [SequelizeTransactionRunner];
+import { Constraint } from './decorators/constraint';
+import { Entities } from './entities';
+import { QueryHandlers } from './queries';
+import { Repository } from './repositories';
+import { Services } from './services';
 
 @Module({
   imports: [
+    QueueModule,
     SequelizeModule.forFeature([...Entities]),
-    JwtModule.register({}),
     BullModule.registerQueue({
       name: 'sent-sms',
+      defaultJobOptions: { removeOnComplete: true },
+      streams: { events: { maxLen: 5000 } },
     }),
     CqrsModule,
   ],
@@ -91,11 +27,10 @@ export const Transaction = [SequelizeTransactionRunner];
   providers: [
     ...Repository,
     ...Constraint,
-    ...Consumer,
-    ...QueryHandler,
-    ...CommandHandler,
+    ...Consumers,
+    ...QueryHandlers,
+    ...CommandHandlers,
     ...Services,
-    ...Transaction,
   ],
 })
 export class AuthModule {}

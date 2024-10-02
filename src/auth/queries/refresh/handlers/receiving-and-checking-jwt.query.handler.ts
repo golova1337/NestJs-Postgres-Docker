@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ReceivingAndCheckingJwtQuery } from '../impl/receiving-and-checking-jwt.query';
 import { JwtRepository } from '../../../repositories/jwt.repository';
-import { JwtTokenService } from '../../../services/jwt.service';
+import { JwtTokenService } from 'src/jwt/jwt.service';
 
 @QueryHandler(ReceivingAndCheckingJwtQuery)
 export class ReceivingAndCheckingJwtQueryHandler

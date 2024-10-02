@@ -11,7 +11,7 @@ import {
 import { OrderStatus } from '../enum/order-status.enum';
 import { User } from '../../auth/entities/user.entity';
 import { OrderItem } from './order-item.entity';
-import { Payment } from '../../payment/entities/payment.entity';
+import { Payment } from '../../infrastructure/payment/entities/payment.entity';
 
 interface OrderAttributes {
   id: number;
