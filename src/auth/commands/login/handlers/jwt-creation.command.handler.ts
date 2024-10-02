@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtCreationCommand } from '../impl/jwt-cration.command';
-import { JwtRepository } from 'src/auth/repositories/jwt.repository';
-import { JwtTokenService } from 'src/auth/services/jwt.service';
+import { JwtRepository } from '../../../repositories/jwt.repository';
+import { JwtTokenService } from 'src/jwt/jwt.service';
 
 @CommandHandler(JwtCreationCommand)
 export class JwtCreationCommandHandler
@@ -17,7 +17,6 @@ export class JwtCreationCommandHandler
     refreshToken: string;
   }> {
     const { id, role } = query;
-    //create new jwt
     const tokens: {
       accessToken: string;
       refreshToken: string;

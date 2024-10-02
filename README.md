@@ -1,68 +1,75 @@
-# E-commerce API Project Tasks (Nest.js, Sequelize, PostgreSQL)
+# E-commerce API Project (Nest.js, Sequelize, PostgreSQL, BullMQ, Elasticsearch, Redis, Stripe, CQRS)
 
-## Phase 1: Project Setup and Core Functionality
+## Overview
 
-### Environment Setup:
+This project is an e-commerce API built with **Nest.js** and integrates various technologies, including:
 
-- Install Node.js, PostgreSQL.
-- Create a new Nest.js project.
-- Set up Sequelize to connect to the PostgreSQL database.
+- **Sequelize** for ORM
+- **PostgreSQL** as the database
+- **BullMQ** for task queues
+- **Elasticsearch** for advanced search capabilities
+- **Redis** for caching and messaging
+- **Stripe** for payment processing
 
-### Data Modeling:
+The project utilizes **CQRS** (Command Query Responsibility Segregation) architecture to handle complex operations and improve scalability.
 
-- Design the database schema (products, categories, users, orders, etc.).
-- Define Sequelize models.
+## Technologies Used
 
-### Authentication and Authorization:
+- **Nest.js:** A progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
+- **Sequelize:** A promise-based Node.js ORM for PostgreSQL.
+- **PostgreSQL:** A powerful, open-source object-relational database system.
+- **BullMQ:** A modern library for handling job and message queues.
+- **Elasticsearch:** A distributed, RESTful search and analytics engine.
+- **Redis:** An in-memory data structure store used as a database, cache, and message broker.
+- **Stripe:** A comprehensive payment processing platform for handling online payments.
+- **CQRS:** Command Query Responsibility Segregation, a pattern to separate read and write operations for better scalability.
 
-- Implement user registration and login.
-- Use JSON Web Tokens (JWT) for authentication.
-- Create roles and authorization middleware.
+## Getting Started
 
-### Product Catalog Management:
+### Prerequisites
 
-- Build CRUD endpoints for products.
-- Implement filtering, sorting, and pagination for product listings.
-- Handle product images or other media.
+1. **Git:** Ensure Git is installed to clone the repository.
+2. **Docker:** Install Docker to manage containerized applications. You can download it from [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+3. **Stripe Account:** Create a Stripe account and obtain API keys from [Stripe Dashboard](https://dashboard.stripe.com/).
 
-### Shopping Cart:
+### Setup Instructions
 
-- Create endpoints to add, remove, and update cart items.
-- Calculate cart totals and apply discounts.
+1. **Clone the Repository:**
 
-## Phase 2: Order Processing and Advanced Features
+   ```bash
+   git clone https://github.com/golova1337/NestJs-Postgres-Docker.git
+   ```
 
-### Order Placement and Management:
+2. **Navigate to the Project Directory:**
 
-- Develop endpoints to create and manage orders.
-- Handle order statuses.
-- Implement payment processing.
+   cd NestJs-Postgres-Docker
 
-### User Profiles and Reviews:
+3. **Install Dependencies:**
 
-- Allow users to view and update their profiles.
-- Implement product reviews and ratings.
+   npm install
 
-### Search Functionality:
+4. **Create .env file and fill it the following example .env.example:**
 
-- Integrate a search engine or use PostgreSQL's full-text search.
+   .env
 
-### Recommendations (Optional):
+5. **Run Docker:**
 
-- Use a recommendation engine to suggest products.
+   docker-compose up (docker-compose up -d)
 
-## Phase 3: Testing and Refinement
+6. **Start the Application:**
 
-### Testing:
+   npm run start
 
-- Write unit tests and integration tests.
+7. **Start the Testing:**
 
-### Performance Optimization:
+   npm run test:e2e
 
-- Identify and address performance bottlenecks.
-- Implement caching strategies.
+8. **Stope Docker:**
 
-### Security:
+   docker-compose down
 
-- Conduct a security review and fix vulnerabilities.
-- Implement security measures.
+
+## Additional Information
+
+- Documentation: For more details on each technology and how they integrate, refer to their respective official documentation.
+- Troubleshooting: If you encounter issues, check the logs using docker-compose logs or consult the documentation for each tool.

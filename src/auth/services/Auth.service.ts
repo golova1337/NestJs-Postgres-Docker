@@ -6,40 +6,75 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { JwtPayload } from 'src/common/strategies/accessToken.strategy';
 import { JwtCreationCommand } from '../commands/login/impl/jwt-cration.command';
 import { LogoutCommand } from '../commands/logout/impl/logout.command';
-import { OtpCreationAndSavingCommand } from '../commands/singIn/impl/otp-creation-and-saving.command';
-import { UserCreationCommand } from '../commands/singIn/impl/user-creation.command';
 import { OtpUpdatingAndSavingCommandr } from '../commands/update-otp/impl/otp-updating-and-saving.command';
 import { VerifyUserCommand } from '../commands/verify-user/impl/verify-user.command';
-import { SingInAuthDto } from '../dto/create/create-auth.dto';
+import { SingInAuthUserDto } from '../dto/create/create-auth.dto';
 import { LoginAuthDto } from '../dto/login/login-auth.dto';
-import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
 import { Otp } from '../entities/otp.entity';
 import { User } from '../entities/user.entity';
 import { LoginCheckingUserQuery } from '../queries/login/impl/login-checking-user.query';
 import { ReceivingAndCheckingJwtQuery } from '../queries/refresh/impl/receiving-and-checking-jwt.query';
 import { ReceivingAndCheckingOtpQuery } from '../queries/verify-otp/impl/receiving-and-checking.query';
 import { SendCodeService } from './sendCode.service';
+import { OtpCreationAndSavingCommand } from '../commands/singIn/user/impl/otp-creation-and-saving.command';
+import { UserCreationCommand } from '../commands/singIn/user/impl/user-creation.command';
+import { AdminCreationCommand } from '../commands/singIn/admin/impl/admin-creation.command';
+import { Roles } from '../enums/roles-enum';
+import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class AuthService {
-  logger = new EmojiLogger();
-
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly sendCodeService: SendCodeService,
+    private readonly logger: MyLogger,
   ) {}
 
-  async singIn(singInAuthDto: SingInAuthDto): Promise<User> {
+  async singInUser(singInAuthDto: SingInAuthUserDto): Promise<User> {
     const { registrationMethod, email, phone } = singInAuthDto;
     try {
       // creation new user
       const user: User = await this.commandBus.execute(
         new UserCreationCommand(singInAuthDto),
+      );
+
+      // OTP creating and saving  in DB
+      const otp = await this.commandBus.execute(
+        new OtpCreationAndSavingCommand(user.id),
+      );
+
+      //running a service that adds a massage to the massage queue
+      await this.sendCodeService.send({
+        registrationMethod,
+        email,
+        phone,
+        otp: otp.otp,
+      });
+
+      return user;
+    } catch (error) {
+      this.logger.error(`Error occurred: ${error.message}`);
+
+      if (error instanceof BadRequestException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Server Error');
+      }
+    }
+  }
+
+  async singInAdmin(singInAuthDto: SingInAuthUserDto): Promise<User> {
+    const { registrationMethod, email, phone } = singInAuthDto;
+
+    try {
+      // creation new user
+      const user: User = await this.commandBus.execute(
+        new AdminCreationCommand({ ...singInAuthDto, role: Roles.Admin }),
       );
 
       // OTP creating and saving  in DB

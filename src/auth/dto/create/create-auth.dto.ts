@@ -12,12 +12,12 @@ import {
   Matches,
   ValidateIf,
 } from 'class-validator';
-import { IsPasswordsMatching } from 'src/auth/decorators/constraint/singIn/isPasswordsMatching';
-import { SingInByEmail } from 'src/auth/decorators/constraint/singIn/signInByEmail';
-import { SingInByPhone } from 'src/auth/decorators/constraint/singIn/singInByPhone';
-import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
+import { IsPasswordsMatching } from '../../decorators/constraint/singIn/isPasswordsMatching';
+import { SingInByEmail } from '../../decorators/constraint/singIn/signInByEmail';
+import { SingInByPhone } from '../../decorators/constraint/singIn/singInByPhone';
+import { RegistrationMethod } from '../../enums/registMethod-enum';
 
-export class SingInAuthDto {
+export class SingInAuthUserDto {
   @ApiProperty({ required: false, example: 'John' })
   @IsOptional()
   @Transform(({ value }) => value.trim())

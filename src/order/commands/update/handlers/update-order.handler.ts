@@ -14,6 +14,7 @@ export class UpdateOrderCommandHandler
     const { status } = updateStatusOrderDto;
 
     const order = await this.orderRepository.findOne(id);
+
     if (!order) throw new NotFoundException('Not Found');
     if (this.isStatusTransitionAllowed(order.status, status)) {
       order.status = status;
@@ -27,6 +28,7 @@ export class UpdateOrderCommandHandler
     newStatus: OrderStatus,
   ): boolean {
     const validTransitions = {
+      [OrderStatus.Created]: [OrderStatus.Placed, OrderStatus.Cancelled],
       [OrderStatus.Placed]: [OrderStatus.Shipped, OrderStatus.Cancelled],
       [OrderStatus.Shipped]: [OrderStatus.Delivery, OrderStatus.Returned],
       [OrderStatus.Delivery]: [OrderStatus.Returned],

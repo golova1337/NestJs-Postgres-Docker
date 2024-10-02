@@ -5,10 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { File } from '../entities/file.entity';
 import { diskStorage } from 'multer';
 import { Size } from '../enum/multer-enum';
+import { UploadedFile } from '../interfaces/uploadedFiles.interface';
 
 @Injectable()
 export class FileService {
-  async deleteFiles(files: Array<Express.Multer.File> | File[]) {
+  async deleteFiles(files: Array<UploadedFile> | File[]) {
     await Promise.all(
       files.map(async (file) => {
         const path = join(file.destination, file.filename);
@@ -18,7 +19,7 @@ export class FileService {
   }
 
   async filterProperties(
-    files: Array<Express.Multer.File>,
+    files: Array<UploadedFile> | undefined,
     product_id: number,
     metadata?: object,
   ) {

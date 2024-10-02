@@ -1,14 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
-import { SingInAuthDto } from '../dto/create/create-auth.dto';
+import { SingInAuthUserDto } from '../dto/create/create-auth.dto';
 import { User } from '../entities/user.entity';
 import { RegistrationMethod } from '../enums/registMethod-enum';
+import { Roles } from '../enums/roles-enum';
 
 @Injectable()
 export class AuthRepository {
   constructor(@InjectModel(User) private userModel: typeof User) {}
-  async create(data: SingInAuthDto): Promise<User> {
+  async create(
+    data: SingInAuthUserDto | (SingInAuthUserDto & { role: Roles }),
+  ): Promise<User> {
     return this.userModel.create(data);
   }
 
@@ -39,6 +42,7 @@ export class AuthRepository {
       { where: { id: userId }, transaction },
     );
   }
+
   async getUserByRegistrationMethod(
     registrationMethod: RegistrationMethod,
     email: string,

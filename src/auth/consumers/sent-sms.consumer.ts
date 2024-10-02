@@ -1,44 +1,39 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
-import { Twilio } from 'twilio';
+import { NodemailerService } from 'src/infrastructure/nodemailer/nodemailer.service';
+import { CustomTwilioService } from 'src/infrastructure/twilio/twilio.service';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Processor('sent-sms')
 export class SentSmsConsumer extends WorkerHost {
-  private readonly logger = new EmojiLogger();
-  private twilioClient: Twilio;
-
   constructor(
-    private readonly mailService: MailerService,
     private readonly configService: ConfigService,
+    private readonly nodemailerService: NodemailerService,
+    private readonly customTwilioService: CustomTwilioService,
+    private readonly logger: MyLogger,
   ) {
     super();
-    this.twilioClient = new Twilio(
-      this.configService.get<string>('TWILIO_ACCOUNT_SID'),
-      this.configService.get<string>('TWILIO_AUTH_TOKEN'),
-    );
   }
 
   async process(job: Job<any, any, string>): Promise<any> {
     switch (job.name) {
       case 'email-sms':
         {
-          await this.mailService.sendMail({
-            from: process.env.MAIL_USER,
+          await this.nodemailerService.sendMail({
+            from: this.configService.get('nodemailer.user'),
             to: job.data.email,
             subject: 'Invitation',
-            html: `<p>Please verify your email by clicking the following link: <a href="${process.env.HOST}:${process.env.PORT}/${process.env.VERSION}/verify?code=${job.data.otp}">Verify Email</a></p>`,
+            html: `<p>Please verify your email by clicking the following link: <a href="${this.configService.get('HOST')}:${this.configService.get('PORT')}/${this.configService.get('VERSION')}/verify?code=${job.data.otp}">Verify Email</a></p>`,
           });
         }
         break;
       case 'phone-sms':
         {
-          await this.twilioClient.messages.create({
+          await this.customTwilioService.sendSMS({
             body: job.data.otp,
             to: job.data.phone,
-            from: process.env.TWILIO_NUMBERS,
+            from: this.configService.get('twilio.numbers'),
           });
         }
         break;
@@ -54,6 +49,12 @@ export class SentSmsConsumer extends WorkerHost {
   onActive(job: Job, prev) {
     this.logger.log(
       `Processing job ${job.id} of type ${job.name} with data ${job.data}... prec ${prev}`,
+    );
+  }
+  @OnWorkerEvent('completed')
+  onCompleted(job: Job, prev) {
+    this.logger.log(
+      `Processing job ${job.id} of type ${job.name} with data ${job.data}, completed `,
     );
   }
 

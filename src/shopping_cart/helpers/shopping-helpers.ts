@@ -1,12 +1,11 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CashManagerService } from 'src/infrastructure/cash-manager/cash-manager.service';
 import { ProductRepository } from 'src/product/repositories/product.repository';
 
 @Injectable()
 export class ShoppingCartHelper {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly cashManagerService: CashManagerService,
     private readonly productRepository: ProductRepository,
   ) {}
   async updateCartData(cart: any[], productMap: Map<number, any>) {
@@ -26,22 +25,7 @@ export class ShoppingCartHelper {
     }
   }
 
-  async getCacheCart(cacheKey: string) {
-    return this.cacheManager.get<{ cart: any[]; total: number }>(cacheKey);
-  }
-
-  async setCacheCart(
-    cacheKey: string,
-    cacheCart: { cart: any[]; total: number },
-  ) {
-    return this.cacheManager.set(cacheKey, cacheCart, 1000 * 60 * 60 * 24);
-  }
-
-  async delCacheCart(cacheKey: string) {
-    return await this.cacheManager.del(cacheKey);
-  }
-
-  searchProductinCart(cart, productId) {
+  searchProductInCart(cart, productId) {
     return cart.findIndex((item) => item.productId === productId);
   }
 
@@ -56,7 +40,7 @@ export class ShoppingCartHelper {
       // delete from the cart
       cart.splice(indexItem, 1);
       if (cart.length === 0) {
-        await this.cacheManager.del(cacheKey);
+        await this.cashManagerService.del(cacheKey);
         return;
       }
     } else {
@@ -78,12 +62,13 @@ export class ShoppingCartHelper {
     return;
   }
 
-  async calculateTotalPrice(cart): Promise<number> {
+  calculateTotalPrice(cart) {
     let totalPriceForCart = 0;
     for (let i = 0; i < cart.length; i++) {
       totalPriceForCart += cart[i]['totalPriceForItem'];
     }
-    return parseFloat(totalPriceForCart.toFixed(2));
+
+    return totalPriceForCart;
   }
 
   priceWithDiscount(product) {
@@ -97,9 +82,9 @@ export class ShoppingCartHelper {
 
     item['productId'] = productId;
     item['quantity'] = quantity;
-    item['price'] = Number(product.price);
+    item['price'] = product.price;
     item['discount'] = product.discount
-      ? Number(product.discount['discount_percent'])
+      ? product.discount['discount_percent']
       : null;
     item['priceWithDiscount'] = product.discount
       ? this.priceWithDiscount(product)

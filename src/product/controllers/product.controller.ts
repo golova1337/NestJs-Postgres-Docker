@@ -31,24 +31,19 @@ import {
   CommonResponse,
   CommonResponseDto,
 } from 'src/common/response/response.dto';
-import { CreatedCategoryDto } from '../dto/category/create/create-category.api.dto';
-import { CreateCategoryDto } from '../dto/category/create/create-category.dto';
-import { UpdateCategoryDto } from '../dto/category/update/update-category.dto';
-import { CreateProductDto } from '../dto/product/create/create-product.dto';
-import { CreateProductAnswerDto } from '../dto/product/create/openApi/create-product-answer.api.dto';
-import { FindAllQueriesDto } from '../dto/product/findAll/findAll-products.dto';
-import { FindAllAnswerDto } from '../dto/product/findAll/openApi/findAll-products.api.dto';
-import { FindOneDto } from '../dto/product/findOrUpdateOne/findOrUpdateOne.dto';
-import { RemoveProductsDto } from '../dto/product/remove/remove-product.dto';
-import { UpdateProductDto } from '../dto/product/update/update-product.dto';
-import { Category } from '../entities/category.entity';
+import { CreateProductDto } from '../dto/create/create-product.dto';
+import { CreateProductAnswerDto } from '../dto/create/openApi/create-product-answer.api.dto';
+import { RemoveProductsDto } from '../dto/remove/remove-product.dto';
+import { FindAllQueriesDto } from '../dto/findAll/findAll-products.dto';
+import { FindAllAnswerDto } from '../dto/findAll/openApi/findAll-products.api.dto';
+import { FindOneDto } from '../dto/findOrUpdateOne/findOrUpdateOne.dto';
+import { FindOneProduct } from '../dto/findOrUpdateOne/openApi/find-one-product.api';
+import { UpdateProductDto } from '../dto/update/update-product.dto';
 import { File } from '../entities/file.entity';
 import { Inventory } from '../entities/inventory.entity';
 import { Product } from '../entities/product.entity';
 import { FileService } from '../services/files.service';
 import { ProductService } from '../services/product.service';
-import { FindOneProduct } from '../dto/product/findOrUpdateOne/openApi/find-one-product.api';
-import { ApplyDiscountDto } from '../dto/product/applyDiscount/apply-discount.dto';
 
 @ApiBearerAuth()
 @ApiTags('Products')
@@ -59,76 +54,6 @@ import { ApplyDiscountDto } from '../dto/product/applyDiscount/apply-discount.dt
 @UseGuards(RolesGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
-
-  @Post('categories')
-  @Roles('admin')
-  @HttpCode(201)
-  @ApiOperation({ summary: 'Creation category', description: 'Only for admin' })
-  @ApiCommonResponse(CreatedCategoryDto)
-  async createCategory(
-    @Body() createCategoryDto: CreateCategoryDto,
-  ): Promise<CommonResponseDto<Category>> {
-    const result: Category =
-      await this.productService.createCategory(createCategoryDto);
-    return CommonResponse.succsessfully({ data: result });
-  }
-
-  @Get('categories')
-  @Roles('admin', 'user')
-  @HttpCode(200)
-  @ApiOperation({
-    summary: 'Receiving all category',
-    description: 'For admin and user',
-  })
-  @ApiCommonResponse(CreatedCategoryDto)
-  async findAllCategories(): Promise<CommonResponseDto<Category[]>> {
-    const result: Category[] = await this.productService.findAllCategories();
-    return CommonResponse.succsessfully({ data: result });
-  }
-
-  @Get('categories/:id')
-  @Roles('admin', 'user')
-  @HttpCode(200)
-  @ApiOperation({
-    summary: 'Receiving one category',
-    description: 'For admin and user',
-  })
-  @ApiCommonResponse(CreatedCategoryDto)
-  async findCategoryById(
-    @Param('id') id: number,
-  ): Promise<CommonResponseDto<Category | null>> {
-    const result: Category | null =
-      await this.productService.findCategoryById(id);
-    return CommonResponse.succsessfully({ data: result });
-  }
-
-  @Put('categories/:id')
-  @Roles('admin')
-  @HttpCode(204)
-  @ApiOperation({
-    summary: 'Update category',
-    description: 'Only for admin ',
-  })
-  async updateCategory(
-    @Param('id') id: number,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ): Promise<void> {
-    const result: [affectedCount: number] =
-      await this.productService.updateCategory(id, updateCategoryDto);
-    return;
-  }
-
-  @Delete('categories/:id')
-  @Roles('admin')
-  @HttpCode(204)
-  @ApiOperation({
-    summary: 'Remove category',
-    description: 'For admin only, you can delete multiple categories at once ',
-  })
-  async removeCategory(@Param('id') id: number): Promise<any> {
-    await this.productService.removeCategory(id);
-    return;
-  }
 
   @Delete(':id/files')
   @Roles('admin')
@@ -199,6 +124,16 @@ export class ProductController {
     return CommonResponse.succsessfully({ data: result });
   }
 
+  @Get('search')
+  @Roles('admin', 'user')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Receiving all products using full-text search',
+  })
+  async search(@Query('q') query: string) {
+    return this.productService.searchProducts(query);
+  }
+
   @Get(':id')
   @Roles('admin', 'user')
   @HttpCode(200)
@@ -211,19 +146,6 @@ export class ProductController {
     const result: Product | null =
       await this.productService.findProductById(id);
     return CommonResponse.succsessfully({ data: result });
-  }
-
-  @Post(':id/discount')
-  @Roles('admin')
-  @HttpCode(204)
-  async applyDiscount(
-    @Param() params: FindOneDto,
-    @Body() applyDiscountDto: ApplyDiscountDto,
-  ): Promise<void> {
-    const { discountId } = applyDiscountDto;
-    const { id } = params;
-    const result = await this.productService.applyDiscount(id, discountId);
-    return;
   }
 
   @Put(':id')
@@ -257,7 +179,7 @@ export class ProductController {
   })
   async removeProduct(@Body() body: RemoveProductsDto): Promise<void> {
     const { ids } = body;
-    await this.productService.removeProduct(ids);
+    await this.productService.removeProducts(ids);
     return;
   }
 }

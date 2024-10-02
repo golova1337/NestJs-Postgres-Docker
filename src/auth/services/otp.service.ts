@@ -1,19 +1,10 @@
-import { OtpRepository } from '../repositories/otp.repository';
-import { Otp } from '../entities/otp.entity';
-import { randomBytes } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
 
 @Injectable()
 export class OtpService {
-  constructor(private readonly otpRepository: OtpRepository) {}
-
-  async findOtp(code: string): Promise<Otp> {
-    const verificationCodes: Otp = await this.otpRepository.findOne(code);
-    return verificationCodes;
-  }
-
   async generateOtp(): Promise<string> {
-    const bytes = await randomBytes(3 * 2);
+    const bytes = randomBytes(3 * 2);
     return bytes
       .toString('base64')
       .replace(/[^a-zA-Z0-9]/g, '')

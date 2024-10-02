@@ -6,7 +6,7 @@ import {
   ValidatorConstraintInterface,
   registerDecorator,
 } from 'class-validator';
-import { SingInAuthDto } from 'src/auth/dto/create/create-auth.dto';
+import { SingInAuthUserDto } from '../../../dto/create/create-auth.dto';
 
 @ValidatorConstraint({ name: 'isPasswordsMatching', async: false })
 @Injectable()
@@ -14,7 +14,7 @@ export class IsPasswordsMatchingConstraint
   implements ValidatorConstraintInterface
 {
   validate(passwordRepeat: string, args: ValidationArguments): boolean {
-    const obj = args.object as SingInAuthDto;
+    const obj = args.object as SingInAuthUserDto;
     return obj.password === obj.passwordRepeat;
   }
 }

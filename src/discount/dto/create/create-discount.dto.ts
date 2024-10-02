@@ -3,10 +3,10 @@ import { Transform } from 'class-transformer';
 import {
   IsDefined,
   IsNotEmpty,
+  IsNumber,
   IsPositive,
   IsString,
-  Length,
-  Validate,
+  Length
 } from 'class-validator';
 
 export class CreateDiscountDto {
@@ -24,18 +24,14 @@ export class CreateDiscountDto {
   @IsNotEmpty()
   @IsString()
   @Length(10, 300)
-  disc: string;
+  desc: string;
 
   @ApiProperty()
   @IsDefined()
   @Transform(({ value }) => value.trim())
   @Transform(({ value }) => parseFloat(value))
   @IsNotEmpty()
-  @Validate(({ value }) => {
-    return (
-      typeof value === 'number' && /^\d+(\.\d{1,2})?$/.test(value.toString())
-    );
-  })
+  @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   discount_percent: number;
 }

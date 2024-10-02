@@ -1,10 +1,10 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  logger = new EmojiLogger();
+  constructor(private readonly logger: MyLogger) {}
   use(req: Request, res: Response, next: NextFunction) {
     this.logger.log(req.originalUrl);
 

@@ -1,15 +1,16 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { CreateDiscountDto } from '../dto/create/create-discount.dto';
 import { Discount } from '../entities/discount.entity';
 import { DiscountRepository } from '../repositories/discount.repository';
 import { UpdateDiscountDto } from '../dto/update/update-discount.dto';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class DiscountService {
-  logger = new EmojiLogger();
-
-  constructor(private readonly discountRepository: DiscountRepository) {}
+  constructor(
+    private readonly discountRepository: DiscountRepository,
+    private readonly logger: MyLogger,
+  ) {}
 
   async create(createDiscountDto: CreateDiscountDto): Promise<Discount> {
     return this.discountRepository.create(createDiscountDto).catch((error) => {

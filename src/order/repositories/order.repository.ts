@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Transaction } from 'sequelize';
 import { Order, OrderCreationAttributes } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
-import { Payment } from 'src/payment/entities/payment.entity';
+import { Payment } from 'src/infrastructure/payment/entities/payment.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/auth/entities/user.entity';
 

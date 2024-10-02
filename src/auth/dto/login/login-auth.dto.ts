@@ -12,9 +12,9 @@ import {
   Matches,
   ValidateIf,
 } from 'class-validator';
-import { LoginByEmail } from 'src/auth/decorators/constraint/login/loginByEmail';
-import { LoginByPhone } from 'src/auth/decorators/constraint/login/loginByPhone';
-import { RegistrationMethod } from 'src/auth/enums/registMethod-enum';
+import { LoginByEmail } from '../../decorators/constraint/login/loginByEmail';
+import { LoginByPhone } from '../../decorators/constraint/login/loginByPhone';
+import { RegistrationMethod } from '../../enums/registMethod-enum';
 
 export class LoginAuthDto {
   @ApiProperty({ required: false, example: 'john1995@gmail.com' })

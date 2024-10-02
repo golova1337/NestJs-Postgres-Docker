@@ -8,10 +8,10 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { User } from 'src/auth/entities/user.entity';
-import { Payment } from 'src/payment/entities/payment.entity';
 import { OrderStatus } from '../enum/order-status.enum';
+import { User } from '../../auth/entities/user.entity';
 import { OrderItem } from './order-item.entity';
+import { Payment } from '../../infrastructure/payment/entities/payment.entity';
 
 interface OrderAttributes {
   id: number;

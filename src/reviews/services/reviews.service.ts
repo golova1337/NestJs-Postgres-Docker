@@ -2,13 +2,15 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { UpdateReviewDto } from '../dto/update-review.dto';
 import { ReviewRepository } from '../repositories/review.repository';
-import { EmojiLogger } from 'src/common/logger/emojiLogger';
 import { Review } from '../entities/review.entity';
+import { MyLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class ReviewsService {
-  logger = new EmojiLogger();
-  constructor(private readonly reviewRepository: ReviewRepository) {}
+  constructor(
+    private readonly reviewRepository: ReviewRepository,
+    private readonly logger: MyLogger,
+  ) {}
   async create(
     createReviewDto: CreateReviewDto,
     productId: number,
