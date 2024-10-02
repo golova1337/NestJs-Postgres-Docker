@@ -4,7 +4,7 @@ import { OrderRepository } from 'src/order/repositories/order.repository';
 import { PaymentStatus } from 'src/infrastructure/payment/enum/payment-status.enum';
 import { PaymentSucceededEvent } from '../impl/payment-succeeded.event';
 import { CashManagerService } from 'src/infrastructure/cash-manager/cash-manager.service';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @EventsHandler(PaymentSucceededEvent)
 export class PaymentSucceededEventHandler

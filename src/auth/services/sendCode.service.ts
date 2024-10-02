@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class SendCodeService {

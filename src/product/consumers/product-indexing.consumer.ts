@@ -1,7 +1,7 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { Job } from 'bullmq';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Processor('elastic')
 export class ProductIndexingConsumer extends WorkerHost {

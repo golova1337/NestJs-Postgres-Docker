@@ -7,7 +7,7 @@ import { CreateAddressUserDto } from '../dto/create/create-address.dto';
 import { Address } from '../entities/address.entity';
 import { FindAllAddressQuery } from '../queries/address/findAllAddress/impl/recieve-address.query';
 import { FindOneAddressByIdQuery } from '../queries/address/findOneAddressById/impl/find-one-address-by-id.query';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class UserAddressService {

@@ -13,7 +13,7 @@ import { OrderItem } from '../entities/order-item.entity';
 import { Order } from '../entities/order.entity';
 import { GetAndCheckOrderItemQuery } from '../queries/create/impl/get-and-check-order-item.query';
 import { OrderRepository } from '../repositories/order.repository';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class OrderService {

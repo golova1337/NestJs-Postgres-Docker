@@ -2,7 +2,7 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrderRepository } from 'src/order/repositories/order.repository';
 import { PaymentStatus } from 'src/infrastructure/payment/enum/payment-status.enum';
 import { PaymentCanceledEvent } from '../impl/payment-canceled.event';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @EventsHandler(PaymentCanceledEvent)
 export class PaymentCanceledEventHandler

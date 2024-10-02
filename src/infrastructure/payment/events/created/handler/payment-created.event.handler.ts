@@ -5,7 +5,7 @@ import { OrderRepository } from 'src/order/repositories/order.repository';
 import { SequelizeTransactionRunner } from 'src/infrastructure/database/transaction/sequelize-transaction-runner.service';
 import { PaymentProvider } from 'src/infrastructure/payment/enum/provider.enum';
 import { PaymentStatus } from 'src/infrastructure/payment/enum/payment-status.enum';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @EventsHandler(PaymentCreatedEvent)
 export class PaymentCreatedEventHandler

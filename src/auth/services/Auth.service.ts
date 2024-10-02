@@ -24,7 +24,7 @@ import { UserCreationCommand } from '../commands/singIn/user/impl/user-creation.
 import { AdminCreationCommand } from '../commands/singIn/admin/impl/admin-creation.command';
 import { Roles } from '../enums/roles-enum';
 import { RepeatSendCode } from '../dto/rapeatCode/repeat-code.dto';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class AuthService {

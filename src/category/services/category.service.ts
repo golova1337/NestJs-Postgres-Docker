@@ -3,7 +3,7 @@ import { CreateCategoryDto } from 'src/category/dto/category/create/create-categ
 import { UpdateCategoryDto } from 'src/category/dto/category/update/update-category.dto';
 import { Category } from 'src/category/entities/category.entity';
 import { CategoryRepository } from '../repositories/category.repository';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class CategoryService {

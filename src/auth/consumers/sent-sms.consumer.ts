@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
 import { NodemailerService } from 'src/infrastructure/nodemailer/nodemailer.service';
 import { CustomTwilioService } from 'src/infrastructure/twilio/twilio.service';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Processor('sent-sms')
 export class SentSmsConsumer extends WorkerHost {

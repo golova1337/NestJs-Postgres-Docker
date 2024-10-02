@@ -5,7 +5,7 @@ import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
-import { MyLogger } from './logger/logger.service';
+import { MyLogger } from './infrastructure/logger/logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {

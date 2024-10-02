@@ -10,7 +10,7 @@ import { UpdateItemCommand } from '../commands/updateItem/impl/update-item.comma
 import { CreateCartItemDto } from '../dto/create-shopping_cart.dto';
 import { UpdateItemDto } from '../dto/update-shopping_cart.dto';
 import { SummaryQuery } from '../queries/summary/impl/summary.query';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class CartService {

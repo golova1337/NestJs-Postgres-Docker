@@ -3,7 +3,7 @@ import { CreateDiscountDto } from '../dto/create/create-discount.dto';
 import { Discount } from '../entities/discount.entity';
 import { DiscountRepository } from '../repositories/discount.repository';
 import { UpdateDiscountDto } from '../dto/update/update-discount.dto';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 
 @Injectable()
 export class DiscountService {

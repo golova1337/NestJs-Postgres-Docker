@@ -2,7 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Queue } from 'bullmq';
-import { MyLogger } from 'src/logger/logger.service';
+import { MyLogger } from 'src/infrastructure/logger/logger.service';
 import { CreateProductCommand } from '../commands/create/impl/create-product.command';
 import { RemoveProductImagesCommand } from '../commands/removeImages/impl/remove-product-images.command';
 import { UpdateProductCommand } from '../commands/update/impl/update-product.command';
