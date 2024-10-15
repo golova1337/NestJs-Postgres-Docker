@@ -43,6 +43,7 @@ export class OrderController {
 
   @Post()
   @Roles('admin', 'user')
+  @HttpCode(201)
   @ApiOperation({ summary: 'Creation a order' })
   async create(
     @CurrentUser('id') userId: number,
@@ -53,6 +54,7 @@ export class OrderController {
 
   @Get()
   @Roles('admin', 'user')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Recieve all your orders' })
   async findAll(
     @CurrentUser('id') userId: number,
@@ -63,6 +65,7 @@ export class OrderController {
 
   @Get(':id')
   @Roles('admin', 'user')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Recieve one your order' })
   async findOne(
     @Param('id') id: string,
@@ -73,6 +76,7 @@ export class OrderController {
 
   @Patch(':id')
   @Roles('admin')
+  @HttpCode(204)
   @HttpCode(204)
   @ApiOperation({ summary: 'order status update for administrator only' })
   async update(

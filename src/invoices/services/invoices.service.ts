@@ -28,7 +28,6 @@ export class InvoicesService {
       date: order.createdAt,
     };
 
-    console.log(__dirname);
 
     const invoicePath = `src/invoices/pdf_invoices/invoice_${order.id}.pdf`;
 

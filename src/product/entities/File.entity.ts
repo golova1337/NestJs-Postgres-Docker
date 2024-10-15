@@ -8,7 +8,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { Product } from './product.entity';
-import { MIME } from 'src/product/enum/multer-enum';
+import { MIME } from '../enum/multer-enum';
 
 export interface FileAttributes {
   id: string;
@@ -50,7 +50,7 @@ export class File extends Model<FileAttributes, FileCreationAttributes> {
   mimetype: MIME;
 
   @Column({
-    type: DataType.BIGINT({ unsigned: true }),
+    type: DataType.BIGINT,
     allowNull: false,
   })
   size: number;

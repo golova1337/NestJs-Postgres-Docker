@@ -25,10 +25,10 @@ export class Discount extends Model<
   @Column({ type: DataType.STRING(100), allowNull: false, unique: true })
   name: string;
 
-  @Column({ type: DataType.TEXT, allowNull: false })
-  disc: string;
+  @Column({ type: DataType.STRING({ length: 100000 }), allowNull: false })
+  desc: string;
 
-  @Column({ type: DataType.DECIMAL(4, 2), allowNull: false })
+  @Column({ type: DataType.DOUBLE, allowNull: false })
   discount_percent: number;
 
   @HasMany(() => Product, 'discount_id')

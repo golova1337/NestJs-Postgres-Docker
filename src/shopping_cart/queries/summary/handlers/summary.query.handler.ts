@@ -1,24 +1,22 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Cache } from 'cache-manager';
 import { ProductRepository } from 'src/product/repositories/product.repository';
 import { ShoppingCartHelper } from 'src/shopping_cart/helpers/shopping-helpers';
 import { SummaryQuery } from '../impl/summary.query';
+import { CashManagerService } from 'src/infrastructure/cash-manager/cash-manager.service';
 
 @QueryHandler(SummaryQuery)
 export class SummaryQueryHandler implements IQueryHandler<SummaryQuery> {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly shoppingCartHelper: ShoppingCartHelper,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly cashManagerService: CashManagerService,
   ) {}
   async execute(query: SummaryQuery): Promise<{ cart: any[]; total: number }> {
     const { userId } = query;
     const cacheKey = `cart:${userId}`;
 
     //get cart
-    let cacheCart = await this.shoppingCartHelper.getCacheCart(cacheKey);
+    let cacheCart = await this.cashManagerService.get(cacheKey);
 
     // check cart
     let cart = cacheCart?.cart;
@@ -41,7 +39,7 @@ export class SummaryQueryHandler implements IQueryHandler<SummaryQuery> {
     // // count totaly price
     cacheCart.total = await this.shoppingCartHelper.calculateTotalPrice(cart);
 
-    await this.shoppingCartHelper.setCacheCart(cacheKey, cacheCart);
+    await this.cashManagerService.set(cacheKey, cacheCart, 1000 * 60 * 60 * 24);
 
     return cacheCart;
   }

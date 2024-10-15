@@ -9,11 +9,11 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { File } from './file.entity';
-import { Category } from './category.entity';
-import { Discount } from 'src/discount/entities/discount.entity';
+import { Category } from '../../category/entities/category.entity';
 import { Inventory } from './inventory.entity';
-import { OrderItem } from 'src/order/entities/order-item.entity';
-import { Review } from 'src/reviews/entities/review.entity';
+import { OrderItem } from '../../order/entities/order-item.entity';
+import { Review } from '../../reviews/entities/review.entity';
+import { Discount } from '../../discount/entities/discount.entity';
 
 export interface ProductAttributes {
   id: number;
@@ -48,7 +48,7 @@ export class Product extends Model<
   @Column({ type: DataType.STRING(100), allowNull: false })
   name: string;
 
-  @Column({ type: DataType.TEXT, allowNull: false })
+  @Column({ type: DataType.STRING({ length: 100000 }), allowNull: false })
   desc: string;
 
   @Column({ type: DataType.STRING(100), allowNull: false })
@@ -66,7 +66,7 @@ export class Product extends Model<
   @Column({ type: DataType.INTEGER, allowNull: true })
   discount_id?: number;
 
-  @Column({ type: DataType.DECIMAL(10, 2), allowNull: false })
+  @Column({ type: DataType.DOUBLE, allowNull: false })
   price: number;
 
   @BelongsTo(() => Discount)

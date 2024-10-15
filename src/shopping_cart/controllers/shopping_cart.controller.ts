@@ -16,7 +16,7 @@ import {
   ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiOperation,
-  ApiTags
+  ApiTags,
 } from '@nestjs/swagger';
 import { ApiCommonResponse } from 'src/common/decorators/apiSchemas/commonResponse';
 import { Roles } from 'src/common/decorators/roles/roles.decorator';

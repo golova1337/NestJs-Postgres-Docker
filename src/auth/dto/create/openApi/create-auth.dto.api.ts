@@ -1,7 +1,7 @@
 import { OmitType } from '@nestjs/swagger';
-import { SingInAuthDto } from '../create-auth.dto';
+import { SingInAuthUserDto } from '../create-auth.dto';
 
-export class SingInAuthAnswerDto extends OmitType(SingInAuthDto, [
+export class SingInAuthAnswerDto extends OmitType(SingInAuthUserDto, [
   'password',
   'passwordRepeat',
 ] as const) {}
